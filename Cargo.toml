@@ -1,0 +1,12 @@
+[package]
+name = "tabby"
+version = "0.1.0"
+edition = "2021"
+authors = ["Diego Garcia Rodriguez del Campo <A01700203@tec.mx>"]
+
+[build-dependencies] 
+lalrpop = "0.19.7"
+
+[dependencies]
+lalrpop-util = { version = "0.19.7", features = ["lexer"] }
+regex = "1"
