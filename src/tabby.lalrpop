@@ -51,7 +51,7 @@ pub FUNCTION: String = {
 };
 
 pub PARAMS: String = {
-    <_v:(<TYPE> <ID> ",")*> (<TYPE> <ID>)? => "ok".to_string(),
+    <_v:(<TYPE> <ID> ",")*> <e:(<TYPE> <ID>)?> => "ok".to_string(),
 };
 
 pub TABBY: String = {
@@ -84,7 +84,7 @@ pub VARIABLE: String = {
 };
 
 pub CALL: String = {
-    <id:ID> "(" <_v:(<TYPE> <ID> ",")*> <t:(<TYPE> <ID>)?> ")" => id,
+    <id:ID> "(" <_v:(EXP ",")*> EXP? ")" => id,
 };
 
 pub CICLEW: String = {
@@ -150,6 +150,7 @@ pub FACT: String = {
     <i:INT> => i.to_string(),
     <f:FLOAT> => f.to_string(),
     <b:BOOL> => b.to_string(),
+    <c:CHAR> => c.to_string(),
     <c:CALL> => c,
     <v:VARIABLE> => v,
 }

@@ -1,0 +1,17 @@
+Program tabbyMatrixRead;
+
+Var Int i, j, n;
+Var Arr Char mat[50][50];
+
+Tabby() {
+    Read(n);
+    i = 1;
+    For(i <= n; i = i + 1) {
+        j = 1;
+        For(j <= n; j = j + 1) {
+            Read(mat[i][j]);
+        }
+    }
+
+    Write("Matrix was read and stored in memory");
+}
