@@ -294,11 +294,14 @@ mod tests {
         assert!(tabby::PARAMSParser::new().parse("").is_ok());
         assert!(tabby::PARAMSParser::new().parse("Int var").is_ok());
         assert!(tabby::PARAMSParser::new()
-            .parse("Int varOne, Float varTwo, Char varThree, Bool varFour")
+            .parse("Int varOne, Arr Float varTwo, Char varThree, Arr Bool varFour")
             .is_ok());
+        assert!(tabby::PARAMSParser::new().parse("Arr Int var").is_ok());
+
         assert!(tabby::PARAMSParser::new().parse("var").is_err());
         assert!(tabby::PARAMSParser::new().parse("Void var").is_err());
         assert!(tabby::PARAMSParser::new().parse("Arr var").is_err());
+        assert!(tabby::PARAMSParser::new().parse("Arr Void var").is_err());
     }
 
     #[test]

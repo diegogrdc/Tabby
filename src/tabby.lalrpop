@@ -51,7 +51,7 @@ pub FUNCTION: String = {
 };
 
 pub PARAMS: String = {
-    <_v:(<TYPE> <ID> ",")*> <e:(<TYPE> <ID>)?> => "ok".to_string(),
+    <_v:("Arr"? <TYPE> <ID> ",")*> <e:("Arr"? <TYPE> <ID>)?> => "ok".to_string(),
 };
 
 pub TABBY: String = {
