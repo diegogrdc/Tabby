@@ -2,6 +2,8 @@
 
 Repositorio para el Lenguaje Tabby, un lenguaje enfocado en estadística implementando en Rust, desarrollado para la clase de Compiladores en el Semestre Ene-Jun 2022
 
+<p align="center"><img src="./tabby.png" width="300"/></p>
+
 ## Avances
 
 En esta seccción, se describen los avances conforme fueron entregados
