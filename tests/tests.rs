@@ -64,4 +64,15 @@ mod tests {
             .is_err());
         assert!(tabby::STRINGLITParser::new().parse(r#""no"pe""#).is_err());
     }
+    #[test]
+    fn test_fact_parsing() {
+        assert!(tabby::FACTParser::new().parse("12").is_ok());
+        assert!(tabby::FACTParser::new().parse("-37.5").is_ok());
+        assert!(tabby::FACTParser::new().parse("True").is_ok());
+        assert!(tabby::FACTParser::new().parse("function()").is_ok());
+        assert!(tabby::FACTParser::new().parse("variable").is_ok());
+        assert!(tabby::FACTParser::new().parse("((wow))").is_ok());
+
+        assert!(tabby::FACTParser::new().parse("((wow)").is_err());
+    }
 }
