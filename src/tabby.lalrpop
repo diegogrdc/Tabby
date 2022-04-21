@@ -1,9 +1,7 @@
 // Imports 
-
 use std::str::FromStr;
 
 // Grammar 
-
 grammar;
 
 // Non Terminals 
@@ -116,7 +114,6 @@ pub COMP: String = {
 pub TYPE: String = {
     "Int" => "Int".to_string(),
     "Float" => "Float".to_string(),
-    "Char" => "Char".to_string(),
     "Bool" => "Bool".to_string(),
 };
 
@@ -150,7 +147,6 @@ pub FACT: String = {
     <i:INT> => i.to_string(),
     <f:FLOAT> => f.to_string(),
     <b:BOOL> => b.to_string(),
-    <c:CHAR> => c.to_string(),
     <c:CALL> => c,
     <v:VARIABLE> => v,
 }
@@ -162,8 +158,6 @@ pub ID: String = <id:r"[a-z][a-zA-Z]*"> => String::from(id);
 pub INT: i32 = <i:r"[+-]?[0-9]+"> => i32::from_str(i).unwrap();
 
 pub FLOAT: f64 =  <f:r"[+-]?[0-9]+\.[0-9]+"> => f64::from_str(f).unwrap();
-
-pub CHAR: char = <c:r"['].[']"> => c.chars().nth(1).unwrap();
 
 pub BOOL : bool = <b:r"True|False"> => if b == "True" { true } else { false };
 

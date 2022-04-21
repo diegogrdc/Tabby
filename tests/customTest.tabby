@@ -1,7 +1,11 @@
 Program tabbyMatrixRead;
 
 Var Int i, j, n;
-Var Arr Char mat[50][50];
+Var Arr Int mat[50][50];
+
+Fn Void statsMedian(Arr Int arr) {
+    Return arr[1][1];
+}
 
 Tabby() {
     Read(n);
@@ -13,5 +17,5 @@ Tabby() {
         }
     }
 
-    Write("Matrix was read and stored in memory");
+    Write("Matrix was read and stored in memory", statsMedian(mat));
 }

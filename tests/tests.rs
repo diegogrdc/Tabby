@@ -36,16 +36,6 @@ mod tests {
     }
 
     #[test]
-    fn test_char_parsing() {
-        assert!(tabby::CHARParser::new().parse("'a'").is_ok());
-        assert!(tabby::CHARParser::new().parse("'1'").is_ok());
-        assert!(tabby::CHARParser::new().parse("'?'").is_ok());
-        assert!(tabby::CHARParser::new().parse("'nope'").is_err());
-        assert!(tabby::CHARParser::new().parse("'nope2").is_err());
-        assert!(tabby::CHARParser::new().parse("!").is_err());
-    }
-
-    #[test]
     fn test_bool_parsing() {
         assert!(tabby::BOOLParser::new().parse("True").is_ok());
         assert!(tabby::BOOLParser::new().parse("False").is_ok());
@@ -72,7 +62,6 @@ mod tests {
         assert!(tabby::FACTParser::new().parse("function()").is_ok());
         assert!(tabby::FACTParser::new().parse("variable").is_ok());
         assert!(tabby::FACTParser::new().parse("((wow))").is_ok());
-        assert!(tabby::FACTParser::new().parse("'a'").is_ok());
 
         assert!(tabby::FACTParser::new().parse("((wow)").is_err());
         assert!(tabby::FACTParser::new()
@@ -142,11 +131,11 @@ mod tests {
     fn test_type_parsing() {
         assert!(tabby::TYPEParser::new().parse("Int").is_ok());
         assert!(tabby::TYPEParser::new().parse("Float").is_ok());
-        assert!(tabby::TYPEParser::new().parse("Char").is_ok());
         assert!(tabby::TYPEParser::new().parse("Bool").is_ok());
         assert!(tabby::TYPEParser::new().parse("int").is_err());
         assert!(tabby::TYPEParser::new().parse("float").is_err());
         assert!(tabby::TYPEParser::new().parse("char").is_err());
+        assert!(tabby::TYPEParser::new().parse("Char").is_err());
         assert!(tabby::TYPEParser::new().parse("bool").is_err());
     }
 
@@ -218,7 +207,7 @@ mod tests {
         assert!(tabby::CALLParser::new().parse("function()").is_ok());
         assert!(tabby::CALLParser::new().parse("function(12)").is_ok());
         assert!(tabby::CALLParser::new()
-            .parse("fn(12 * 5, True, id, 'a')")
+            .parse("fn(12 * 5, True, id)")
             .is_ok());
 
         assert!(tabby::CALLParser::new().parse("function(,)").is_err());
@@ -266,7 +255,6 @@ mod tests {
             .parse("var = functionCall()")
             .is_ok());
         assert!(tabby::ASSIGNMENTParser::new().parse("var = True").is_ok());
-        assert!(tabby::ASSIGNMENTParser::new().parse("var = 'c'").is_ok());
         assert!(tabby::ASSIGNMENTParser::new()
             .parse(r#"var = "str""#)
             .is_err());
@@ -294,7 +282,7 @@ mod tests {
         assert!(tabby::PARAMSParser::new().parse("").is_ok());
         assert!(tabby::PARAMSParser::new().parse("Int var").is_ok());
         assert!(tabby::PARAMSParser::new()
-            .parse("Int varOne, Arr Float varTwo, Char varThree, Arr Bool varFour")
+            .parse("Int varOne, Arr Float varTwo, Arr Bool varFour")
             .is_ok());
         assert!(tabby::PARAMSParser::new().parse("Arr Int var").is_ok());
 
@@ -346,7 +334,6 @@ mod tests {
         assert!(tabby::VARDECParser::new()
             .parse("Var Int id, idTwo, idThree;")
             .is_ok());
-        assert!(tabby::VARDECParser::new().parse("Var Char char;").is_ok());
         assert!(tabby::VARDECParser::new()
             .parse("Var Arr Bool bitmask[15];")
             .is_ok());
@@ -378,11 +365,11 @@ mod tests {
             .parse("Var Int one; Var Bool two;")
             .is_ok());
         assert!(tabby::VARDECSParser::new()
-            .parse("Var Int one; Var Arr Bool two[12]; Var Arr Char three[1][2];")
+            .parse("Var Int one; Var Arr Bool two[12]; Var Arr Float three[1][2];")
             .is_ok());
 
         assert!(tabby::VARDECSParser::new()
-            .parse("Var Int one, Var Char two;")
+            .parse("Var Int one, Var Bool two;")
             .is_err());
     }
 
