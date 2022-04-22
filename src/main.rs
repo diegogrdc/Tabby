@@ -14,7 +14,7 @@ fn main() {
     match res {
         Ok(my_ast) => {
             println!("\n    Tabby Program was correctly parsed!\n\n");
-            println!("{:#?}", my_ast)
+            println!("{:?}", my_ast)
         }
         Err(error) => println!(
             "\n\nParsing Problem parsing Tabby file:\n\n    {:?}\n\n",

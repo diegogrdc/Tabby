@@ -3,7 +3,6 @@ lalrpop_mod!(pub tabby); // synthesized by LALRPOP
 #[cfg(test)]
 mod tests {
     use super::*;
-    /*
     #[test]
     fn test_id_parsing() {
         assert!(tabby::IDParser::new().parse("idCorrect").is_ok());
@@ -419,5 +418,368 @@ mod tests {
             .parse(r#"Program helloWorld; Fn Void tabby() { Write("Hello World!"); }"#)
             .is_err());
     }
-    */
+
+    // AST Testing
+    #[test]
+    fn test_id_ast() {
+        assert_eq!(
+            tabby::IDParser::new().parse("idCorrect").unwrap(),
+            "idCorrect"
+        );
+        assert_eq!(tabby::IDParser::new().parse("validID").unwrap(), "validID");
+    }
+    #[test]
+    fn test_int_ast() {
+        assert_eq!(tabby::INTParser::new().parse("123").unwrap(), 123i32);
+        assert_eq!(tabby::INTParser::new().parse("+999").unwrap(), 999i32);
+        assert_eq!(tabby::INTParser::new().parse("-2").unwrap(), -2i32);
+        assert_eq!(tabby::INTParser::new().parse("0").unwrap(), 0i32);
+    }
+    #[test]
+    fn test_float_ast() {
+        assert_eq!(tabby::FLOATParser::new().parse("123.5").unwrap(), 123.5f64);
+        assert_eq!(tabby::FLOATParser::new().parse("+0.015").unwrap(), 0.015f64);
+        assert_eq!(
+            tabby::FLOATParser::new().parse("-12.333").unwrap(),
+            -12.333f64
+        );
+    }
+
+    #[test]
+    fn test_bool_ast() {
+        assert_eq!(tabby::BOOLParser::new().parse("True").unwrap(), true);
+        assert_eq!(tabby::BOOLParser::new().parse("False").unwrap(), false);
+    }
+    #[test]
+    fn test_stringlit_ast() {
+        assert_eq!(
+            tabby::STRINGLITParser::new()
+                .parse(r#""string literal""#)
+                .unwrap(),
+            "string literal"
+        );
+        assert_eq!(tabby::STRINGLITParser::new().parse(r#""""#).unwrap(), "");
+    }
+    #[test]
+    fn test_fact_ast() {
+        assert_eq!(
+            format!("{:?}", tabby::FACTParser::new().parse("(12)").unwrap()),
+            "Parentheses(Texp([Gexp([Mexp(Term(Fact(Int(12))))])]))"
+        );
+    }
+    #[test]
+    fn test_term_ast() {
+        assert_eq!(
+            format!("{:?}", tabby::TERMParser::new().parse("12 * 15").unwrap()),
+            "Mul(Fact(Int(12)), Int(15))"
+        );
+        assert_eq!(
+            format!("{:?}", tabby::TERMParser::new().parse("0.1 / var").unwrap()),
+            r#"Div(Fact(Float(0.1)), Variable(Id("var")))"#
+        );
+    }
+    #[test]
+    fn test_mexp_ast() {
+        assert_eq!(
+            format!("{:?}", tabby::MEXPParser::new().parse("12 + 2.1").unwrap()),
+            "Sum(Term(Fact(Int(12))), Fact(Float(2.1)))"
+        );
+        assert_eq!(
+            format!("{:?}", tabby::MEXPParser::new().parse("12 - 2.1").unwrap()),
+            "Sub(Term(Fact(Int(12))), Fact(Float(2.1)))"
+        );
+    }
+    #[test]
+    fn test_gexp_ast() {
+        assert_eq!(
+            format!("{:?}", tabby::GEXPParser::new().parse("12 > 5").unwrap()),
+            "Comp(Term(Fact(Int(12))), Greater, Term(Fact(Int(5))))"
+        );
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::GEXPParser::new().parse("12 != 4.123").unwrap()
+            ),
+            "Comp(Term(Fact(Int(12))), NotEqual, Term(Fact(Float(4.123))))"
+        );
+    }
+    #[test]
+    fn test_texp_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::TEXPParser::new().parse("True And False").unwrap()
+            ),
+            "Gexp([Mexp(Term(Fact(Bool(true)))), Mexp(Term(Fact(Bool(false))))])"
+        );
+    }
+    #[test]
+    fn test_exp_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::EXPParser::new().parse("True Or False").unwrap()
+            ),
+            "Texp([Gexp([Mexp(Term(Fact(Bool(true))))]), Gexp([Mexp(Term(Fact(Bool(false))))])])"
+        );
+    }
+    #[test]
+    fn test_type_ast() {
+        assert_eq!(
+            format!("{:?}", tabby::TYPEParser::new().parse("Int").unwrap()),
+            "Int"
+        );
+        assert_eq!(
+            format!("{:?}", tabby::TYPEParser::new().parse("Float").unwrap()),
+            "Float"
+        );
+        assert_eq!(
+            format!("{:?}", tabby::TYPEParser::new().parse("Bool").unwrap()),
+            "Bool"
+        );
+    }
+
+    #[test]
+    fn test_comp_ast() {
+        assert_eq!(
+            format!("{:?}", tabby::COMPParser::new().parse(">").unwrap()),
+            "Greater"
+        );
+        assert_eq!(
+            format!("{:?}", tabby::COMPParser::new().parse("<").unwrap()),
+            "Smaller"
+        );
+    }
+    #[test]
+    fn test_return_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::RETURNParser::new().parse("Return 12").unwrap()
+            ),
+            "Return(Texp([Gexp([Mexp(Term(Fact(Int(12))))])]))"
+        );
+    }
+
+    #[test]
+    fn test_cond_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::CONDParser::new().parse("If(True) {}").unwrap()
+            ),
+            "If(Texp([Gexp([Mexp(Term(Fact(Bool(true))))])]), Block(Statutes([])))"
+        );
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::CONDParser::new()
+                    .parse("If(True) {} Else {}")
+                    .unwrap()
+            ),
+            "IfElse(Texp([Gexp([Mexp(Term(Fact(Bool(true))))])]), Block(Statutes([])), Block(Statutes([])))"
+        );
+    }
+    #[test]
+    fn test_ciclef_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::CICLEFParser::new()
+                    .parse("For(i; i = 1) {}")
+                    .unwrap()
+            ),
+            "For(Texp([Gexp([Mexp(Term(Fact(Variable(Id(\"i\")))))])]), Assign(Id(\"i\"), Texp([Gexp([Mexp(Term(Fact(Int(1))))])])), Block(Statutes([])))"
+        );
+    }
+
+    #[test]
+    fn test_ciclew_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::CICLEWParser::new().parse("While(True) {}").unwrap()
+            ),
+            "While(Texp([Gexp([Mexp(Term(Fact(Bool(true))))])]), Block(Statutes([])))"
+        );
+    }
+
+    #[test]
+    fn test_call_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::CALLParser::new().parse("fn(12, id)").unwrap()
+            ),
+            "Call(\"fn\", [Texp([Gexp([Mexp(Term(Fact(Int(12))))])]), Texp([Gexp([Mexp(Term(Fact(Variable(Id(\"id\")))))])])])"
+        );
+    }
+    #[test]
+    fn test_variable_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::VARIABLEParser::new().parse("var[1][0]").unwrap()
+            ),
+            "Mat(\"var\", Texp([Gexp([Mexp(Term(Fact(Int(1))))])]), Texp([Gexp([Mexp(Term(Fact(Int(0))))])]))"
+        );
+    }
+
+    #[test]
+    fn test_print_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::PRINTParser::new().parse("Write(12, True)").unwrap()
+            ),
+            "Print(ExpPV(Texp([Gexp([Mexp(Term(Fact(Int(12))))])]), Exp(Texp([Gexp([Mexp(Term(Fact(Bool(true))))])]))))"
+        );
+    }
+
+    #[test]
+    fn test_assignment_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::ASSIGNMENTParser::new()
+                    .parse("var = 12 * 4")
+                    .unwrap()
+            ),
+            "Assign(Id(\"var\"), Texp([Gexp([Mexp(Term(Mul(Fact(Int(12)), Int(4))))])]))"
+        );
+    }
+
+    #[test]
+    fn test_read_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::READParser::new().parse("Read(a[i][j])").unwrap()
+            ),
+            "Read(Mat(\"a\", Texp([Gexp([Mexp(Term(Fact(Variable(Id(\"i\")))))])]), Texp([Gexp([Mexp(Term(Fact(Variable(Id(\"j\")))))])])))"
+        );
+    }
+
+    #[test]
+    fn test_tabby_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::TABBYParser::new().parse("Tabby() {}").unwrap()
+            ),
+            "Tabby(Block(Statutes([])))"
+        );
+    }
+    #[test]
+    fn test_params_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::PARAMSParser::new()
+                    .parse("Int varOne, Arr Float varTwo")
+                    .unwrap()
+            ),
+            "ParamAnd(Int, \"varOne\", ArrParam(Float, \"varTwo\"))"
+        );
+    }
+
+    #[test]
+    fn test_function_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::FUNCTIONParser::new()
+                    .parse("Fn Void f() {}")
+                    .unwrap()
+            ),
+            "FnVoid(\"f\", Block(Statutes([])))"
+        );
+    }
+
+    #[test]
+    fn test_functions_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::FUNCTIONSParser::new()
+                    .parse("Fn Int a(Int p) {} Fn Void b() {}")
+                    .unwrap()
+            ),
+            "Fns([FnParams(Int, \"a\", Param(Int, \"p\"), Block(Statutes([]))), FnVoid(\"b\", Block(Statutes([])))])"
+        );
+    }
+
+    #[test]
+    fn test_vardec_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::VARDECParser::new()
+                    .parse("Var Arr Int map[10][10];")
+                    .unwrap()
+            ),
+            "Mat(Int, \"map\", 10, 10)"
+        );
+    }
+
+    #[test]
+    fn test_vardecs_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::VARDECSParser::new()
+                    .parse("Var Int one; Var Bool two;")
+                    .unwrap()
+            ),
+            "Vardecs([Vars(Int, [\"one\"]), Vars(Bool, [\"two\"])])"
+        );
+    }
+
+    #[test]
+    fn test_statute_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::STATUTEParser::new().parse("fibonacci();").unwrap()
+            ),
+            "Call(Call(\"fibonacci\", []))"
+        );
+    }
+
+    #[test]
+    fn test_statutes_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::STATUTESParser::new()
+                    .parse("Read(i); Write(i);")
+                    .unwrap()
+            ),
+            "Statutes([Read(Read(Id(\"i\"))), Print(Print(Exp(Texp([Gexp([Mexp(Term(Fact(Variable(Id(\"i\")))))])]))))])"
+        );
+    }
+
+    #[test]
+    fn test_block_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::BLOCKParser::new().parse("{ Return True; }").unwrap()
+            ),
+            "Block(Statutes([Return(Return(Texp([Gexp([Mexp(Term(Fact(Bool(true))))])])))]))"
+        );
+    }
+
+    #[test]
+    fn test_program_ast() {
+        assert_eq!(
+            format!(
+                "{:?}",
+                tabby::PROGRAMParser::new()
+                    .parse(r#"Program helloWorld; Tabby() { Write("Hello World!"); }"#)
+                    .unwrap()
+            ),
+            "Program(\"helloWorld\", Vardecs([]), Fns([]), Tabby(Block(Statutes([Print(Print(StrLit(\"Hello World!\")))]))))"
+        );
+    }
 }

@@ -11,15 +11,15 @@ pub PROGRAM: Box<ast::Program> = {
     "Program" <id:ID> ";" <v:VARDECS> <f:FUNCTIONS> <t:TABBY> => Box::new(ast::Program::Program(id, v, f, t)),
 };
 
-BLOCK: Box<ast::Block> = {
+pub BLOCK: Box<ast::Block> = {
     "{" <s:STATUTES> "}" => Box::new(ast::Block::Block(s)),
 };
 
-STATUTES: Box<ast::Statutes>  = {
+pub STATUTES: Box<ast::Statutes>  = {
     <v:(<STATUTE>)*> => Box::new(ast::Statutes::Statutes(v)),
 };
 
-STATUTE: Box<ast::Statute>  = {
+pub STATUTE: Box<ast::Statute>  = {
     <a:ASSIGNMENT> ";" => Box::new(ast::Statute::Assignment(a)),
     <c:CALL> ";" => Box::new(ast::Statute::Call(c)),
     <r:READ> ";" => Box::new(ast::Statute::Read(r)),
@@ -30,11 +30,11 @@ STATUTE: Box<ast::Statute>  = {
     <c:COND> => Box::new(ast::Statute::Cond(c)),
 };
 
-VARDECS: Box<ast::Vardecs>  = {
+pub VARDECS: Box<ast::Vardecs>  = {
     <v:(<VARDEC>)*> => Box::new(ast::Vardecs::Vardecs(v)),
 };
 
-VARDEC: Box<ast::Vardec>  = {
+pub VARDEC: Box<ast::Vardec>  = {
     "Var" <t:TYPE> <mut v:(<ID> ",")*> <id:ID> ";" => {
         v.push(id);
         Box::new(ast::Vardec::Vars(t, v))
@@ -43,54 +43,54 @@ VARDEC: Box<ast::Vardec>  = {
     "Var" "Arr" <t:TYPE> <id:ID> "[" <d1:INT> "]" "[" <d2:INT> "]" ";" => Box::new(ast::Vardec::Mat(t, id, d1, d2)),
 };
 
-FUNCTIONS: Box<ast::Functions> = {
+pub FUNCTIONS: Box<ast::Functions> = {
     <v:(<FUNCTION>)*> => Box::new(ast::Functions::Fns(v)),
 };
 
-FUNCTION: Box<ast::Function> = {
+pub FUNCTION: Box<ast::Function> = {
     "Fn" <t:TYPE> <id:ID> "(" <p:PARAMS> ")" <b:BLOCK> => Box::new(ast::Function::FnParams(t, id, p, b)),
     "Fn" "Void" <id:ID> "(" <p:PARAMS> ")" <b:BLOCK> => Box::new(ast::Function::FnVoidParams(id, p, b)),
     "Fn" <t:TYPE> <id:ID> "(" ")" <b:BLOCK> => Box::new(ast::Function::Fn(t, id, b)),
     "Fn" "Void" <id:ID> "(" ")" <b:BLOCK> => Box::new(ast::Function::FnVoid(id, b)),
 };
 
-PARAMS: Box<ast::Params> = {
+pub PARAMS: Box<ast::Params> = {
     <t:TYPE> <id:ID> => Box::new(ast::Params::Param(t, id)),
     "Arr" <t:TYPE> <id:ID> => Box::new(ast::Params::ArrParam(t, id)),
     <t:TYPE> <id:ID> "," <p:PARAMS> => Box::new(ast::Params::ParamAnd(t, id, p)),
     "Arr" <t:TYPE> <id:ID> "," <p:PARAMS> => Box::new(ast::Params::ArrParamAnd(t, id, p)),
 };
 
-TABBY: Box<ast::Tabby> = {
+pub TABBY: Box<ast::Tabby> = {
     "Tabby" "(" ")" <b:BLOCK> => Box::new(ast::Tabby::Tabby(b)),
 };
 
-READ: Box<ast::Read> = {
+pub READ: Box<ast::Read> = {
     "Read" "(" <v:VARIABLE> ")" => Box::new(ast::Read::Read(v)),
 };
 
-ASSIGNMENT: Box<ast::Assignment> = {
+pub ASSIGNMENT: Box<ast::Assignment> = {
     <v:VARIABLE> "=" <e:EXP> => Box::new(ast::Assignment::Assign(v, e)),
 };
 
-PRINT: Box<ast::Print> = {
+pub PRINT: Box<ast::Print> = {
     "Write" "(" <p:PRINTVARS> ")" => Box::new(ast::Print::Print(p)),
 };
 
-PRINTVARS: Box<ast::PrintVars> = {
+pub PRINTVARS: Box<ast::PrintVars> = {
     <e:EXP> => Box::new(ast::PrintVars::Exp(e)),
     <s:STRINGLIT> => Box::new(ast::PrintVars::StrLit(s)),
     <e:EXP> "," <p:PRINTVARS> => Box::new(ast::PrintVars::ExpPV(e, p)),
     <s:STRINGLIT> "," <p:PRINTVARS> => Box::new(ast::PrintVars::StrLitPV(s, p)),
 }
 
-VARIABLE: Box<ast::Variable> = {
+pub VARIABLE: Box<ast::Variable> = {
     <id:ID> => Box::new(ast::Variable::Id(id)),
     <id:ID> "[" <e:EXP> "]" => Box::new(ast::Variable::Arr(id, e)),
     <id:ID> "[" <e:EXP> "]" "[" <e2:EXP> "]" => Box::new(ast::Variable::Mat(id, e, e2)),
 };
 
-CALL: Box<ast::Call> = {
+pub CALL: Box<ast::Call> = {
     <id:ID> "(" <mut v:(<EXP> ",")*> <e:EXP?> ")" => {
         if let Some(v2) = e {
             v.push(v2);
@@ -99,24 +99,24 @@ CALL: Box<ast::Call> = {
     },
 };
 
-CICLEW: Box<ast::Ciclew> = {
+pub CICLEW: Box<ast::Ciclew> = {
     "While" "(" <e:EXP> ")" <b:BLOCK> => Box::new(ast::Ciclew::While(e, b)),
 };
 
-CICLEF: Box<ast::Ciclef> = {
+pub CICLEF: Box<ast::Ciclef> = {
     "For" "(" <e:EXP> ";" <a:ASSIGNMENT> ")" <b:BLOCK> => Box::new(ast::Ciclef::For(e, a, b)),
 };
 
-COND: Box<ast::Cond> = {
+pub COND: Box<ast::Cond> = {
     "If" "(" <e:EXP> ")" <b:BLOCK> => Box::new(ast::Cond::If(e, b)),
     "If" "(" <e:EXP> ")" <b:BLOCK> "Else" <b2:BLOCK> => Box::new(ast::Cond::IfElse(e, b, b2)),
 };
 
-RETURN: Box<ast::Return> = {
+pub RETURN: Box<ast::Return> = {
     "Return" <e:EXP> => Box::new(ast::Return::Return(e)),
 };
 
-COMP: ast::Comp = {
+pub COMP: ast::Comp = {
     ">" => ast::Comp::Greater,
     "<" => ast::Comp::Smaller,
     ">=" => ast::Comp::GreaterEq,
@@ -125,44 +125,44 @@ COMP: ast::Comp = {
     "==" => ast::Comp::Equal,
 };
 
-TYPE: ast::Type = {
+pub TYPE: ast::Type = {
     "Int" => ast::Type::Int,
     "Float" => ast::Type::Float,
     "Bool" => ast::Type::Bool,
 };
 
-EXP: Box<ast::Exp> = {
+pub EXP: Box<ast::Exp> = {
     <mut v:(<TEXP> "Or")*> <t:TEXP> => {
         v.push(t);
         Box::new(ast::Exp::Texp(v))
     },
 };
 
-TEXP: Box<ast::Texp> = {
+pub TEXP: Box<ast::Texp> = {
     <mut v:(<GEXP> "And")*> <t:GEXP> => {
         v.push(t);
         Box::new(ast::Texp::Gexp(v))
     },
 };
 
-GEXP: Box<ast::Gexp> = {
+pub GEXP: Box<ast::Gexp> = {
     <m:MEXP> => Box::new(ast::Gexp::Mexp(m)),
     <m:MEXP> <c:COMP> <m2:MEXP> => Box::new(ast::Gexp::Comp(m, c, m2)), 
 };
 
-MEXP: Box<ast::Mexp> = {
+pub MEXP: Box<ast::Mexp> = {
     <t:TERM> => Box::new(ast::Mexp::Term(t)),
     <m:MEXP> "+" <t:TERM> => Box::new(ast::Mexp::Sum(m, t)),
     <m:MEXP> "-" <t:TERM> => Box::new(ast::Mexp::Sub(m, t)),
 };
 
-TERM: Box<ast::Term> = {
+pub TERM: Box<ast::Term> = {
     <f:FACT> => Box::new(ast::Term::Fact(f)),
     <t:TERM> "*" <f:FACT> => Box::new(ast::Term::Mul(t, f)),
     <t:TERM> "/" <f:FACT> => Box::new(ast::Term::Div(t, f)),
 };
 
-FACT: Box<ast::Fact> = {
+pub FACT: Box<ast::Fact> = {
     "(" <e:EXP> ")" => Box::new(ast::Fact::Parentheses(e)),
     <i:INT> => Box::new(ast::Fact::Int(i)),
     <f:FLOAT> => Box::new(ast::Fact::Float(f)),
@@ -173,15 +173,15 @@ FACT: Box<ast::Fact> = {
 
 // Regex Terms ( TERMINALS )
 
-ID: String = <id:r"[a-z][a-zA-Z]*"> => String::from(id);
+pub ID: String = <id:r"[a-z][a-zA-Z]*"> => String::from(id);
 
-INT: i32 = <i:r"[+-]?[0-9]+"> => i32::from_str(i).unwrap();
+pub INT: i32 = <i:r"[+-]?[0-9]+"> => i32::from_str(i).unwrap();
 
-FLOAT: f64 =  <f:r"[+-]?[0-9]+\.[0-9]+"> => f64::from_str(f).unwrap();
+pub FLOAT: f64 =  <f:r"[+-]?[0-9]+\.[0-9]+"> => f64::from_str(f).unwrap();
 
-BOOL : bool = <b:r"True|False"> => if b == "True" { true } else { false };
+pub BOOL : bool = <b:r"True|False"> => if b == "True" { true } else { false };
 
-STRINGLIT: String = {
+pub STRINGLIT: String = {
     <s:r#""[^"]*""#> => {
         let mut c = s.chars();
         c.next();
