@@ -1,167 +1,187 @@
 // Imports 
 use std::str::FromStr;
+use crate::ast;
 
 // Grammar 
 grammar;
 
 // Non Terminals 
 
-pub PROGRAM: String = {
-    "Program" <id:ID> ";" <v:VARDECS> <f:FUNCTIONS> <t:TABBY> => "ok".to_string(),
+pub PROGRAM: Box<ast::Program> = {
+    "Program" <id:ID> ";" <v:VARDECS> <f:FUNCTIONS> <t:TABBY> => Box::new(ast::Program::Program(id, v, f, t)),
 };
 
-pub BLOCK: String = {
-    "{" <s:STATUTES> "}" => s,
+BLOCK: Box<ast::Block> = {
+    "{" <s:STATUTES> "}" => Box::new(ast::Block::Block(s)),
 };
 
-pub STATUTES: String  = {
-    <_v:(<STATUTE>)*> => "ok".to_string(),
+STATUTES: Box<ast::Statutes>  = {
+    <v:(<STATUTE>)*> => Box::new(ast::Statutes::Statutes(v)),
 };
 
-pub STATUTE: String  = {
-    <a:ASSIGNMENT> ";" => a,
-    <c:CALL> ";" => c,
-    <r:READ> ";" => r,
-    <p:PRINT> ";"=> p,
-    <r:RETURN> ";" => r,
-    <w:CICLEW> => w,
-    <f:CICLEF> => f,
-    <c:COND> => c,
+STATUTE: Box<ast::Statute>  = {
+    <a:ASSIGNMENT> ";" => Box::new(ast::Statute::Assignment(a)),
+    <c:CALL> ";" => Box::new(ast::Statute::Call(c)),
+    <r:READ> ";" => Box::new(ast::Statute::Read(r)),
+    <p:PRINT> ";"=> Box::new(ast::Statute::Print(p)),
+    <r:RETURN> ";" => Box::new(ast::Statute::Return(r)),
+    <w:CICLEW> => Box::new(ast::Statute::Ciclew(w)),
+    <f:CICLEF> => Box::new(ast::Statute::Ciclef(f)),
+    <c:COND> => Box::new(ast::Statute::Cond(c)),
 };
 
-pub VARDECS: String  = {
-    <_v:(VARDEC)*> => "ok".to_string(),
+VARDECS: Box<ast::Vardecs>  = {
+    <v:(<VARDEC>)*> => Box::new(ast::Vardecs::Vardecs(v)),
 };
 
-pub VARDEC: String  = {
-    "Var" TYPE <_v:(ID ",")*> <id:ID> ";" => id,
-    "Var" "Arr" TYPE <id:ID> "[" INT "]" ";" => id,
-    "Var" "Arr" TYPE <id:ID> "[" INT "]" "[" INT "]" ";" => id,
+VARDEC: Box<ast::Vardec>  = {
+    "Var" <t:TYPE> <mut v:(<ID> ",")*> <id:ID> ";" => {
+        v.push(id);
+        Box::new(ast::Vardec::Vars(t, v))
+    },
+    "Var" "Arr" <t:TYPE> <id:ID> "[" <d1:INT> "]" ";" => Box::new(ast::Vardec::Arr(t, id, d1)),
+    "Var" "Arr" <t:TYPE> <id:ID> "[" <d1:INT> "]" "[" <d2:INT> "]" ";" => Box::new(ast::Vardec::Mat(t, id, d1, d2)),
 };
 
-pub FUNCTIONS: String = {
-    <_v:(<FUNCTION>)*> => "ok".to_string(),
+FUNCTIONS: Box<ast::Functions> = {
+    <v:(<FUNCTION>)*> => Box::new(ast::Functions::Fns(v)),
 };
 
-pub FUNCTION: String = {
-    "Fn" TYPE <id:ID> "(" PARAMS ")" BLOCK => id,
-    "Fn" "Void" <id:ID> "(" PARAMS ")" BLOCK => id,
+FUNCTION: Box<ast::Function> = {
+    "Fn" <t:TYPE> <id:ID> "(" <p:PARAMS> ")" <b:BLOCK> => Box::new(ast::Function::FnParams(t, id, p, b)),
+    "Fn" "Void" <id:ID> "(" <p:PARAMS> ")" <b:BLOCK> => Box::new(ast::Function::FnVoidParams(id, p, b)),
+    "Fn" <t:TYPE> <id:ID> "(" ")" <b:BLOCK> => Box::new(ast::Function::Fn(t, id, b)),
+    "Fn" "Void" <id:ID> "(" ")" <b:BLOCK> => Box::new(ast::Function::FnVoid(id, b)),
 };
 
-pub PARAMS: String = {
-    <_v:("Arr"? <TYPE> <ID> ",")*> <e:("Arr"? <TYPE> <ID>)?> => "ok".to_string(),
+PARAMS: Box<ast::Params> = {
+    <t:TYPE> <id:ID> => Box::new(ast::Params::Param(t, id)),
+    "Arr" <t:TYPE> <id:ID> => Box::new(ast::Params::ArrParam(t, id)),
+    <t:TYPE> <id:ID> "," <p:PARAMS> => Box::new(ast::Params::ParamAnd(t, id, p)),
+    "Arr" <t:TYPE> <id:ID> "," <p:PARAMS> => Box::new(ast::Params::ArrParamAnd(t, id, p)),
 };
 
-pub TABBY: String = {
-    "Tabby" "(" ")" <b:BLOCK> => b,
+TABBY: Box<ast::Tabby> = {
+    "Tabby" "(" ")" <b:BLOCK> => Box::new(ast::Tabby::Tabby(b)),
 };
 
-pub READ: String = {
-    "Read" "(" <v:VARIABLE> ")" => v,
+READ: Box<ast::Read> = {
+    "Read" "(" <v:VARIABLE> ")" => Box::new(ast::Read::Read(v)),
 };
 
-pub ASSIGNMENT: String = {
-    <v:VARIABLE> "=" EXP => v,
+ASSIGNMENT: Box<ast::Assignment> = {
+    <v:VARIABLE> "=" <e:EXP> => Box::new(ast::Assignment::Assign(v, e)),
 };
 
-pub PRINT: String = {
-    "Write" "(" <p:PRINTVARS> ")" => p,
+PRINT: Box<ast::Print> = {
+    "Write" "(" <p:PRINTVARS> ")" => Box::new(ast::Print::Print(p)),
 };
 
-pub PRINTVARS: String = {
-    <e:EXP> => e,
-    <s:STRINGLIT> => s,
-    <e:EXP> "," PRINTVARS => e,
-    <s:STRINGLIT> "," PRINTVARS => s,
+PRINTVARS: Box<ast::PrintVars> = {
+    <e:EXP> => Box::new(ast::PrintVars::Exp(e)),
+    <s:STRINGLIT> => Box::new(ast::PrintVars::StrLit(s)),
+    <e:EXP> "," <p:PRINTVARS> => Box::new(ast::PrintVars::ExpPV(e, p)),
+    <s:STRINGLIT> "," <p:PRINTVARS> => Box::new(ast::PrintVars::StrLitPV(s, p)),
 }
 
-pub VARIABLE: String = {
-    <id:ID> => id,
-    <id:ID> "[" EXP "]" => id,
-    <id:ID> "[" EXP "]" "[" EXP "]" => id,
+VARIABLE: Box<ast::Variable> = {
+    <id:ID> => Box::new(ast::Variable::Id(id)),
+    <id:ID> "[" <e:EXP> "]" => Box::new(ast::Variable::Arr(id, e)),
+    <id:ID> "[" <e:EXP> "]" "[" <e2:EXP> "]" => Box::new(ast::Variable::Mat(id, e, e2)),
 };
 
-pub CALL: String = {
-    <id:ID> "(" <_v:(EXP ",")*> EXP? ")" => id,
+CALL: Box<ast::Call> = {
+    <id:ID> "(" <mut v:(<EXP> ",")*> <e:EXP?> ")" => {
+        if let Some(v2) = e {
+            v.push(v2);
+        }
+        Box::new(ast::Call::Call(id, v))
+    },
 };
 
-pub CICLEW: String = {
-    "While" "(" EXP ")" <b:BLOCK> => b,
+CICLEW: Box<ast::Ciclew> = {
+    "While" "(" <e:EXP> ")" <b:BLOCK> => Box::new(ast::Ciclew::While(e, b)),
 };
 
-pub CICLEF: String = {
-    "For" "(" EXP ";" <a:ASSIGNMENT> ")" BLOCK => a,
+CICLEF: Box<ast::Ciclef> = {
+    "For" "(" <e:EXP> ";" <a:ASSIGNMENT> ")" <b:BLOCK> => Box::new(ast::Ciclef::For(e, a, b)),
 };
 
-pub COND: String = {
-    "If" "(" EXP ")" <b:BLOCK> => b,
-    "If" "(" EXP ")" <b:BLOCK> "Else" BLOCK => b,
+COND: Box<ast::Cond> = {
+    "If" "(" <e:EXP> ")" <b:BLOCK> => Box::new(ast::Cond::If(e, b)),
+    "If" "(" <e:EXP> ")" <b:BLOCK> "Else" <b2:BLOCK> => Box::new(ast::Cond::IfElse(e, b, b2)),
 };
 
-pub RETURN: String = {
-    "Return" <e:EXP> => e,
+RETURN: Box<ast::Return> = {
+    "Return" <e:EXP> => Box::new(ast::Return::Return(e)),
 };
 
-pub COMP: String = {
-    ">" => ">".to_string(),
-    "<" => "<".to_string(),
-    ">=" => ">=".to_string(),
-    "<=" => "<=".to_string(),
-    "!=" => "!=".to_string(),
-    "==" => "==".to_string(),
+COMP: ast::Comp = {
+    ">" => ast::Comp::Greater,
+    "<" => ast::Comp::Smaller,
+    ">=" => ast::Comp::GreaterEq,
+    "<=" => ast::Comp::SmallerEq,
+    "!=" => ast::Comp::NotEqual,
+    "==" => ast::Comp::Equal,
 };
 
-pub TYPE: String = {
-    "Int" => "Int".to_string(),
-    "Float" => "Float".to_string(),
-    "Bool" => "Bool".to_string(),
+TYPE: ast::Type = {
+    "Int" => ast::Type::Int,
+    "Float" => ast::Type::Float,
+    "Bool" => ast::Type::Bool,
 };
 
-pub EXP: String = {
-    <_v:(TEXP "Or")*> <t:TEXP> => t,
+EXP: Box<ast::Exp> = {
+    <mut v:(<TEXP> "Or")*> <t:TEXP> => {
+        v.push(t);
+        Box::new(ast::Exp::Texp(v))
+    },
 };
 
-pub TEXP: String = {
-    <_v:(GEXP "And")*> <t:GEXP> => t,
+TEXP: Box<ast::Texp> = {
+    <mut v:(<GEXP> "And")*> <t:GEXP> => {
+        v.push(t);
+        Box::new(ast::Texp::Gexp(v))
+    },
 };
 
-pub GEXP: String = {
-    <m:MEXP> => m,
-    <m:MEXP> COMP MEXP => m, 
+GEXP: Box<ast::Gexp> = {
+    <m:MEXP> => Box::new(ast::Gexp::Mexp(m)),
+    <m:MEXP> <c:COMP> <m2:MEXP> => Box::new(ast::Gexp::Comp(m, c, m2)), 
 };
 
-pub MEXP: String = {
-    <t:TERM> => t,
-    MEXP "+" <t:TERM> => t,
-    MEXP "-" <t:TERM> => t,
+MEXP: Box<ast::Mexp> = {
+    <t:TERM> => Box::new(ast::Mexp::Term(t)),
+    <m:MEXP> "+" <t:TERM> => Box::new(ast::Mexp::Sum(m, t)),
+    <m:MEXP> "-" <t:TERM> => Box::new(ast::Mexp::Sub(m, t)),
 };
 
-pub TERM: String = {
-    <f:FACT> => f,
-    TERM "*" <f:FACT> => f,
-    TERM "/" <f:FACT> => f,
+TERM: Box<ast::Term> = {
+    <f:FACT> => Box::new(ast::Term::Fact(f)),
+    <t:TERM> "*" <f:FACT> => Box::new(ast::Term::Mul(t, f)),
+    <t:TERM> "/" <f:FACT> => Box::new(ast::Term::Div(t, f)),
 };
 
-pub FACT: String = {
-    "(" <e:EXP> ")" => e,
-    <i:INT> => i.to_string(),
-    <f:FLOAT> => f.to_string(),
-    <b:BOOL> => b.to_string(),
-    <c:CALL> => c,
-    <v:VARIABLE> => v,
+FACT: Box<ast::Fact> = {
+    "(" <e:EXP> ")" => Box::new(ast::Fact::Parentheses(e)),
+    <i:INT> => Box::new(ast::Fact::Int(i)),
+    <f:FLOAT> => Box::new(ast::Fact::Float(f)),
+    <b:BOOL> => Box::new(ast::Fact::Bool(b)),
+    <c:CALL> => Box::new(ast::Fact::Call(c)),
+    <v:VARIABLE> => Box::new(ast::Fact::Variable(v)),
 }
 
 // Regex Terms ( TERMINALS )
 
-pub ID: String = <id:r"[a-z][a-zA-Z]*"> => String::from(id);
+ID: String = <id:r"[a-z][a-zA-Z]*"> => String::from(id);
 
-pub INT: i32 = <i:r"[+-]?[0-9]+"> => i32::from_str(i).unwrap();
+INT: i32 = <i:r"[+-]?[0-9]+"> => i32::from_str(i).unwrap();
 
-pub FLOAT: f64 =  <f:r"[+-]?[0-9]+\.[0-9]+"> => f64::from_str(f).unwrap();
+FLOAT: f64 =  <f:r"[+-]?[0-9]+\.[0-9]+"> => f64::from_str(f).unwrap();
 
-pub BOOL : bool = <b:r"True|False"> => if b == "True" { true } else { false };
+BOOL : bool = <b:r"True|False"> => if b == "True" { true } else { false };
 
-pub STRINGLIT: String = {
+STRINGLIT: String = {
     <s:r#""[^"]*""#> => {
         let mut c = s.chars();
         c.next();

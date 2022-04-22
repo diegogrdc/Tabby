@@ -3,6 +3,7 @@ name = "tabby"
 version = "0.1.0"
 edition = "2021"
 authors = ["Diego Garcia Rodriguez del Campo <A01700203@tec.mx>"]
+build = "build.rs"
 
 [build-dependencies] 
 lalrpop = "0.19.7"
