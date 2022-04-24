@@ -10,6 +10,7 @@ pub mod ast_evaluator;
 use ast_evaluator::AstEvaluator;
 pub mod dir_func;
 pub mod dir_var;
+pub mod semantic_cube;
 pub mod tests;
 pub mod tipo;
 
