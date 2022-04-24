@@ -12,7 +12,8 @@ En esta seccción, se describen los avances conforme fueron entregados
 
 Para este avance, se creó el analizador léxico y sintáctico para el lenguaje Tabby. Para implementarlo, se utilizó la herramienta LALRPOP. La implementación de esta herramienta y su documentación se encuentran en los siguiente links:
 
-> https://github.com/lalrpop/lalrpop > https://lalrpop.github.io/lalrpop/index.html
+> https://github.com/lalrpop/lalrpop 
+> https://lalrpop.github.io/lalrpop/index.html
 
 La gramática utilizada se puede encontrar el el documento `Propuesta Inicial Compilador`, en el folder `./docs/`
 En este documento se muestran los diagramas de sintaxis de la gramática, para definir cada elemento de esta.
@@ -24,3 +25,17 @@ LALRPOP tiene un analizador léxico predeterminado que ignora los espacios en bl
 Al momento de la entrega, el analizador sintáctico está completamente probado y completamente funcional para detectar si un programa está escrito correctamente en Tabby o no. Las pruebas se pueden encontrar en el folder `./tests/`. Las pruebas implementadas están en el archivo `tests.rs`. Además, existe un archivo llamado `customTest.tabby`, que puede ser modificado libremente para probar el analizador. Si se desea correr el analizador, se debe de utilizar el comando `cargo run`. El output nos dirá si el programa es correcto, o si se encontró un error de sintaxis en este. Este comando funciona al momento de entregar el avance 1, pero podría cambiar en avances futuros la manera de probarlo.
 
 En futuras entregas, se agrega el análisis semántico y toda la lógica que falta en el compilador, pues este solo es el primer acercamiento a todo lo que se busca lograr
+
+### Avance 2: Semántica Básica de Variables y Cubo Semántico
+
+
+Para este avance, se pidió la implementación de dos componentes principales. La primera era la semántica básica de variables, lo cual incluye la creación de una tabla de funciones, en las que almacenamos información de nombres y tipos de funciones, además de información de sus variables locales (estas se almacenan utilizando otra tabla completamente dentro de este objeto). De esta manera, podemos detectar errores semánticos como múltiple declaración de identificadores, tanto para variables globales o locales, como para nombres de funciones. 
+El otro componente del avance fue la creación de un "cubo semántico". Esta estructura nos ayudará a saber que tipo de operaciones son válidas entre diferentes tipos de datos, y también nos permite saber el tipo de resultado que se obtendrá de la operación.
+
+
+Lo primero que se creó en este avance fue un AST (Abstract Syntax Tree). Con la herramienta utilizada para el analizador léxico y sintáctico no era posible integrar código a la par. Por esto, se tuvo que generar una estructura AST como resultado del Parser. Teniendo este AST, es posible ahora si hacer el análisis semántico, y se hace de una manera mucho más estructurada.
+Esta parte generó el código en los archivos `ast.rs` y `ast_evaluator.rs`, los cuales representan la estructura usada para el AST, y la evaluación de esta, en dónde podemos incluir puntos neurálgicos e información relevante para el análisis. 
+Además, se crearon casos de prueba en el archivo `tests.rs` (que cambió su directorio a `src/`), todos terminando con el sufijo `ast`. Se pueden probar con el comando `cargo test ast`, y evalúan que las estructuras almacenadas por el AST sean las esperadas, desde los elementos pequeños y separados, hasta los programas completos. 
+
+
+Después de implementar el AST, ahora si fue posible generar los directorios de funciones y variables. Para esto se crearon los archivos `dir_func.rs` y `dir_var.rs`, los cuales tienen estructuras y métodos utilizados para el almacenamiento de la información extraída del programa de forma estructurada. No solo se crearon estas estructuras, sino que se agregaron los puntos neuralgicos necesarios para la creación de estas estructuras y la adición de datos a estas, así como la detección de problemas de declaración múltiple en el mismo alcance. Además de la creación, se agregaron casos de prueba al módulo `test` (en el mismo archivo `tests.rs`), con el prefijo `dir
