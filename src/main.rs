@@ -1,3 +1,4 @@
+// Imports
 #[macro_use]
 extern crate lalrpop_util;
 
@@ -7,8 +8,12 @@ use std::fs;
 pub mod ast;
 pub mod ast_evaluator;
 use ast_evaluator::AstEvaluator;
+pub mod dir_func;
+pub mod dir_var;
 pub mod tests;
+pub mod tipo;
 
+// Main File
 fn main() {
     // Parse file
     let filename = "./tests/customTest.tabby";
@@ -17,16 +22,15 @@ fn main() {
     // Use LALRPOP parser to generate AST
     let res = tabby::PROGRAMParser::new().parse(&contents);
     if let Err(error) = res {
-        println!(
-            "\n\nParsing Problem parsing Tabby file:\n\n    {:?}\n\n",
-            error
-        );
-        return;
+        panic!("\nERROR: Problem parsing Tabby file:\n\n    {:?}\n", error);
     }
-    // Get ast by unwrapping valid sResult<>
+    // Get ast by unwrapping valid Result<>
     let my_ast = res.unwrap();
 
     // Evaluate AST
-    let evaluator = AstEvaluator::new();
+    let mut evaluator = AstEvaluator::new();
     evaluator.eval_program(my_ast);
+
+    // For debugging purposes, we print the directory function
+    println!("{:#?}", evaluator.dir_func);
 }

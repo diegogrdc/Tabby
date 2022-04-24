@@ -1,0 +1,7 @@
+Program testSameParam;
+
+Fn Void fn() {}
+
+Fn Int fn(Int param) {}
+
+Tabby() {}

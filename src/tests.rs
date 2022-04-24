@@ -2,8 +2,11 @@ lalrpop_mod!(pub tabby); // synthesized by LALRPOP
 
 #[cfg(test)]
 mod tests {
-    /*
     use super::*;
+    use crate::ast_evaluator::AstEvaluator;
+    use crate::tipo::Tipo;
+    use std::fs;
+    /*
     #[test]
     fn test_id_parsing() {
         assert!(tabby::IDParser::new().parse("idCorrect").is_ok());
@@ -783,5 +786,115 @@ mod tests {
             "Program(\"helloWorld\", Vardecs([]), Fns([]), Tabby(Block(Statutes([Print(Print(StrLit(\"Hello World!\")))]))))"
         );
     }
+
     */
+
+    #[test]
+    fn test_dirs_ok_1() {
+        let filename = "./tests/dirs_ok_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+
+        // Assert global scope and vars
+        let program_name = "testAllFunctionalities";
+        assert!(evaluator.dir_func.get(program_name).is_some());
+        let glob_dir = evaluator.dir_func.get(program_name).unwrap();
+        assert_eq!(glob_dir.tipo, Tipo::Program);
+        let glob_vars = &glob_dir.dir_var;
+
+        assert!(glob_vars.get("intOne").is_some());
+        assert_eq!(glob_vars.get("intOne").unwrap().tipo, Tipo::Int);
+        assert!(glob_vars.get("intTwo").is_some());
+        assert_eq!(glob_vars.get("intTwo").unwrap().tipo, Tipo::Int);
+        assert!(glob_vars.get("bool").is_some());
+        assert_eq!(glob_vars.get("bool").unwrap().tipo, Tipo::Bool);
+        assert!(glob_vars.get("float").is_some());
+        assert_eq!(glob_vars.get("float").unwrap().tipo, Tipo::Float);
+
+        assert!(glob_vars.get("arrInt").is_some());
+        assert_eq!(glob_vars.get("arrInt").unwrap().tipo, Tipo::ArrInt(50));
+        assert!(glob_vars.get("arrFloat").is_some());
+        assert_eq!(glob_vars.get("arrFloat").unwrap().tipo, Tipo::ArrFloat(20));
+        assert!(glob_vars.get("arrBool").is_some());
+        assert_eq!(glob_vars.get("arrBool").unwrap().tipo, Tipo::ArrBool(10));
+
+        assert!(glob_vars.get("matInt").is_some());
+        assert_eq!(glob_vars.get("matInt").unwrap().tipo, Tipo::MatInt(50, 10));
+        assert!(glob_vars.get("matFloat").is_some());
+        assert_eq!(
+            glob_vars.get("matFloat").unwrap().tipo,
+            Tipo::MatFloat(20, 3)
+        );
+        assert!(glob_vars.get("matBool").is_some());
+        assert_eq!(glob_vars.get("matBool").unwrap().tipo, Tipo::MatBool(10, 4));
+
+        // Assert functions without parameters
+        assert!(evaluator.dir_func.get("fnVoid").is_some());
+        assert_eq!(evaluator.dir_func.get("fnVoid").unwrap().tipo, Tipo::Void);
+
+        assert!(evaluator.dir_func.get("fnBool").is_some());
+        assert_eq!(evaluator.dir_func.get("fnBool").unwrap().tipo, Tipo::Bool);
+
+        // Assert functions with parameters
+        assert!(evaluator.dir_func.get("fnIntParams").is_some());
+        let fn_dir = &evaluator.dir_func.get("fnIntParams").unwrap();
+        assert_eq!(fn_dir.tipo, Tipo::Int);
+        assert!(fn_dir.dir_var.get("pInt").is_some());
+        assert_eq!(fn_dir.dir_var.get("pInt").unwrap().tipo, Tipo::Int);
+        assert!(fn_dir.dir_var.get("pBool").is_some());
+        assert_eq!(fn_dir.dir_var.get("pBool").unwrap().tipo, Tipo::Bool);
+        assert!(fn_dir.dir_var.get("pFloat").is_some());
+        assert_eq!(fn_dir.dir_var.get("pFloat").unwrap().tipo, Tipo::Float);
+        assert!(fn_dir.dir_var.get("intOne").is_none());
+
+        assert!(evaluator.dir_func.get("fnVoidParams").is_some());
+        let fn_dir = &evaluator.dir_func.get("fnVoidParams").unwrap();
+        assert_eq!(fn_dir.tipo, Tipo::Void);
+        assert!(fn_dir.dir_var.get("arrInt").is_some());
+        assert_eq!(fn_dir.dir_var.get("arrInt").unwrap().tipo, Tipo::ParamRef);
+        assert!(fn_dir.dir_var.get("arrBool").is_some());
+        assert_eq!(fn_dir.dir_var.get("arrBool").unwrap().tipo, Tipo::ParamRef);
+        assert!(fn_dir.dir_var.get("arrFloat").is_some());
+        assert_eq!(fn_dir.dir_var.get("arrFloat").unwrap().tipo, Tipo::ParamRef);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_dirs_fail_1() {
+        let filename = "./tests/dirs_fail_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_dirs_fail_2() {
+        let filename = "./tests/dirs_fail_2.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_dirs_fail_3() {
+        let filename = "./tests/dirs_fail_3.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
 }

@@ -1,0 +1,6 @@
+Program testSameGlobal;
+
+Var Int same;
+Var Bool same;
+
+Tabby() {}

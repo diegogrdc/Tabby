@@ -1,0 +1,26 @@
+Program testAllFunctionalities;
+
+Var Int intOne, intTwo;
+Var Bool bool;
+Var Float float;
+
+Var Arr Int arrInt[50];
+Var Arr Float arrFloat[20];
+Var Arr Bool arrBool[10];
+
+Var Arr Int matInt[50][10];
+Var Arr Float matFloat[20][3];
+Var Arr Bool matBool[10][4];
+
+Fn Void fnVoid() {}
+
+Fn Bool fnBool() {}
+
+Fn Int fnIntParams(Int pInt, Bool pBool, Float pFloat) {
+
+}
+
+Fn Void fnVoidParams(Arr Int arrInt, Arr Bool arrBool, ArrFloat arrFloat) {}
+
+Tabby() {
+}
