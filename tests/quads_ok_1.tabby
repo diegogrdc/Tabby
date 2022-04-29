@@ -1,0 +1,25 @@
+Program testQuadsSimple;
+
+Var Int a;
+Var Float b;
+Var Bool c;
+
+Fn Int fn() {}
+
+Tabby() {
+    a = a + a;
+    b = b - a;
+    b = c * a;
+    c = a / c;
+    a = 12 > 5;
+    c = b == b;
+    c = True And False;
+    a = False Or True;
+    a = fn();
+    b = fn() * 5;
+    Read(a);
+    Read(b);
+    Write(a + True * c);
+    Write("Hello");
+    Write("wow!", a * b, "nope");
+}

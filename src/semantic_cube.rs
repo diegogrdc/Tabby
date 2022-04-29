@@ -1,12 +1,12 @@
-use crate::ast;
-use crate::ast::Type::{Bool, Float, Int};
+use crate::tipo::Tipo;
+use crate::tipo::Tipo::{Bool, Float, Int};
 use std::collections::HashMap;
 
 pub struct SemanticCube {
-    table: HashMap<(i32, i32, i32), i32>,
+    pub table: HashMap<(i32, i32, i32), i32>,
 }
 
-type SC = SemanticCube;
+pub type SC = SemanticCube;
 
 impl SemanticCube {
     pub fn new() -> SemanticCube {
@@ -18,35 +18,35 @@ impl SemanticCube {
         for op in logic_ops {
             table.insert(
                 (
-                    SC::get_type_val(Int),
-                    SC::get_type_val(Int),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Int),
-                    SC::get_type_val(Bool),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Bool),
-                    SC::get_type_val(Int),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Bool),
-                    SC::get_type_val(Bool),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
         }
 
@@ -57,75 +57,75 @@ impl SemanticCube {
         for op in cond_ops {
             table.insert(
                 (
-                    SC::get_type_val(Int),
-                    SC::get_type_val(Int),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Int),
-                    SC::get_type_val(Float),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Float),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Int),
-                    SC::get_type_val(Bool),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Bool),
-                    SC::get_type_val(Int),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Bool),
-                    SC::get_type_val(Float),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Float),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Bool),
-                    SC::get_type_val(Bool),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Float),
-                    SC::get_type_val(Int),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Float),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Float),
-                    SC::get_type_val(Float),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Float),
+                    SC::tipo_to_val(&Float),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
             table.insert(
                 (
-                    SC::get_type_val(Float),
-                    SC::get_type_val(Bool),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Float),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Bool),
+                SC::tipo_to_val(&Bool),
             );
         }
         // Sum, Substract
@@ -134,65 +134,141 @@ impl SemanticCube {
         for op in algebraic_ops {
             table.insert(
                 (
-                    SC::get_type_val(Int),
-                    SC::get_type_val(Int),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Int),
+                SC::tipo_to_val(&Int),
             );
             table.insert(
                 (
-                    SC::get_type_val(Int),
-                    SC::get_type_val(Float),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Float),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Float),
+                SC::tipo_to_val(&Float),
             );
             table.insert(
                 (
-                    SC::get_type_val(Int),
-                    SC::get_type_val(Bool),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Int),
+                SC::tipo_to_val(&Int),
             );
             table.insert(
                 (
-                    SC::get_type_val(Float),
-                    SC::get_type_val(Int),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Float),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Float),
+                SC::tipo_to_val(&Float),
             );
             table.insert(
                 (
-                    SC::get_type_val(Float),
-                    SC::get_type_val(Float),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Float),
+                    SC::tipo_to_val(&Float),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Float),
+                SC::tipo_to_val(&Float),
             );
             table.insert(
                 (
-                    SC::get_type_val(Bool),
-                    SC::get_type_val(Int),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Int),
+                SC::tipo_to_val(&Int),
             );
             table.insert(
                 (
-                    SC::get_type_val(Bool),
-                    SC::get_type_val(Bool),
-                    SC::get_op_val(op),
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
                 ),
-                SC::get_type_val(Int),
+                SC::tipo_to_val(&Int),
+            );
+        }
+        // Assigmnent
+        let assign_ops = ["="];
+        for op in assign_ops {
+            table.insert(
+                (
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Int),
+            );
+            table.insert(
+                (
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Float),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Int),
+            );
+            table.insert(
+                (
+                    SC::tipo_to_val(&Int),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Int),
+            );
+            table.insert(
+                (
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Bool),
+            );
+            table.insert(
+                (
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Float),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Bool),
+            );
+            table.insert(
+                (
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Bool),
+            );
+            table.insert(
+                (
+                    SC::tipo_to_val(&Float),
+                    SC::tipo_to_val(&Int),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Float),
+            );
+            table.insert(
+                (
+                    SC::tipo_to_val(&Float),
+                    SC::tipo_to_val(&Float),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Float),
+            );
+            table.insert(
+                (
+                    SC::tipo_to_val(&Float),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Float),
             );
         }
         SemanticCube { table: table }
     }
 
-    pub fn get_op_val(s: &str) -> i32 {
+    pub fn op_to_val(s: &str) -> i32 {
         match s {
             "Or" => 0,
             "And" => 1,
@@ -210,7 +286,7 @@ impl SemanticCube {
         }
     }
 
-    pub fn get_val_op(v: i32) -> String {
+    pub fn val_to_op(v: i32) -> String {
         match v {
             0 => "Or".to_string(),
             1 => "And".to_string(),
@@ -228,20 +304,21 @@ impl SemanticCube {
         }
     }
 
-    pub fn get_type_val(t: ast::Type) -> i32 {
+    pub fn tipo_to_val(t: &Tipo) -> i32 {
         match t {
-            ast::Type::Int => 0,
-            ast::Type::Float => 1,
-            ast::Type::Bool => 2,
+            Tipo::Int => 0,
+            Tipo::Float => 1,
+            Tipo::Bool => 2,
+            _ => 3,
         }
     }
 
-    pub fn get_val_type(v: i32) -> ast::Type {
+    pub fn val_to_tipo(v: i32) -> Tipo {
         match v {
-            0 => ast::Type::Int,
-            1 => ast::Type::Float,
-            2 => ast::Type::Bool,
-            _ => ast::Type::Int,
+            0 => Tipo::Int,
+            1 => Tipo::Float,
+            2 => Tipo::Bool,
+            _ => Tipo::Int,
         }
     }
 }

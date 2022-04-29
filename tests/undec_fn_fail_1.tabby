@@ -1,0 +1,7 @@
+Program undeclaredVar;
+
+Var Int a;
+
+Tabby() {
+    a = fn();
+}

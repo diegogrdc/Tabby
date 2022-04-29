@@ -1,0 +1,12 @@
+Program undeclaredVar;
+
+Fn Void fn(Int x) {
+    x = 1;
+}
+
+Fn Void fnTwo(Int y) {
+    y = 1;
+    x = 1;
+}
+
+Tabby() {}

@@ -1,0 +1,5 @@
+Program undeclaredVar;
+
+Tabby() {
+    res = 1;
+}

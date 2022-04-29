@@ -1,0 +1,9 @@
+Program testQuadsComplex;
+
+Var Int i;
+Var Bool b;
+Var Bool res;
+
+Tabby() {
+    res = (2 + b) * b - i / i + b > False And (10 != i Or True) Or b Or i;
+}

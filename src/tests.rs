@@ -4,6 +4,7 @@ lalrpop_mod!(pub tabby); // synthesized by LALRPOP
 mod tests {
     use super::*;
     use crate::ast_evaluator::AstEvaluator;
+    use crate::quadruples::Quadruple;
     use crate::tipo::Tipo;
     use std::fs;
     /*
@@ -816,21 +817,18 @@ mod tests {
         assert_eq!(glob_vars.get("float").unwrap().tipo, Tipo::Float);
 
         assert!(glob_vars.get("arrInt").is_some());
-        assert_eq!(glob_vars.get("arrInt").unwrap().tipo, Tipo::ArrInt(50));
+        assert_eq!(glob_vars.get("arrInt").unwrap().tipo, Tipo::Int);
         assert!(glob_vars.get("arrFloat").is_some());
-        assert_eq!(glob_vars.get("arrFloat").unwrap().tipo, Tipo::ArrFloat(20));
+        assert_eq!(glob_vars.get("arrFloat").unwrap().tipo, Tipo::Float);
         assert!(glob_vars.get("arrBool").is_some());
-        assert_eq!(glob_vars.get("arrBool").unwrap().tipo, Tipo::ArrBool(10));
+        assert_eq!(glob_vars.get("arrBool").unwrap().tipo, Tipo::Bool);
 
         assert!(glob_vars.get("matInt").is_some());
-        assert_eq!(glob_vars.get("matInt").unwrap().tipo, Tipo::MatInt(50, 10));
+        assert_eq!(glob_vars.get("matInt").unwrap().tipo, Tipo::Int);
         assert!(glob_vars.get("matFloat").is_some());
-        assert_eq!(
-            glob_vars.get("matFloat").unwrap().tipo,
-            Tipo::MatFloat(20, 3)
-        );
+        assert_eq!(glob_vars.get("matFloat").unwrap().tipo, Tipo::Float);
         assert!(glob_vars.get("matBool").is_some());
-        assert_eq!(glob_vars.get("matBool").unwrap().tipo, Tipo::MatBool(10, 4));
+        assert_eq!(glob_vars.get("matBool").unwrap().tipo, Tipo::Bool);
 
         // Assert functions without parameters
         assert!(evaluator.dir_func.get("fnVoid").is_some());
@@ -855,11 +853,11 @@ mod tests {
         let fn_dir = &evaluator.dir_func.get("fnVoidParams").unwrap();
         assert_eq!(fn_dir.tipo, Tipo::Void);
         assert!(fn_dir.dir_var.get("arrInt").is_some());
-        assert_eq!(fn_dir.dir_var.get("arrInt").unwrap().tipo, Tipo::ParamRef);
+        assert_eq!(fn_dir.dir_var.get("arrInt").unwrap().tipo, Tipo::Int);
         assert!(fn_dir.dir_var.get("arrBool").is_some());
-        assert_eq!(fn_dir.dir_var.get("arrBool").unwrap().tipo, Tipo::ParamRef);
+        assert_eq!(fn_dir.dir_var.get("arrBool").unwrap().tipo, Tipo::Bool);
         assert!(fn_dir.dir_var.get("arrFloat").is_some());
-        assert_eq!(fn_dir.dir_var.get("arrFloat").unwrap().tipo, Tipo::ParamRef);
+        assert_eq!(fn_dir.dir_var.get("arrFloat").unwrap().tipo, Tipo::Float);
     }
 
     #[test]
@@ -896,5 +894,382 @@ mod tests {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_undeclared_var_fail_1() {
+        let filename = "./tests/undeclared_var_fail_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_undeclared_var_fail_2() {
+        let filename = "./tests/undeclared_var_fail_2.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_undeclared_var_fail_3() {
+        let filename = "./tests/undeclared_var_fail_3.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_undeclared_fn_fail_1() {
+        let filename = "./tests/undeclared_fn_fail_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    fn test_quads_ok_1() {
+        let filename = "./tests/quads_ok_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        assert_eq!(evaluator.quads.len(), 29);
+        assert_eq!(
+            evaluator.quads.get(0).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                "a".to_string(),
+                "a".to_string(),
+                "temp1".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(1).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp1".to_string(), "a".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(2).unwrap(),
+            &Quadruple::Op(
+                "-".to_string(),
+                "b".to_string(),
+                "a".to_string(),
+                "temp2".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(3).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp2".to_string(), "b".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(4).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                "c".to_string(),
+                "a".to_string(),
+                "temp3".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(5).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp3".to_string(), "b".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(6).unwrap(),
+            &Quadruple::Op(
+                "/".to_string(),
+                "a".to_string(),
+                "c".to_string(),
+                "temp4".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(7).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp4".to_string(), "c".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(8).unwrap(),
+            &Quadruple::Op(
+                ">".to_string(),
+                "12".to_string(),
+                "5".to_string(),
+                "temp5".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(9).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp5".to_string(), "a".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(10).unwrap(),
+            &Quadruple::Op(
+                "==".to_string(),
+                "b".to_string(),
+                "b".to_string(),
+                "temp6".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(11).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp6".to_string(), "c".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(12).unwrap(),
+            &Quadruple::Op(
+                "And".to_string(),
+                "True".to_string(),
+                "False".to_string(),
+                "temp7".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(13).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp7".to_string(), "c".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(14).unwrap(),
+            &Quadruple::Op(
+                "Or".to_string(),
+                "False".to_string(),
+                "True".to_string(),
+                "temp8".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(15).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp8".to_string(), "a".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(16).unwrap(),
+            &Quadruple::Assign("=".to_string(), "fn".to_string(), "a".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(17).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                "fn".to_string(),
+                "5".to_string(),
+                "temp9".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(18).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp9".to_string(), "b".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(19).unwrap(),
+            &Quadruple::Read("Read".to_string(), "a".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(20).unwrap(),
+            &Quadruple::Read("Read".to_string(), "b".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(21).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                "True".to_string(),
+                "c".to_string(),
+                "temp10".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(22).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                "a".to_string(),
+                "temp10".to_string(),
+                "temp11".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(23).unwrap(),
+            &Quadruple::Print("Print".to_string(), "temp11".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(24).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), "Hello".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(25).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), "wow!".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(26).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                "a".to_string(),
+                "b".to_string(),
+                "temp12".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(27).unwrap(),
+            &Quadruple::Print("Print".to_string(), "temp12".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(28).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), "nope".to_string())
+        );
+    }
+
+    #[test]
+    fn test_quads_ok_2() {
+        let filename = "./tests/quads_ok_2.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        assert_eq!(evaluator.quads.len(), 12);
+        assert_eq!(
+            evaluator.quads.get(0).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                "2".to_string(),
+                "b".to_string(),
+                "temp1".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(1).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                "temp1".to_string(),
+                "b".to_string(),
+                "temp2".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(2).unwrap(),
+            &Quadruple::Op(
+                "/".to_string(),
+                "i".to_string(),
+                "i".to_string(),
+                "temp3".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(3).unwrap(),
+            &Quadruple::Op(
+                "-".to_string(),
+                "temp2".to_string(),
+                "temp3".to_string(),
+                "temp4".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(4).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                "temp4".to_string(),
+                "b".to_string(),
+                "temp5".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(5).unwrap(),
+            &Quadruple::Op(
+                ">".to_string(),
+                "temp5".to_string(),
+                "False".to_string(),
+                "temp6".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(6).unwrap(),
+            &Quadruple::Op(
+                "!=".to_string(),
+                "10".to_string(),
+                "i".to_string(),
+                "temp7".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(7).unwrap(),
+            &Quadruple::Op(
+                "Or".to_string(),
+                "temp7".to_string(),
+                "True".to_string(),
+                "temp8".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(8).unwrap(),
+            &Quadruple::Op(
+                "And".to_string(),
+                "temp6".to_string(),
+                "temp8".to_string(),
+                "temp9".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(9).unwrap(),
+            &Quadruple::Op(
+                "Or".to_string(),
+                "temp9".to_string(),
+                "b".to_string(),
+                "temp10".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(10).unwrap(),
+            &Quadruple::Op(
+                "Or".to_string(),
+                "temp10".to_string(),
+                "i".to_string(),
+                "temp11".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(11).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp11".to_string(), "res".to_string())
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_quads_fail_1() {
+        let filename = "./tests/quads_fail_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    fn test_quads_call_ok_1() {
+        let filename = "./tests/quads_call_ok_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        assert!(evaluator.st_ops.is_empty());
+        assert!(evaluator.st_vals.is_empty());
+        assert!(evaluator.st_tips.is_empty());
     }
 }

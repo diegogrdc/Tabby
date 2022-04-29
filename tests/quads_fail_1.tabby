@@ -1,0 +1,9 @@
+Program voidAssign;
+
+Var Int a;
+
+Fn Void fn() {}
+
+Tabby() {
+    a = fn();
+}

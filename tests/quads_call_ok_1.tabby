@@ -1,0 +1,7 @@
+Program testEmptyStackAfterCall;
+
+Fn Void fn() {}
+
+Tabby() {
+    fn();
+}
