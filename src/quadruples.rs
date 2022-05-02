@@ -11,4 +11,7 @@ pub enum Quadruple {
     Assign(String, String, String),
     Read(String, String),
     Print(String, String),
+    GoToF(String, i32),
+    GoTo(i32),
+    Temp(),
 }

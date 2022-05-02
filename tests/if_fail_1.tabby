@@ -1,0 +1,7 @@
+Program testQuadsIfFail;
+
+Tabby() {
+    If(12.5) {
+        Write("Oops");
+    }
+}

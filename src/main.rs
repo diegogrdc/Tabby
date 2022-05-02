@@ -34,5 +34,5 @@ fn main() {
     evaluator.eval_program(my_ast);
 
     // For debugging purposes, we print the directory function
-    println!("{:#?}", evaluator.dir_func);
+    println!("{:?}", evaluator.quads);
 }

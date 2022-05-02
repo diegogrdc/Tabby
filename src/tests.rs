@@ -1272,4 +1272,200 @@ mod tests {
         assert!(evaluator.st_vals.is_empty());
         assert!(evaluator.st_tips.is_empty());
     }
+
+    #[test]
+    fn test_quads_if_ok_1() {
+        let filename = "./tests/quads_if_ok_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        assert_eq!(evaluator.quads.len(), 9);
+        assert_eq!(
+            evaluator.quads.get(0).unwrap(),
+            &Quadruple::Read("Read".to_string(), "a".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(1).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                "12".to_string(),
+                "a".to_string(),
+                "temp1".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(2).unwrap(),
+            &Quadruple::Op(
+                ">".to_string(),
+                "temp1".to_string(),
+                "18".to_string(),
+                "temp2".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(3).unwrap(),
+            &Quadruple::GoToF("temp2".to_string(), 7)
+        );
+        assert_eq!(
+            evaluator.quads.get(4).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                "a".to_string(),
+                "12".to_string(),
+                "temp3".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(5).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp3".to_string(), "a".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(6).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), "If".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(7).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), "End".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(8).unwrap(),
+            &Quadruple::Print("Print".to_string(), "a".to_string())
+        );
+    }
+
+    #[test]
+    fn test_quads_if_else_ok_1() {
+        let filename = "./tests/quads_if_else_ok_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        assert_eq!(evaluator.quads.len(), 18);
+        assert_eq!(
+            evaluator.quads.get(0).unwrap(),
+            &Quadruple::Read("Read".to_string(), "a".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(1).unwrap(),
+            &Quadruple::Read("Read".to_string(), "b".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(2).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                "a".to_string(),
+                "3".to_string(),
+                "temp1".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(3).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                "b".to_string(),
+                "5".to_string(),
+                "temp2".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(4).unwrap(),
+            &Quadruple::Op(
+                "!=".to_string(),
+                "temp1".to_string(),
+                "temp2".to_string(),
+                "temp3".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(5).unwrap(),
+            &Quadruple::GoToF("temp3".to_string(), 10)
+        );
+        assert_eq!(
+            evaluator.quads.get(6).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                "a".to_string(),
+                "1".to_string(),
+                "temp4".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(7).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp4".to_string(), "a".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(8).unwrap(),
+            &Quadruple::Print("Print".to_string(), "a".to_string())
+        );
+        assert_eq!(evaluator.quads.get(9).unwrap(), &Quadruple::GoTo(14));
+        assert_eq!(
+            evaluator.quads.get(10).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                "a".to_string(),
+                "b".to_string(),
+                "temp5".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(11).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                "temp5".to_string(),
+                "1".to_string(),
+                "temp6".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(12).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp6".to_string(), "b".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(13).unwrap(),
+            &Quadruple::Print("Print".to_string(), "b".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(14).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                "a".to_string(),
+                "b".to_string(),
+                "temp7".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(15).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                "temp7".to_string(),
+                "2".to_string(),
+                "temp8".to_string()
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(16).unwrap(),
+            &Quadruple::Assign("=".to_string(), "temp8".to_string(), "a".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(17).unwrap(),
+            &Quadruple::Print("Print".to_string(), "a".to_string())
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_if_fail_1() {
+        let filename = "./tests/if_fail_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
 }

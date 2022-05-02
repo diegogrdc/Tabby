@@ -458,12 +458,43 @@ impl AstEvaluator {
         match *cond {
             ast::Cond::If(exp, block) => {
                 self.eval_exp(exp);
+
+                let id = self.st_vals.pop().unwrap();
+                let tip = self.st_tips.pop().unwrap();
+                self.check_tipo_can_eval_as_bool(&tip);
+                let pos_pending_if = self.quads.len();
+                self.quads.push(Quadruple::Temp());
+
                 self.eval_block(block);
+
+                self.quads.insert(
+                    pos_pending_if,
+                    Quadruple::GoToF(id, self.quads.len() as i32),
+                );
+                self.quads.remove(pos_pending_if + 1);
             }
             ast::Cond::IfElse(exp, block_if, block_else) => {
                 self.eval_exp(exp);
+
+                let id = self.st_vals.pop().unwrap();
+                let tip = self.st_tips.pop().unwrap();
+                self.check_tipo_can_eval_as_bool(&tip);
+                let pos_pending_f = self.quads.len();
+                self.quads.push(Quadruple::Temp());
+
                 self.eval_block(block_if);
+
+                let pos_pending_t = self.quads.len();
+                self.quads.push(Quadruple::Temp());
+                self.quads
+                    .insert(pos_pending_f, Quadruple::GoToF(id, self.quads.len() as i32));
+                self.quads.remove(pos_pending_f + 1);
+
                 self.eval_block(block_else);
+
+                self.quads
+                    .insert(pos_pending_t, Quadruple::GoTo(self.quads.len() as i32));
+                self.quads.remove(pos_pending_t + 1);
             }
         };
         true
@@ -660,7 +691,7 @@ impl AstEvaluator {
         ));
         if res_tipo == None {
             panic!(
-                "Type Mismatch! Operation \"{}\" Between {:?} and {:?} is not allowed",
+                "ERROR: Type Mismatch! Operation \"{}\" Between {:?} and {:?} is not allowed",
                 op, left, right
             );
         }
@@ -674,7 +705,7 @@ impl AstEvaluator {
 
     pub fn get_fn_tipo_from_id(&self, id: &String) -> Tipo {
         if let None = self.dir_func.get(id) {
-            panic!("Undeclared function call: \"{}\"", id);
+            panic!("ERROR: Undeclared function call: \"{}\"", id);
         }
         self.dir_func.get(id).unwrap().tipo.clone()
     }
@@ -704,9 +735,19 @@ impl AstEvaluator {
             } else {
                 self.loc_scope.as_ref().unwrap()
             };
-            panic!("Undeclared variable \"{}\" at \"{}\"", id, place);
+            panic!("ERROR: Undeclared variable \"{}\" at \"{}\"", id, place);
         }
         vars.get(id).unwrap().tipo.clone()
+    }
+
+    pub fn check_tipo_can_eval_as_bool(&self, tipo: &Tipo) {
+        // Just Int and Bool can eval as Bool
+        if tipo != &Tipo::Bool && tipo != &Tipo::Int {
+            panic!(
+                "ERROR: Cannot eval a conditional expression. Expected Bool or Int. Got {:?}",
+                tipo
+            );
+        }
     }
 
     pub fn ast_comp_to_string(&self, comp: &ast::Comp) -> String {

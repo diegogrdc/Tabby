@@ -1,0 +1,19 @@
+Program testQuadsIfElse;
+
+Var Int a;
+Var Int b;
+
+Tabby() {
+    Read(a);
+    Read(b);
+    If(a * 3 != b * 5) {
+        a = a + 1;
+        Write(a);
+    } 
+    Else {
+        b = a + b + 1;
+        Write(b);
+    }
+    a = a * b + 2;
+    Write(a);
+}
