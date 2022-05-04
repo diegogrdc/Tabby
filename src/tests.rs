@@ -1644,4 +1644,272 @@ mod tests {
             &Quadruple::Print("PrintSL".to_string(), ("\"Wow".to_string(), 130000))
         );
     }
+
+    #[test]
+    fn test_quads_while_ok_1() {
+        let filename = "./tests/quads_while_ok_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        assert_eq!(evaluator.quads.len(), 11);
+        assert_eq!(
+            evaluator.quads.get(0).unwrap(),
+            &Quadruple::Read("Read".to_string(), ("a".to_string(), 10000))
+        );
+        assert_eq!(
+            evaluator.quads.get(1).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                ("a".to_string(), 10000),
+                ("5".to_string(), 100000),
+                ("temp1".to_string(), 70000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(2).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                ("10".to_string(), 100001),
+                ("2".to_string(), 100002),
+                ("temp2".to_string(), 70001)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(3).unwrap(),
+            &Quadruple::Op(
+                "<".to_string(),
+                ("temp1".to_string(), 70000),
+                ("temp2".to_string(), 70001),
+                ("temp3".to_string(), 90000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(4).unwrap(),
+            &Quadruple::GoToF(("temp3".to_string(), 90000), 9)
+        );
+        assert_eq!(
+            evaluator.quads.get(5).unwrap(),
+            &Quadruple::Print("Print".to_string(), ("a".to_string(), 10000))
+        );
+        assert_eq!(
+            evaluator.quads.get(6).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                ("a".to_string(), 10000),
+                ("1".to_string(), 100003),
+                ("temp4".to_string(), 70002)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(7).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp4".to_string(), 70002),
+                ("a".to_string(), 10000)
+            )
+        );
+        assert_eq!(evaluator.quads.get(8).unwrap(), &Quadruple::GoTo(1));
+        assert_eq!(
+            evaluator.quads.get(9).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"Finish".to_string(), 130000))
+        );
+        assert_eq!(
+            evaluator.quads.get(10).unwrap(),
+            &Quadruple::Print("Print".to_string(), ("a".to_string(), 10000))
+        );
+    }
+
+    #[test]
+    fn test_quads_for_ok_1() {
+        let filename = "./tests/quads_for_ok_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        assert_eq!(evaluator.quads.len(), 10);
+        assert_eq!(
+            evaluator.quads.get(0).unwrap(),
+            &Quadruple::Read("Read".to_string(), ("i".to_string(), 10000))
+        );
+        assert_eq!(
+            evaluator.quads.get(1).unwrap(),
+            &Quadruple::Op(
+                "+".to_string(),
+                ("i".to_string(), 10000),
+                ("1".to_string(), 100000),
+                ("temp1".to_string(), 70000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(2).unwrap(),
+            &Quadruple::Op(
+                ">".to_string(),
+                ("temp1".to_string(), 70000),
+                ("5".to_string(), 100001),
+                ("temp2".to_string(), 90000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(3).unwrap(),
+            &Quadruple::GoToF(("temp2".to_string(), 90000), 9)
+        );
+        assert_eq!(
+            evaluator.quads.get(4).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"Loop".to_string(), 130000))
+        );
+        assert_eq!(
+            evaluator.quads.get(5).unwrap(),
+            &Quadruple::Print("Print".to_string(), ("i".to_string(), 10000))
+        );
+        assert_eq!(
+            evaluator.quads.get(6).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                ("2".to_string(), 100002),
+                ("i".to_string(), 10000),
+                ("temp3".to_string(), 70001)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(7).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp3".to_string(), 70001),
+                ("i".to_string(), 10000)
+            )
+        );
+        assert_eq!(evaluator.quads.get(8).unwrap(), &Quadruple::GoTo(1));
+        assert_eq!(
+            evaluator.quads.get(9).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"Finish".to_string(), 130001))
+        );
+    }
+
+    #[test]
+    fn test_quads_non_linear_ok_1() {
+        let filename = "./tests/quads_non_linear_ok_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        assert_eq!(evaluator.quads.len(), 24);
+        assert_eq!(
+            evaluator.quads.get(0).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"ProgramStt".to_string(), 130000))
+        );
+        assert_eq!(
+            evaluator.quads.get(1).unwrap(),
+            &Quadruple::Op(
+                "==".to_string(),
+                ("i".to_string(), 30000),
+                ("True".to_string(), 120000),
+                ("temp1".to_string(), 90000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(2).unwrap(),
+            &Quadruple::GoToF(("temp1".to_string(), 90000), 23)
+        );
+        assert_eq!(
+            evaluator.quads.get(3).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"ForStt".to_string(), 130001))
+        );
+        assert_eq!(
+            evaluator.quads.get(4).unwrap(),
+            &Quadruple::Op(
+                "==".to_string(),
+                ("i".to_string(), 30000),
+                ("True".to_string(), 120000),
+                ("temp2".to_string(), 90001)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(5).unwrap(),
+            &Quadruple::GoToF(("temp2".to_string(), 90001), 14)
+        );
+        assert_eq!(
+            evaluator.quads.get(6).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"IfStt".to_string(), 130002))
+        );
+        assert_eq!(
+            evaluator.quads.get(7).unwrap(),
+            &Quadruple::Op(
+                "==".to_string(),
+                ("i".to_string(), 30000),
+                ("True".to_string(), 120000),
+                ("temp3".to_string(), 90002)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(8).unwrap(),
+            &Quadruple::GoToF(("temp3".to_string(), 90002), 11)
+        );
+        assert_eq!(
+            evaluator.quads.get(9).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"While".to_string(), 130003))
+        );
+        assert_eq!(evaluator.quads.get(10).unwrap(), &Quadruple::GoTo(7));
+        assert_eq!(
+            evaluator.quads.get(11).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"ExitWhile".to_string(), 130004))
+        );
+        assert_eq!(
+            evaluator.quads.get(12).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"IfEnd".to_string(), 130005))
+        );
+        assert_eq!(evaluator.quads.get(13).unwrap(), &Quadruple::GoTo(20));
+        assert_eq!(
+            evaluator.quads.get(14).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"ElseStt".to_string(), 130006))
+        );
+        assert_eq!(
+            evaluator.quads.get(15).unwrap(),
+            &Quadruple::Op(
+                "==".to_string(),
+                ("i".to_string(), 30000),
+                ("False".to_string(), 120001),
+                ("temp4".to_string(), 90003)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(16).unwrap(),
+            &Quadruple::GoToF(("temp4".to_string(), 90003), 18)
+        );
+        assert_eq!(
+            evaluator.quads.get(17).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"If2".to_string(), 130007))
+        );
+        assert_eq!(
+            evaluator.quads.get(18).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"ExitIf2".to_string(), 130008))
+        );
+        assert_eq!(
+            evaluator.quads.get(19).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"ElseEnd".to_string(), 130009))
+        );
+        assert_eq!(
+            evaluator.quads.get(20).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"ForEnd".to_string(), 130010))
+        );
+        assert_eq!(
+            evaluator.quads.get(21).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("True".to_string(), 120000),
+                ("i".to_string(), 30000)
+            )
+        );
+        assert_eq!(evaluator.quads.get(22).unwrap(), &Quadruple::GoTo(1));
+        assert_eq!(
+            evaluator.quads.get(23).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"ProgramEnd".to_string(), 130011))
+        );
+    }
 }

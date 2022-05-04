@@ -466,8 +466,26 @@ impl AstEvaluator {
     pub fn eval_ciclew(&mut self, ciclew: Box<ast::Ciclew>) -> bool {
         match *ciclew {
             ast::Ciclew::While(exp, block) => {
+                let pos_pending_goto = self.quads.len();
+
                 self.eval_exp(exp);
+
+                let id = self.st_vals.pop().unwrap();
+                let tip = self.st_tips.pop().unwrap();
+                let id_addr = self.get_id_addr(&id, &tip);
+                self.check_tipo_can_eval_as_bool(&tip);
+                let pos_pending_gotof = self.quads.len();
+                self.quads.push(Quadruple::Temp());
+
                 self.eval_block(block);
+
+                self.quads.push(Quadruple::GoTo(pos_pending_goto as i32));
+
+                self.quads.insert(
+                    pos_pending_gotof,
+                    Quadruple::GoToF(id_addr, self.quads.len() as i32),
+                );
+                self.quads.remove(pos_pending_gotof + 1);
             }
         };
         true
@@ -476,9 +494,27 @@ impl AstEvaluator {
     pub fn eval_ciclef(&mut self, ciclef: Box<ast::Ciclef>) -> bool {
         match *ciclef {
             ast::Ciclef::For(exp, assignment, block) => {
+                let pos_pending_goto = self.quads.len();
+
                 self.eval_exp(exp);
-                self.eval_assignment(assignment);
+
+                let id = self.st_vals.pop().unwrap();
+                let tip = self.st_tips.pop().unwrap();
+                let id_addr = self.get_id_addr(&id, &tip);
+                self.check_tipo_can_eval_as_bool(&tip);
+                let pos_pending_gotof = self.quads.len();
+                self.quads.push(Quadruple::Temp());
+
                 self.eval_block(block);
+                self.eval_assignment(assignment);
+
+                self.quads.push(Quadruple::GoTo(pos_pending_goto as i32));
+
+                self.quads.insert(
+                    pos_pending_gotof,
+                    Quadruple::GoToF(id_addr, self.quads.len() as i32),
+                );
+                self.quads.remove(pos_pending_gotof + 1);
             }
         };
         true

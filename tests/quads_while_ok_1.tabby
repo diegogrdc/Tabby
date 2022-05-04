@@ -1,0 +1,12 @@
+Program testQuadsWhile;
+
+Var Int a;
+
+Tabby() {
+    Read(a);
+    While(a + 5 < 10 * 2) {
+        Write(a);
+        a = a + 1;
+    }
+    Write("Finish", a);
+}

@@ -1,21 +1,27 @@
-Program tabbyMatrixRead;
+Program testQuadsNonLinear;
 
-Var Int i, j, n;
-Var Arr Int mat[50][50];
-
-Fn Void statsMedian(Arr Int arr) {
-    Return arr[1][1];
-}
+Var Bool i;
 
 Tabby() {
-    Read(n);
-    i = 1;
-    For(i <= n; i = i + 1) {
-        j = 1;
-        For(j <= n; j = j + 1) {
-            Read(mat[i][j]);
+    Write("ProgramStt");
+    For(i == True; i = True) {
+        Write("ForStt");
+        If(i == True) {
+            Write("IfStt");
+            While(i == True) {
+                Write("While");
+            }
+            Write("ExitWhile");
+            Write("IfEnd");
+        } Else {
+            Write("ElseStt");
+            If(i == False) {
+                Write("If2");
+            }
+            Write("ExitIf2");
+            Write("ElseEnd");
         }
+        Write("ForEnd");
     }
-
-    Write("Matrix was read and stored in memory", statsMedian(mat));
+    Write("ProgramEnd");
 }

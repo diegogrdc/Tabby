@@ -1,0 +1,12 @@
+Program testQuadsFor;
+
+Var Int i;
+
+Tabby() {
+    Read(i);
+    For(i + 1 > 5; i = 2 * i) {
+        Write("Loop");
+        Write(i);
+    }
+    Write("Finish");
+}
