@@ -7,11 +7,13 @@
 // if needed in the future
 #[derive(Debug, PartialEq)]
 pub enum Quadruple {
-    Op(String, String, String, String),
-    Assign(String, String, String),
-    Read(String, String),
-    Print(String, String),
-    GoToF(String, i32),
+    Op(String, IdAddr, IdAddr, IdAddr),
+    Assign(String, IdAddr, IdAddr),
+    Read(String, IdAddr),
+    Print(String, IdAddr),
+    GoToF(IdAddr, i32),
     GoTo(i32),
     Temp(),
 }
+
+pub type IdAddr = (String, i32);

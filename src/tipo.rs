@@ -11,6 +11,7 @@ pub enum Tipo {
     Bool,
     Void,
     Program,
+    StrLit,
 }
 
 pub fn tipo_from_type(typ: &ast::Type) -> Tipo {

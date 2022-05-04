@@ -1,0 +1,16 @@
+Program testVirMemAlloc;
+
+Var Int a, b, c;
+Var Float d, e, f;
+Var Bool g, h, i;
+
+Fn Void fnOne(Int a, Float b, Bool c) {}
+
+Fn Void fnTwo(Int a, Float b, Bool c) {}
+
+Tabby() {
+    a = b * c * 1;
+    d = e / f * 1.2;
+    g = h And i Or True;
+    Write("Wow");
+}

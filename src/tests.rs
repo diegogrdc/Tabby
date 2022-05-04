@@ -958,177 +958,217 @@ mod tests {
             evaluator.quads.get(0).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                "a".to_string(),
-                "a".to_string(),
-                "temp1".to_string()
+                ("a".to_string(), 10000),
+                ("a".to_string(), 10000),
+                ("temp1".to_string(), 70000)
             )
         );
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp1".to_string(), "a".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp1".to_string(), 70000),
+                ("a".to_string(), 10000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
             &Quadruple::Op(
                 "-".to_string(),
-                "b".to_string(),
-                "a".to_string(),
-                "temp2".to_string()
+                ("b".to_string(), 20000),
+                ("a".to_string(), 10000),
+                ("temp2".to_string(), 80000)
             )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp2".to_string(), "b".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp2".to_string(), 80000),
+                ("b".to_string(), 20000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                "c".to_string(),
-                "a".to_string(),
-                "temp3".to_string()
+                ("c".to_string(), 30000),
+                ("a".to_string(), 10000),
+                ("temp3".to_string(), 70001)
             )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp3".to_string(), "b".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp3".to_string(), 70001),
+                ("b".to_string(), 20000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
             &Quadruple::Op(
                 "/".to_string(),
-                "a".to_string(),
-                "c".to_string(),
-                "temp4".to_string()
+                ("a".to_string(), 10000),
+                ("c".to_string(), 30000),
+                ("temp4".to_string(), 70002),
             )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp4".to_string(), "c".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp4".to_string(), 70002),
+                ("c".to_string(), 30000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
             &Quadruple::Op(
                 ">".to_string(),
-                "12".to_string(),
-                "5".to_string(),
-                "temp5".to_string()
+                ("12".to_string(), 100000),
+                ("5".to_string(), 100001),
+                ("temp5".to_string(), 90000)
             )
         );
         assert_eq!(
             evaluator.quads.get(9).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp5".to_string(), "a".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp5".to_string(), 90000),
+                ("a".to_string(), 10000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(10).unwrap(),
             &Quadruple::Op(
                 "==".to_string(),
-                "b".to_string(),
-                "b".to_string(),
-                "temp6".to_string()
+                ("b".to_string(), 20000),
+                ("b".to_string(), 20000),
+                ("temp6".to_string(), 90001)
             )
         );
         assert_eq!(
             evaluator.quads.get(11).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp6".to_string(), "c".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp6".to_string(), 90001),
+                ("c".to_string(), 30000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(12).unwrap(),
             &Quadruple::Op(
                 "And".to_string(),
-                "True".to_string(),
-                "False".to_string(),
-                "temp7".to_string()
+                ("True".to_string(), 120000),
+                ("False".to_string(), 120001),
+                ("temp7".to_string(), 90002)
             )
         );
         assert_eq!(
             evaluator.quads.get(13).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp7".to_string(), "c".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp7".to_string(), 90002),
+                ("c".to_string(), 30000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(14).unwrap(),
             &Quadruple::Op(
                 "Or".to_string(),
-                "False".to_string(),
-                "True".to_string(),
-                "temp8".to_string()
+                ("False".to_string(), 120001),
+                ("True".to_string(), 120000),
+                ("temp8".to_string(), 90003)
             )
         );
         assert_eq!(
             evaluator.quads.get(15).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp8".to_string(), "a".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp8".to_string(), 90003),
+                ("a".to_string(), 10000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(16).unwrap(),
-            &Quadruple::Assign("=".to_string(), "fn".to_string(), "a".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("fn()".to_string(), -1),
+                ("a".to_string(), 10000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(17).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                "fn".to_string(),
-                "5".to_string(),
-                "temp9".to_string()
+                ("fn()".to_string(), -1),
+                ("5".to_string(), 100001),
+                ("temp9".to_string(), 70003)
             )
         );
         assert_eq!(
             evaluator.quads.get(18).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp9".to_string(), "b".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp9".to_string(), 70003),
+                ("b".to_string(), 20000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(19).unwrap(),
-            &Quadruple::Read("Read".to_string(), "a".to_string())
+            &Quadruple::Read("Read".to_string(), ("a".to_string(), 10000))
         );
         assert_eq!(
             evaluator.quads.get(20).unwrap(),
-            &Quadruple::Read("Read".to_string(), "b".to_string())
+            &Quadruple::Read("Read".to_string(), ("b".to_string(), 20000))
         );
         assert_eq!(
             evaluator.quads.get(21).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                "True".to_string(),
-                "c".to_string(),
-                "temp10".to_string()
+                ("True".to_string(), 120000),
+                ("c".to_string(), 30000),
+                ("temp10".to_string(), 70004)
             )
         );
         assert_eq!(
             evaluator.quads.get(22).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                "a".to_string(),
-                "temp10".to_string(),
-                "temp11".to_string()
+                ("a".to_string(), 10000),
+                ("temp10".to_string(), 70004),
+                ("temp11".to_string(), 70005)
             )
         );
         assert_eq!(
             evaluator.quads.get(23).unwrap(),
-            &Quadruple::Print("Print".to_string(), "temp11".to_string())
+            &Quadruple::Print("Print".to_string(), ("temp11".to_string(), 70005))
         );
         assert_eq!(
             evaluator.quads.get(24).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), "Hello".to_string())
+            &Quadruple::Print("PrintSL".to_string(), ("\"Hello".to_string(), 130000))
         );
         assert_eq!(
             evaluator.quads.get(25).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), "wow!".to_string())
+            &Quadruple::Print("PrintSL".to_string(), ("\"wow!".to_string(), 130001))
         );
         assert_eq!(
             evaluator.quads.get(26).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                "a".to_string(),
-                "b".to_string(),
-                "temp12".to_string()
+                ("a".to_string(), 10000),
+                ("b".to_string(), 20000),
+                ("temp12".to_string(), 80001)
             )
         );
         assert_eq!(
             evaluator.quads.get(27).unwrap(),
-            &Quadruple::Print("Print".to_string(), "temp12".to_string())
+            &Quadruple::Print("Print".to_string(), ("temp12".to_string(), 80001))
         );
         assert_eq!(
             evaluator.quads.get(28).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), "nope".to_string())
+            &Quadruple::Print("PrintSL".to_string(), ("\"nope".to_string(), 130002))
         );
     }
 
@@ -1146,104 +1186,108 @@ mod tests {
             evaluator.quads.get(0).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                "2".to_string(),
-                "b".to_string(),
-                "temp1".to_string()
+                ("2".to_string(), 100000),
+                ("b".to_string(), 30000),
+                ("temp1".to_string(), 70000)
             )
         );
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                "temp1".to_string(),
-                "b".to_string(),
-                "temp2".to_string()
+                ("temp1".to_string(), 70000),
+                ("b".to_string(), 30000),
+                ("temp2".to_string(), 70001)
             )
         );
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
             &Quadruple::Op(
                 "/".to_string(),
-                "i".to_string(),
-                "i".to_string(),
-                "temp3".to_string()
+                ("i".to_string(), 10000),
+                ("i".to_string(), 10000),
+                ("temp3".to_string(), 70002)
             )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
             &Quadruple::Op(
                 "-".to_string(),
-                "temp2".to_string(),
-                "temp3".to_string(),
-                "temp4".to_string()
+                ("temp2".to_string(), 70001),
+                ("temp3".to_string(), 70002),
+                ("temp4".to_string(), 70003)
             )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                "temp4".to_string(),
-                "b".to_string(),
-                "temp5".to_string()
+                ("temp4".to_string(), 70003),
+                ("b".to_string(), 30000),
+                ("temp5".to_string(), 70004)
             )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
             &Quadruple::Op(
                 ">".to_string(),
-                "temp5".to_string(),
-                "False".to_string(),
-                "temp6".to_string()
+                ("temp5".to_string(), 70004),
+                ("False".to_string(), 120000),
+                ("temp6".to_string(), 90000)
             )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
             &Quadruple::Op(
                 "!=".to_string(),
-                "10".to_string(),
-                "i".to_string(),
-                "temp7".to_string()
+                ("10".to_string(), 100001),
+                ("i".to_string(), 10000),
+                ("temp7".to_string(), 90001)
             )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
             &Quadruple::Op(
                 "Or".to_string(),
-                "temp7".to_string(),
-                "True".to_string(),
-                "temp8".to_string()
+                ("temp7".to_string(), 90001),
+                ("True".to_string(), 120001),
+                ("temp8".to_string(), 90002)
             )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
             &Quadruple::Op(
                 "And".to_string(),
-                "temp6".to_string(),
-                "temp8".to_string(),
-                "temp9".to_string()
+                ("temp6".to_string(), 90000),
+                ("temp8".to_string(), 90002),
+                ("temp9".to_string(), 90003)
             )
         );
         assert_eq!(
             evaluator.quads.get(9).unwrap(),
             &Quadruple::Op(
                 "Or".to_string(),
-                "temp9".to_string(),
-                "b".to_string(),
-                "temp10".to_string()
+                ("temp9".to_string(), 90003),
+                ("b".to_string(), 30000),
+                ("temp10".to_string(), 90004)
             )
         );
         assert_eq!(
             evaluator.quads.get(10).unwrap(),
             &Quadruple::Op(
                 "Or".to_string(),
-                "temp10".to_string(),
-                "i".to_string(),
-                "temp11".to_string()
+                ("temp10".to_string(), 90004),
+                ("i".to_string(), 10000),
+                ("temp11".to_string(), 90005)
             )
         );
         assert_eq!(
             evaluator.quads.get(11).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp11".to_string(), "res".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp11".to_string(), 90005),
+                ("res".to_string(), 30001)
+            )
         );
     }
 
@@ -1285,54 +1329,58 @@ mod tests {
         assert_eq!(evaluator.quads.len(), 9);
         assert_eq!(
             evaluator.quads.get(0).unwrap(),
-            &Quadruple::Read("Read".to_string(), "a".to_string())
+            &Quadruple::Read("Read".to_string(), ("a".to_string(), 10000))
         );
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                "12".to_string(),
-                "a".to_string(),
-                "temp1".to_string()
+                ("12".to_string(), 100000),
+                ("a".to_string(), 10000),
+                ("temp1".to_string(), 70000)
             )
         );
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
             &Quadruple::Op(
                 ">".to_string(),
-                "temp1".to_string(),
-                "18".to_string(),
-                "temp2".to_string()
+                ("temp1".to_string(), 70000),
+                ("18".to_string(), 100001),
+                ("temp2".to_string(), 90000)
             )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
-            &Quadruple::GoToF("temp2".to_string(), 7)
+            &Quadruple::GoToF(("temp2".to_string(), 90000), 7)
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                "a".to_string(),
-                "12".to_string(),
-                "temp3".to_string()
+                ("a".to_string(), 10000),
+                ("12".to_string(), 100000),
+                ("temp3".to_string(), 70001)
             )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp3".to_string(), "a".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp3".to_string(), 70001),
+                ("a".to_string(), 10000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), "If".to_string())
+            &Quadruple::Print("PrintSL".to_string(), ("\"If".to_string(), 130000))
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), "End".to_string())
+            &Quadruple::Print("PrintSL".to_string(), ("\"End".to_string(), 130001))
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
-            &Quadruple::Print("Print".to_string(), "a".to_string())
+            &Quadruple::Print("Print".to_string(), ("a".to_string(), 10000))
         );
     }
 
@@ -1348,112 +1396,124 @@ mod tests {
         assert_eq!(evaluator.quads.len(), 18);
         assert_eq!(
             evaluator.quads.get(0).unwrap(),
-            &Quadruple::Read("Read".to_string(), "a".to_string())
+            &Quadruple::Read("Read".to_string(), ("a".to_string(), 10000))
         );
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
-            &Quadruple::Read("Read".to_string(), "b".to_string())
+            &Quadruple::Read("Read".to_string(), ("b".to_string(), 10001))
         );
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                "a".to_string(),
-                "3".to_string(),
-                "temp1".to_string()
+                ("a".to_string(), 10000),
+                ("3".to_string(), 100000),
+                ("temp1".to_string(), 70000)
             )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                "b".to_string(),
-                "5".to_string(),
-                "temp2".to_string()
+                ("b".to_string(), 10001),
+                ("5".to_string(), 100001),
+                ("temp2".to_string(), 70001)
             )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
             &Quadruple::Op(
                 "!=".to_string(),
-                "temp1".to_string(),
-                "temp2".to_string(),
-                "temp3".to_string()
+                ("temp1".to_string(), 70000),
+                ("temp2".to_string(), 70001),
+                ("temp3".to_string(), 90000)
             )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
-            &Quadruple::GoToF("temp3".to_string(), 10)
+            &Quadruple::GoToF(("temp3".to_string(), 90000), 10)
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                "a".to_string(),
-                "1".to_string(),
-                "temp4".to_string()
+                ("a".to_string(), 10000),
+                ("1".to_string(), 100002),
+                ("temp4".to_string(), 70002)
             )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp4".to_string(), "a".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp4".to_string(), 70002),
+                ("a".to_string(), 10000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
-            &Quadruple::Print("Print".to_string(), "a".to_string())
+            &Quadruple::Print("Print".to_string(), ("a".to_string(), 10000))
         );
         assert_eq!(evaluator.quads.get(9).unwrap(), &Quadruple::GoTo(14));
         assert_eq!(
             evaluator.quads.get(10).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                "a".to_string(),
-                "b".to_string(),
-                "temp5".to_string()
+                ("a".to_string(), 10000),
+                ("b".to_string(), 10001),
+                ("temp5".to_string(), 70003)
             )
         );
         assert_eq!(
             evaluator.quads.get(11).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                "temp5".to_string(),
-                "1".to_string(),
-                "temp6".to_string()
+                ("temp5".to_string(), 70003),
+                ("1".to_string(), 100002),
+                ("temp6".to_string(), 70004)
             )
         );
         assert_eq!(
             evaluator.quads.get(12).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp6".to_string(), "b".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp6".to_string(), 70004),
+                ("b".to_string(), 10001)
+            )
         );
         assert_eq!(
             evaluator.quads.get(13).unwrap(),
-            &Quadruple::Print("Print".to_string(), "b".to_string())
+            &Quadruple::Print("Print".to_string(), ("b".to_string(), 10001))
         );
         assert_eq!(
             evaluator.quads.get(14).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                "a".to_string(),
-                "b".to_string(),
-                "temp7".to_string()
+                ("a".to_string(), 10000),
+                ("b".to_string(), 10001),
+                ("temp7".to_string(), 70005)
             )
         );
         assert_eq!(
             evaluator.quads.get(15).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                "temp7".to_string(),
-                "2".to_string(),
-                "temp8".to_string()
+                ("temp7".to_string(), 70005),
+                ("2".to_string(), 100003),
+                ("temp8".to_string(), 70006)
             )
         );
         assert_eq!(
             evaluator.quads.get(16).unwrap(),
-            &Quadruple::Assign("=".to_string(), "temp8".to_string(), "a".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp8".to_string(), 70006),
+                ("a".to_string(), 10000)
+            )
         );
         assert_eq!(
             evaluator.quads.get(17).unwrap(),
-            &Quadruple::Print("Print".to_string(), "a".to_string())
+            &Quadruple::Print("Print".to_string(), ("a".to_string(), 10000))
         );
     }
 
@@ -1467,5 +1527,121 @@ mod tests {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    fn test_vir_mem_ok_1() {
+        let filename = "./tests/vir_mem_ok_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        // Test vir mem addresses
+        // Globals
+        let global_map = &evaluator.dir_func.get("testVirMemAlloc").unwrap().dir_var;
+        assert_eq!(global_map.get("a").unwrap().addr, 10000);
+        assert_eq!(global_map.get("b").unwrap().addr, 10001);
+        assert_eq!(global_map.get("c").unwrap().addr, 10002);
+        assert_eq!(global_map.get("d").unwrap().addr, 20000);
+        assert_eq!(global_map.get("e").unwrap().addr, 20001);
+        assert_eq!(global_map.get("f").unwrap().addr, 20002);
+        assert_eq!(global_map.get("g").unwrap().addr, 30000);
+        assert_eq!(global_map.get("h").unwrap().addr, 30001);
+        assert_eq!(global_map.get("i").unwrap().addr, 30002);
+        // Locals
+        let fn_one_map = &evaluator.dir_func.get("fnOne").unwrap().dir_var;
+        assert_eq!(fn_one_map.get("a").unwrap().addr, 40000);
+        assert_eq!(fn_one_map.get("b").unwrap().addr, 50000);
+        assert_eq!(fn_one_map.get("c").unwrap().addr, 60000);
+        let fn_two_map = &evaluator.dir_func.get("fnOne").unwrap().dir_var;
+        assert_eq!(fn_two_map.get("a").unwrap().addr, 40000);
+        assert_eq!(fn_two_map.get("b").unwrap().addr, 50000);
+        assert_eq!(fn_two_map.get("c").unwrap().addr, 60000);
+        // Test Quads
+        assert_eq!(evaluator.quads.len(), 10);
+        assert_eq!(
+            evaluator.quads.get(0).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                ("b".to_string(), 10001),
+                ("c".to_string(), 10002),
+                ("temp1".to_string(), 70000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(1).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                ("temp1".to_string(), 70000),
+                ("1".to_string(), 100000),
+                ("temp2".to_string(), 70001)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(2).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp2".to_string(), 70001),
+                ("a".to_string(), 10000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(3).unwrap(),
+            &Quadruple::Op(
+                "/".to_string(),
+                ("e".to_string(), 20001),
+                ("f".to_string(), 20002),
+                ("temp3".to_string(), 80000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(4).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                ("temp3".to_string(), 80000),
+                ("1.2".to_string(), 110000),
+                ("temp4".to_string(), 80001)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(5).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp4".to_string(), 80001),
+                ("d".to_string(), 20000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(6).unwrap(),
+            &Quadruple::Op(
+                "And".to_string(),
+                ("h".to_string(), 30001),
+                ("i".to_string(), 30002),
+                ("temp5".to_string(), 90000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(7).unwrap(),
+            &Quadruple::Op(
+                "Or".to_string(),
+                ("temp5".to_string(), 90000),
+                ("True".to_string(), 120000),
+                ("temp6".to_string(), 90001)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(8).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("temp6".to_string(), 90001),
+                ("g".to_string(), 30000)
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(9).unwrap(),
+            &Quadruple::Print("PrintSL".to_string(), ("\"Wow".to_string(), 130000))
+        );
     }
 }

@@ -9,6 +9,7 @@ use std::collections::HashMap;
 #[derive(Debug)]
 pub struct VarInfo {
     pub tipo: Tipo,
+    pub addr: i32,
 }
 
 // Directory of Variables

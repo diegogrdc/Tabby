@@ -14,6 +14,7 @@ pub mod quadruples;
 pub mod semantic_cube;
 pub mod tests;
 pub mod tipo;
+pub mod vir_mem;
 
 // Main File
 fn main() {
@@ -34,5 +35,5 @@ fn main() {
     evaluator.eval_program(my_ast);
 
     // For debugging purposes, we print the directory function
-    println!("{:?}", evaluator.quads);
+    println!("{:#?}", evaluator.quads);
 }
