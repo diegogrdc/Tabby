@@ -12,6 +12,7 @@ use crate::quadruples::Quadruple;
 use crate::semantic_cube::*;
 use crate::tipo::*;
 use crate::vir_mem::*;
+use std::collections::HashMap;
 
 /*
 Parameters used in our AST Evaluator
@@ -52,7 +53,13 @@ Params:
     Optional string with name of the current local
     scope (function) to fetch local var names and types
     to validate their usage
-
+- curr_fn_size
+    List of size 3 used to store current declared variables in
+    local context to calculate workspace size
+    required in execution
+- curr_fn_tipo
+    Current function type used to determine
+    if returns are valid or not
 */
 pub struct AstEvaluator {
     pub dir_func: DirFunc,
@@ -65,6 +72,8 @@ pub struct AstEvaluator {
     pub next_cnt: i32,
     pub glob_scope: Option<String>,
     pub loc_scope: Option<String>,
+    pub curr_fn_size: [i32; 3],
+    pub curr_fn_tipo: Tipo,
 }
 
 // ASTEvaluator Builder
@@ -81,6 +90,8 @@ impl AstEvaluator {
             next_cnt: 1,
             glob_scope: None,
             loc_scope: None,
+            curr_fn_size: [0, 0, 0],
+            curr_fn_tipo: Tipo::Void,
         }
     }
 }
@@ -92,6 +103,9 @@ check semantics and generate IC code
 */
 impl AstEvaluator {
     pub fn eval_program(&mut self, program: Box<ast::Program>) -> bool {
+        // Push a temporal quadruple that will call a
+        // goto into Tabby Function
+        self.quads.push(Quadruple::Temp());
         match *program {
             ast::Program::Program(id, vardecs, functions, tabby) => {
                 // Set global scope name
@@ -114,6 +128,9 @@ impl AstEvaluator {
                     FuncInfo {
                         tipo: Tipo::Program,
                         dir_var: glob_vars,
+                        pos_init: -1,
+                        size: self.curr_fn_size.clone(),
+                        params: Vec::new(),
                     },
                 );
 
@@ -203,6 +220,7 @@ impl AstEvaluator {
                             addr: self.vir_mem_alloc.get_global_addr(&tipo_from_type(&typ)),
                         },
                     );
+                    self.add_var_to_size(&tipo_from_type(&typ));
                 }
             }
             ast::Vardec::Arr(typ, id, _sz) => {
@@ -234,6 +252,7 @@ impl AstEvaluator {
             ast::Functions::Fns(function_vec) => {
                 for function in function_vec {
                     self.vir_mem_alloc.reset_local();
+                    self.reset_curr_fn_size();
                     self.eval_function(function);
                 }
             }
@@ -247,75 +266,93 @@ impl AstEvaluator {
         // variables (params) in a Directory of Variables
         let mut vars = DirVar::new();
         let fn_id: String;
-        let fn_typ: Tipo;
+        let fn_tipo: Tipo;
         let fn_block: Box<ast::Block>;
+        let mut param_list: Vec<Tipo> = Vec::new();
 
         // Eval params when needed and get
         // relevant info like id, type and block
         match *function {
             ast::Function::FnParams(typ, id, params, block) => {
                 fn_id = id.clone();
-                fn_typ = tipo_from_type(&typ);
+                fn_tipo = tipo_from_type(&typ);
                 fn_block = block;
 
-                self.eval_params(params, &mut vars);
+                self.eval_params(params, &mut vars, &mut param_list);
             }
             ast::Function::FnVoidParams(id, params, block) => {
                 fn_id = id.clone();
-                fn_typ = Tipo::Void;
+                fn_tipo = Tipo::Void;
                 fn_block = block;
 
-                self.eval_params(params, &mut vars);
+                self.eval_params(params, &mut vars, &mut param_list);
             }
             ast::Function::Fn(typ, id, block) => {
                 fn_id = id.clone();
-                fn_typ = tipo_from_type(&typ);
+                fn_tipo = tipo_from_type(&typ);
                 fn_block = block;
             }
             ast::Function::FnVoid(id, block) => {
                 fn_id = id.clone();
-                fn_typ = Tipo::Void;
+                fn_tipo = Tipo::Void;
                 fn_block = block;
             }
         };
 
         // Check fn name is unique
         self.check_multiple_dec_fns(&fn_id);
+        let pos_init = self.quads.len() as i32;
+        // Set current local scope
+        self.loc_scope = Some(fn_id.clone());
+        // Set current fn type
+        self.curr_fn_tipo = fn_tipo.clone();
         // Create local var table
         self.dir_func.insert(
             fn_id.clone(),
             FuncInfo {
-                tipo: fn_typ,
+                tipo: fn_tipo,
                 dir_var: vars,
+                pos_init: pos_init,
+                size: [0, 0, 0],
+                params: param_list,
             },
         );
-        // Set current local scope
-        self.loc_scope = Some(fn_id);
         // Eval fn block
         self.eval_block(fn_block);
+        // Insert End Command
+        self.quads.push(Quadruple::EndFunc());
+        // Add size
+        self.set_fn_size(&fn_id);
         // Remove current local scope
         self.loc_scope = None;
         true
     }
 
-    pub fn eval_params(&mut self, params: Box<ast::Params>, vars: &mut DirVar) -> bool {
+    pub fn eval_params(
+        &mut self,
+        params: Box<ast::Params>,
+        vars: &mut DirVar,
+        param_list: &mut Vec<Tipo>,
+    ) -> bool {
         // Remember arrs and mats are sent as references
         match *params {
             ast::Params::Param(typ, id) => {
                 self.add_param(id, tipo_from_type(&typ), vars);
+                param_list.push(tipo_from_type(&typ));
             }
             ast::Params::ArrParam(typ, id) => {
                 self.add_param(id, tipo_from_type(&typ), vars);
             }
             ast::Params::ParamAnd(typ, id, params) => {
                 self.add_param(id, tipo_from_type(&typ), vars);
+                param_list.push(tipo_from_type(&typ));
 
-                self.eval_params(params, vars);
+                self.eval_params(params, vars, param_list);
             }
             ast::Params::ArrParamAnd(typ, id, params) => {
                 self.add_param(id, tipo_from_type(&typ), vars);
 
-                self.eval_params(params, vars);
+                self.eval_params(params, vars, param_list);
             }
         };
         true
@@ -323,6 +360,7 @@ impl AstEvaluator {
 
     pub fn add_param(&mut self, id: String, tip: Tipo, vars: &mut DirVar) {
         self.check_multiple_dec_var(&id, &vars);
+        self.add_var_to_size(&tip);
         vars.insert(
             id,
             VarInfo {
@@ -335,7 +373,31 @@ impl AstEvaluator {
     pub fn eval_tabby(&mut self, tabby: Box<ast::Tabby>) -> bool {
         match *tabby {
             ast::Tabby::Tabby(block) => {
+                self.reset_curr_fn_size();
+                // Change first quad to point here
+                self.curr_fn_tipo = Tipo::Void;
+                self.quads
+                    .insert(0, Quadruple::GoTo(self.quads.len() as i32));
+                self.quads.remove(1);
+                let pos_init = self.quads.len() as i32;
+
+                // Create local var table
+                self.dir_func.insert(
+                    "Tabby".to_string(),
+                    FuncInfo {
+                        tipo: Tipo::Void,
+                        dir_var: HashMap::new(),
+                        pos_init: pos_init,
+                        size: [0, 0, 0],
+                        params: Vec::new(),
+                    },
+                );
+
                 self.eval_block(block);
+
+                // Insert End Command
+                self.quads.push(Quadruple::EndFunc());
+                self.set_fn_size(&"Tabby".to_string());
             }
         };
         true
@@ -449,15 +511,39 @@ impl AstEvaluator {
     pub fn eval_call(&mut self, call: Box<ast::Call>) -> bool {
         match *call {
             ast::Call::Call(id, exp_vec) => {
+                self.quads.push(Quadruple::Era(id.clone()));
                 // We get the return type
                 // of the function to the expression
                 // to check semantics are ok
                 let fn_tipo: Tipo = self.get_fn_tipo_from_id(&id);
                 self.st_vals.push(format!("{}()", id));
                 self.st_tips.push(fn_tipo);
-                for exp in exp_vec {
-                    self.eval_exp(exp);
+
+                let params = self.dir_func.get(&id).unwrap().params.clone();
+
+                if exp_vec.len() != params.len() {
+                    panic!(
+                        "Function \"{}\" expected {} parameters, got {}",
+                        &id,
+                        params.len(),
+                        exp_vec.len()
+                    );
                 }
+
+                for (idx, exp) in exp_vec.into_iter().enumerate() {
+                    self.eval_exp(exp);
+                    let val = self.st_vals.pop().unwrap();
+                    let tipo = self.st_tips.pop().unwrap();
+                    // Makee sure param is of expected type or
+                    // can be casted
+                    self.get_result_tipo(&params[idx], &tipo, "Param");
+                    // Gen param quad
+                    let id_addr = self.get_id_addr(&val, &tipo);
+                    self.quads.push(Quadruple::Parameter(id_addr, idx as i32));
+                }
+                // Generate GoSub call
+                let goto_pos = self.dir_func.get(&id).unwrap().pos_init;
+                self.quads.push(Quadruple::GoSub(id.clone(), goto_pos));
             }
         };
         true
@@ -573,7 +659,24 @@ impl AstEvaluator {
     pub fn eval_return(&mut self, ret: Box<ast::Return>) -> bool {
         match *ret {
             ast::Return::Return(exp) => {
+                // Check if Void function
+                if self.curr_fn_tipo == Tipo::Void {
+                    panic!("ERROR: Cannot call \"Return\" in a Void Function");
+                }
+                // Push operator
+                self.st_ops.push("Return".to_string());
+                // Solve exp
                 self.eval_exp(exp);
+
+                assert!(self.st_ops.last().unwrap() == &"Return".to_string());
+                self.st_ops.pop();
+                let val: String = self.st_vals.pop().unwrap();
+                let rt_tipo: Tipo = self.st_tips.pop().unwrap();
+                let lt_tipo = self.curr_fn_tipo.clone();
+                // Get result type to assure no type mismatch
+                self.get_result_tipo(&lt_tipo, &rt_tipo, "Return");
+                let id_addr = self.get_id_addr(&val, &lt_tipo);
+                self.quads.push(Quadruple::Return(id_addr));
             }
         };
         true
@@ -746,7 +849,7 @@ impl AstEvaluator {
         let lt_tipo: Tipo = self.st_tips.pop().unwrap();
         self.st_ops.pop();
         let res_tipo = self.get_result_tipo(&lt_tipo, &rt_tipo, &op);
-        let res_id = self.get_next_temp();
+        let res_id = self.get_next_temp(&res_tipo);
         let lt_id_addr = self.get_id_addr(&lt_val, &lt_tipo);
         let rt_id_addr = self.get_id_addr(&rt_val, &rt_tipo);
         let res_id_addr = self.get_id_addr(&res_id, &res_tipo);
@@ -771,8 +874,9 @@ impl AstEvaluator {
         SC::val_to_tipo(*res_tipo.unwrap())
     }
 
-    pub fn get_next_temp(&mut self) -> String {
+    pub fn get_next_temp(&mut self, tipo: &Tipo) -> String {
         self.next_cnt = self.next_cnt + 1;
+        self.add_var_to_size(&tipo);
         format!("#temp{}", self.next_cnt - 1)
     }
 
@@ -887,5 +991,30 @@ impl AstEvaluator {
         }
         let var = var.unwrap();
         (id.clone(), var.addr)
+    }
+
+    pub fn reset_curr_fn_size(&mut self) {
+        self.curr_fn_size = [0, 0, 0];
+    }
+
+    pub fn add_var_to_size(&mut self, tipo: &Tipo) {
+        match *tipo {
+            Tipo::Int => {
+                self.curr_fn_size[0] = self.curr_fn_size[0] + 1;
+            }
+            Tipo::Float => {
+                self.curr_fn_size[1] = self.curr_fn_size[1] + 1;
+            }
+            Tipo::Bool => {
+                self.curr_fn_size[2] = self.curr_fn_size[2] + 1;
+            }
+            _ => {}
+        }
+    }
+
+    pub fn set_fn_size(&mut self, id: &String) {
+        let mut fn_info: FuncInfo = self.dir_func.get(id).unwrap().clone();
+        fn_info.size = self.curr_fn_size;
+        self.dir_func.insert(id.clone(), fn_info);
     }
 }

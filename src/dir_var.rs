@@ -6,7 +6,7 @@ use std::collections::HashMap;
 // on our directory of
 // variables, stored in a
 // hash map
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VarInfo {
     pub tipo: Tipo,
     pub addr: i32,

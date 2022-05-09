@@ -6,10 +6,13 @@ use std::collections::HashMap;
 // on our direectory of
 // functions stored in a
 // hash map
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FuncInfo {
     pub tipo: Tipo,
     pub dir_var: DirVar,
+    pub pos_init: i32,
+    pub size: [i32; 3],
+    pub params: Vec<Tipo>,
 }
 
 // Directory of Functions,

@@ -1,0 +1,11 @@
+Program testParamList;
+
+Fn Void fnVoidParams(Int a, Bool b, Float c) {}
+
+Fn Int fnIntParams(Bool a, Float b, Int c, Bool x) {}
+
+Fn Void fnVoid() {}
+
+Fn Float fnFloat() {}
+
+Tabby() {}

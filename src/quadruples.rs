@@ -13,6 +13,11 @@ pub enum Quadruple {
     Print(String, IdAddr),
     GoToF(IdAddr, i32),
     GoTo(i32),
+    GoSub(String, i32),
+    Era(String),
+    Parameter(IdAddr, i32),
+    EndFunc(),
+    Return(IdAddr),
     Temp(),
 }
 

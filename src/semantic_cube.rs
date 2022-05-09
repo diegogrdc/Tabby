@@ -189,8 +189,8 @@ impl SemanticCube {
                 SC::tipo_to_val(&Int),
             );
         }
-        // Assigmnent
-        let assign_ops = ["="];
+        // Assigmnent and Return
+        let assign_ops = ["=", "Return", "Param"];
         for op in assign_ops {
             table.insert(
                 (
@@ -227,14 +227,6 @@ impl SemanticCube {
             table.insert(
                 (
                     SC::tipo_to_val(&Bool),
-                    SC::tipo_to_val(&Float),
-                    SC::op_to_val(op),
-                ),
-                SC::tipo_to_val(&Bool),
-            );
-            table.insert(
-                (
-                    SC::tipo_to_val(&Bool),
                     SC::tipo_to_val(&Bool),
                     SC::op_to_val(op),
                 ),
@@ -252,14 +244,6 @@ impl SemanticCube {
                 (
                     SC::tipo_to_val(&Float),
                     SC::tipo_to_val(&Float),
-                    SC::op_to_val(op),
-                ),
-                SC::tipo_to_val(&Float),
-            );
-            table.insert(
-                (
-                    SC::tipo_to_val(&Float),
-                    SC::tipo_to_val(&Bool),
                     SC::op_to_val(op),
                 ),
                 SC::tipo_to_val(&Float),

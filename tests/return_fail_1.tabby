@@ -1,0 +1,7 @@
+Program testReturnFailVoid;
+
+Fn Void fnVoid() {
+    Return 12;
+}
+
+Tabby() {}

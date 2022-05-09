@@ -1,0 +1,21 @@
+Program testFunctionQuads;
+
+Var Int a, b, c;
+Var Float ft;
+
+Fn Void fnVoid(Int a, Int b) {
+    b = 2 * a;
+    a = b + 15 Or False;
+}
+
+Fn Int fnInt(Int x) {
+    a = x * 3;
+    b = (a + 2) * True;
+    Return b;
+}
+
+Fn Float fnFloat() {
+    ft = 3.14;
+}
+
+Tabby() {}
