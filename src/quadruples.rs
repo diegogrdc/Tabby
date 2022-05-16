@@ -14,11 +14,18 @@ pub enum Quadruple {
     GoToF(IdAddr, i32),
     GoTo(i32),
     GoSub(String, i32),
+    Init(i32),
     Era(String),
     Parameter(IdAddr, i32),
     EndFunc(),
-    Return(IdAddr),
+    Return(),
     Temp(),
 }
 
-pub type IdAddr = (String, i32);
+#[derive(Debug, PartialEq)]
+pub enum Addr {
+    Addr(i32),
+    Pointer(String),
+}
+
+pub type IdAddr = (String, Addr);

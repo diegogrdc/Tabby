@@ -1,0 +1,18 @@
+Program testQuadsReturnTwo;
+
+Fn Float float() {
+    Return 1.2;
+}
+
+Fn Bool bool() {
+    Return True;
+}
+
+Fn Void void() {
+}
+
+Tabby() {
+    float();
+    bool();
+    void();
+}

@@ -36,4 +36,7 @@ fn main() {
 
     // For debugging purposes, we print the directory function
     println!("{:#?}", evaluator.quads);
+    assert!(evaluator.st_ops.is_empty());
+    assert!(evaluator.st_vals.is_empty());
+    assert!(evaluator.st_tips.is_empty());
 }

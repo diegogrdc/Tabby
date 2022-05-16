@@ -7,8 +7,7 @@
 use crate::ast;
 use crate::dir_func::*;
 use crate::dir_var::*;
-use crate::quadruples::IdAddr;
-use crate::quadruples::Quadruple;
+use crate::quadruples::*;
 use crate::semantic_cube::*;
 use crate::tipo::*;
 use crate::vir_mem::*;
@@ -72,7 +71,8 @@ pub struct AstEvaluator {
     pub next_cnt: i32,
     pub glob_scope: Option<String>,
     pub loc_scope: Option<String>,
-    pub curr_fn_size: [i32; 3],
+    pub curr_fn_size_loc: [i32; 3],
+    pub curr_fn_size_tmp: [i32; 3],
     pub curr_fn_tipo: Tipo,
 }
 
@@ -90,7 +90,8 @@ impl AstEvaluator {
             next_cnt: 1,
             glob_scope: None,
             loc_scope: None,
-            curr_fn_size: [0, 0, 0],
+            curr_fn_size_loc: [0, 0, 0],
+            curr_fn_size_tmp: [0, 0, 0],
             curr_fn_tipo: Tipo::Void,
         }
     }
@@ -129,7 +130,8 @@ impl AstEvaluator {
                         tipo: Tipo::Program,
                         dir_var: glob_vars,
                         pos_init: -1,
-                        size: self.curr_fn_size.clone(),
+                        size_loc: self.curr_fn_size_loc.clone(),
+                        size_tmp: self.curr_fn_size_tmp.clone(),
                         params: Vec::new(),
                     },
                 );
@@ -217,29 +219,33 @@ impl AstEvaluator {
                         id,
                         VarInfo {
                             tipo: tipo_from_type(&typ),
-                            addr: self.vir_mem_alloc.get_global_addr(&tipo_from_type(&typ)),
+                            addr: self.vir_mem_alloc.get_global_addr(&tipo_from_type(&typ), 1),
                         },
                     );
-                    self.add_var_to_size(&tipo_from_type(&typ));
+                    self.add_loc_var_to_size(&tipo_from_type(&typ));
                 }
             }
-            ast::Vardec::Arr(typ, id, _sz) => {
+            ast::Vardec::Arr(typ, id, sz) => {
                 self.check_multiple_dec_var(&id, &vars);
                 vars.insert(
                     id,
                     VarInfo {
                         tipo: tipo_from_type(&typ),
-                        addr: self.vir_mem_alloc.get_global_addr(&tipo_from_type(&typ)),
+                        addr: self
+                            .vir_mem_alloc
+                            .get_global_addr(&tipo_from_type(&typ), sz),
                     },
                 );
             }
-            ast::Vardec::Mat(typ, id, _sz1, _sz2) => {
+            ast::Vardec::Mat(typ, id, sz1, sz2) => {
                 self.check_multiple_dec_var(&id, &vars);
                 vars.insert(
                     id,
                     VarInfo {
                         tipo: tipo_from_type(&typ),
-                        addr: self.vir_mem_alloc.get_global_addr(&tipo_from_type(&typ)),
+                        addr: self
+                            .vir_mem_alloc
+                            .get_global_addr(&tipo_from_type(&typ), sz1 * sz2),
                     },
                 );
             }
@@ -251,8 +257,7 @@ impl AstEvaluator {
         match *functions {
             ast::Functions::Fns(function_vec) => {
                 for function in function_vec {
-                    self.vir_mem_alloc.reset_local();
-                    self.reset_curr_fn_size();
+                    self.reset_fn_params();
                     self.eval_function(function);
                 }
             }
@@ -313,7 +318,8 @@ impl AstEvaluator {
                 tipo: fn_tipo,
                 dir_var: vars,
                 pos_init: pos_init,
-                size: [0, 0, 0],
+                size_loc: [0, 0, 0],
+                size_tmp: [0, 0, 0],
                 params: param_list,
             },
         );
@@ -340,17 +346,9 @@ impl AstEvaluator {
                 self.add_param(id, tipo_from_type(&typ), vars);
                 param_list.push(tipo_from_type(&typ));
             }
-            ast::Params::ArrParam(typ, id) => {
-                self.add_param(id, tipo_from_type(&typ), vars);
-            }
             ast::Params::ParamAnd(typ, id, params) => {
                 self.add_param(id, tipo_from_type(&typ), vars);
                 param_list.push(tipo_from_type(&typ));
-
-                self.eval_params(params, vars, param_list);
-            }
-            ast::Params::ArrParamAnd(typ, id, params) => {
-                self.add_param(id, tipo_from_type(&typ), vars);
 
                 self.eval_params(params, vars, param_list);
             }
@@ -360,7 +358,7 @@ impl AstEvaluator {
 
     pub fn add_param(&mut self, id: String, tip: Tipo, vars: &mut DirVar) {
         self.check_multiple_dec_var(&id, &vars);
-        self.add_var_to_size(&tip);
+        self.add_loc_var_to_size(&tip);
         vars.insert(
             id,
             VarInfo {
@@ -373,11 +371,11 @@ impl AstEvaluator {
     pub fn eval_tabby(&mut self, tabby: Box<ast::Tabby>) -> bool {
         match *tabby {
             ast::Tabby::Tabby(block) => {
-                self.reset_curr_fn_size();
+                self.reset_fn_params();
                 // Change first quad to point here
                 self.curr_fn_tipo = Tipo::Void;
                 self.quads
-                    .insert(0, Quadruple::GoTo(self.quads.len() as i32));
+                    .insert(0, Quadruple::Init(self.quads.len() as i32));
                 self.quads.remove(1);
                 let pos_init = self.quads.len() as i32;
 
@@ -388,7 +386,8 @@ impl AstEvaluator {
                         tipo: Tipo::Void,
                         dir_var: HashMap::new(),
                         pos_init: pos_init,
-                        size: [0, 0, 0],
+                        size_loc: [0, 0, 0],
+                        size_tmp: [0, 0, 0],
                         params: Vec::new(),
                     },
                 );
@@ -461,6 +460,9 @@ impl AstEvaluator {
                 // Print quad after eval
                 let id = self.st_vals.pop().unwrap();
                 let tip = self.st_tips.pop().unwrap();
+                if tip == Tipo::Void {
+                    panic!("ERROR: Can't print a Void type");
+                }
                 let id_addr = self.get_id_addr(&id, &tip);
                 self.quads
                     .push(Quadruple::Print("Print".to_string(), id_addr));
@@ -476,6 +478,9 @@ impl AstEvaluator {
                 // Print quad after eval
                 let id = self.st_vals.pop().unwrap();
                 let tip = self.st_tips.pop().unwrap();
+                if tip == Tipo::Void {
+                    panic!("ERROR: Can't print a Void type");
+                }
                 let id_addr = self.get_id_addr(&id, &tip);
                 self.quads
                     .push(Quadruple::Print("Print".to_string(), id_addr));
@@ -516,9 +521,6 @@ impl AstEvaluator {
                 // of the function to the expression
                 // to check semantics are ok
                 let fn_tipo: Tipo = self.get_fn_tipo_from_id(&id);
-                self.st_vals.push(format!("{}()", id));
-                self.st_tips.push(fn_tipo);
-
                 let params = self.dir_func.get(&id).unwrap().params.clone();
 
                 if exp_vec.len() != params.len() {
@@ -544,6 +546,29 @@ impl AstEvaluator {
                 // Generate GoSub call
                 let goto_pos = self.dir_func.get(&id).unwrap().pos_init;
                 self.quads.push(Quadruple::GoSub(id.clone(), goto_pos));
+                // Get Result from Function if
+                // not Void with an assignment
+                if fn_tipo != Tipo::Void {
+                    // We assign the returned value
+                    // stored in global temp depending
+                    // on type
+                    let id_addr_ret = (
+                        "Ret".to_string(),
+                        Addr::Addr(self.vir_mem_alloc.get_gtemp_addr(&fn_tipo)),
+                    );
+                    let res_id = self.get_next_ltemp(&fn_tipo);
+                    let res_id_addr = self.get_id_addr(&res_id, &fn_tipo);
+                    self.quads
+                        .push(Quadruple::Assign("=".to_string(), id_addr_ret, res_id_addr));
+                    // Push to stack
+                    self.st_vals.push(res_id);
+                    self.st_tips.push(fn_tipo.clone());
+                } else {
+                    // Void function pushed
+                    // to detect error if needed
+                    self.st_vals.push("VoidResult".to_string());
+                    self.st_tips.push(Tipo::Void);
+                }
             }
         };
         true
@@ -670,13 +695,19 @@ impl AstEvaluator {
 
                 assert!(self.st_ops.last().unwrap() == &"Return".to_string());
                 self.st_ops.pop();
-                let val: String = self.st_vals.pop().unwrap();
+                let rt_val: String = self.st_vals.pop().unwrap();
                 let rt_tipo: Tipo = self.st_tips.pop().unwrap();
                 let lt_tipo = self.curr_fn_tipo.clone();
+                let lt_id_addr = (
+                    "Ret".to_string(),
+                    Addr::Addr(self.vir_mem_alloc.get_gtemp_addr(&lt_tipo)),
+                );
                 // Get result type to assure no type mismatch
                 self.get_result_tipo(&lt_tipo, &rt_tipo, "Return");
-                let id_addr = self.get_id_addr(&val, &lt_tipo);
-                self.quads.push(Quadruple::Return(id_addr));
+                let rt_id_addr = self.get_id_addr(&rt_val, &lt_tipo);
+                self.quads
+                    .push(Quadruple::Assign("=".to_string(), rt_id_addr, lt_id_addr));
+                self.quads.push(Quadruple::Return());
             }
         };
         true
@@ -849,7 +880,7 @@ impl AstEvaluator {
         let lt_tipo: Tipo = self.st_tips.pop().unwrap();
         self.st_ops.pop();
         let res_tipo = self.get_result_tipo(&lt_tipo, &rt_tipo, &op);
-        let res_id = self.get_next_temp(&res_tipo);
+        let res_id = self.get_next_ltemp(&res_tipo);
         let lt_id_addr = self.get_id_addr(&lt_val, &lt_tipo);
         let rt_id_addr = self.get_id_addr(&rt_val, &rt_tipo);
         let res_id_addr = self.get_id_addr(&res_id, &res_tipo);
@@ -874,9 +905,9 @@ impl AstEvaluator {
         SC::val_to_tipo(*res_tipo.unwrap())
     }
 
-    pub fn get_next_temp(&mut self, tipo: &Tipo) -> String {
+    pub fn get_next_ltemp(&mut self, tipo: &Tipo) -> String {
         self.next_cnt = self.next_cnt + 1;
-        self.add_var_to_size(&tipo);
+        self.add_tmp_var_to_size(&tipo);
         format!("#temp{}", self.next_cnt - 1)
     }
 
@@ -939,20 +970,13 @@ impl AstEvaluator {
     }
 
     pub fn get_id_addr(&mut self, id: &String, tip: &Tipo) -> IdAddr {
-        // Temp?
+        // Local Temp?
         //   Identify with #
         if id.contains("#") {
             return (
                 id[1..].to_string(),
-                self.vir_mem_alloc.get_temp_addr(id, tip),
+                Addr::Addr(self.vir_mem_alloc.get_ltemp_addr(id, tip)),
             );
-        }
-
-        // Call?
-        //   Identify with ()
-        //   TODO: Replace?
-        if id.contains("(") {
-            return (id.clone(), -1);
         }
 
         // Constant?
@@ -963,7 +987,10 @@ impl AstEvaluator {
             || id.chars().nth(0).unwrap() == 'T'
             || id.chars().nth(0).unwrap() == 'F'
         {
-            return (id.clone(), self.vir_mem_alloc.get_cnst_addr(&id, tip));
+            return (
+                id.clone(),
+                Addr::Addr(self.vir_mem_alloc.get_cnst_addr(&id, tip)),
+            );
         }
 
         // Variable?
@@ -973,7 +1000,7 @@ impl AstEvaluator {
             let vars = &self.dir_func.get(loc_scope).unwrap().dir_var;
             // Query var
             if let Some(var) = vars.get(id) {
-                return (id.clone(), var.addr);
+                return (id.clone(), Addr::Addr(var.addr));
             }
         }
         // If local not found
@@ -990,31 +1017,49 @@ impl AstEvaluator {
             panic!("DEV ERROR: Variable with id {} should exist", id);
         }
         let var = var.unwrap();
-        (id.clone(), var.addr)
+        (id.clone(), Addr::Addr(var.addr))
     }
 
-    pub fn reset_curr_fn_size(&mut self) {
-        self.curr_fn_size = [0, 0, 0];
-    }
-
-    pub fn add_var_to_size(&mut self, tipo: &Tipo) {
+    pub fn add_loc_var_to_size(&mut self, tipo: &Tipo) {
         match *tipo {
             Tipo::Int => {
-                self.curr_fn_size[0] = self.curr_fn_size[0] + 1;
+                self.curr_fn_size_loc[0] = self.curr_fn_size_loc[0] + 1;
             }
             Tipo::Float => {
-                self.curr_fn_size[1] = self.curr_fn_size[1] + 1;
+                self.curr_fn_size_loc[1] = self.curr_fn_size_loc[1] + 1;
             }
             Tipo::Bool => {
-                self.curr_fn_size[2] = self.curr_fn_size[2] + 1;
+                self.curr_fn_size_loc[2] = self.curr_fn_size_loc[2] + 1;
+            }
+            _ => {}
+        }
+    }
+
+    pub fn add_tmp_var_to_size(&mut self, tipo: &Tipo) {
+        match *tipo {
+            Tipo::Int => {
+                self.curr_fn_size_tmp[0] = self.curr_fn_size_tmp[0] + 1;
+            }
+            Tipo::Float => {
+                self.curr_fn_size_tmp[1] = self.curr_fn_size_tmp[1] + 1;
+            }
+            Tipo::Bool => {
+                self.curr_fn_size_tmp[2] = self.curr_fn_size_tmp[2] + 1;
             }
             _ => {}
         }
     }
 
     pub fn set_fn_size(&mut self, id: &String) {
-        let mut fn_info: FuncInfo = self.dir_func.get(id).unwrap().clone();
-        fn_info.size = self.curr_fn_size;
-        self.dir_func.insert(id.clone(), fn_info);
+        let fn_info: &mut FuncInfo = self.dir_func.get_mut(id).unwrap();
+        fn_info.size_loc = self.curr_fn_size_loc;
+        fn_info.size_tmp = self.curr_fn_size_tmp;
+    }
+
+    pub fn reset_fn_params(&mut self) {
+        self.vir_mem_alloc.reset_local();
+        self.next_cnt = 1;
+        self.curr_fn_size_loc = [0, 0, 0];
+        self.curr_fn_size_tmp = [0, 0, 0];
     }
 }

@@ -4,8 +4,10 @@ lalrpop_mod!(pub tabby); // synthesized by LALRPOP
 mod tests {
     use super::*;
     use crate::ast_evaluator::AstEvaluator;
+    use crate::quadruples::Addr;
     use crate::quadruples::Quadruple;
     use crate::tipo::Tipo;
+    use crate::vir_mem::*;
     use std::fs;
     /*
     #[test]
@@ -852,12 +854,12 @@ mod tests {
         assert!(evaluator.dir_func.get("fnVoidParams").is_some());
         let fn_dir = &evaluator.dir_func.get("fnVoidParams").unwrap();
         assert_eq!(fn_dir.tipo, Tipo::Void);
-        assert!(fn_dir.dir_var.get("arrInt").is_some());
-        assert_eq!(fn_dir.dir_var.get("arrInt").unwrap().tipo, Tipo::Int);
-        assert!(fn_dir.dir_var.get("arrBool").is_some());
-        assert_eq!(fn_dir.dir_var.get("arrBool").unwrap().tipo, Tipo::Bool);
-        assert!(fn_dir.dir_var.get("arrFloat").is_some());
-        assert_eq!(fn_dir.dir_var.get("arrFloat").unwrap().tipo, Tipo::Float);
+        assert!(fn_dir.dir_var.get("int").is_some());
+        assert_eq!(fn_dir.dir_var.get("int").unwrap().tipo, Tipo::Int);
+        assert!(fn_dir.dir_var.get("bool").is_some());
+        assert_eq!(fn_dir.dir_var.get("bool").unwrap().tipo, Tipo::Bool);
+        assert!(fn_dir.dir_var.get("float").is_some());
+        assert_eq!(fn_dir.dir_var.get("float").unwrap().tipo, Tipo::Float);
     }
 
     #[test]
@@ -953,143 +955,260 @@ mod tests {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 36);
-        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(2));
+        assert_eq!(evaluator.quads.len(), 38);
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(2));
         assert_eq!(evaluator.quads.get(1).unwrap(), &Quadruple::EndFunc());
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                ("a".to_string(), 10000),
-                ("a".to_string(), 10000),
-                ("temp1".to_string(), 70000)
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp1".to_string(), 70000),
-                ("a".to_string(), 10000)
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
             &Quadruple::Op(
                 "-".to_string(),
-                ("b".to_string(), 20000),
-                ("a".to_string(), 10000),
-                ("temp2".to_string(), 80000)
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_FLOAT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp2".to_string(), 80000),
-                ("b".to_string(), 20000)
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_FLOAT_OFFSET)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("c".to_string(), 30000),
-                ("a".to_string(), 10000),
-                ("temp3".to_string(), 70001)
+                (
+                    "c".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp3".to_string(), 70001),
-                ("b".to_string(), 20000)
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
             &Quadruple::Op(
                 "/".to_string(),
-                ("a".to_string(), 10000),
-                ("c".to_string(), 30000),
-                ("temp4".to_string(), 70002),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "c".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 2)
+                ),
             )
         );
         assert_eq!(
             evaluator.quads.get(9).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp4".to_string(), 70002),
-                ("c".to_string(), 30000)
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 2)
+                ),
+                (
+                    "c".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(10).unwrap(),
             &Quadruple::Op(
                 ">".to_string(),
-                ("12".to_string(), 100000),
-                ("5".to_string(), 100001),
-                ("temp5".to_string(), 90000)
+                ("12".to_string(), Addr::Addr(CNST_START + LOCAL_INT_OFFSET)),
+                (
+                    "5".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp5".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(11).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp5".to_string(), 90000),
-                ("a".to_string(), 10000)
+                (
+                    "temp5".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(12).unwrap(),
             &Quadruple::Op(
                 "==".to_string(),
-                ("b".to_string(), 20000),
-                ("b".to_string(), 20000),
-                ("temp6".to_string(), 90001)
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET)
+                ),
+                (
+                    "temp6".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(13).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp6".to_string(), 90001),
-                ("c".to_string(), 30000)
+                (
+                    "temp6".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 1)
+                ),
+                (
+                    "c".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(14).unwrap(),
             &Quadruple::Op(
                 "And".to_string(),
-                ("True".to_string(), 120000),
-                ("False".to_string(), 120001),
-                ("temp7".to_string(), 90002)
+                (
+                    "True".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "False".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET + 1)
+                ),
+                (
+                    "temp7".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 2)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(15).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp7".to_string(), 90002),
-                ("c".to_string(), 30000)
+                (
+                    "temp7".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 2)
+                ),
+                (
+                    "c".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(16).unwrap(),
             &Quadruple::Op(
                 "Or".to_string(),
-                ("False".to_string(), 120001),
-                ("True".to_string(), 120000),
-                ("temp8".to_string(), 90003)
+                (
+                    "False".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET + 1)
+                ),
+                (
+                    "True".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp8".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 3)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(17).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp8".to_string(), 90003),
-                ("a".to_string(), 10000)
+                (
+                    "temp8".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 3)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
@@ -1104,91 +1223,203 @@ mod tests {
             evaluator.quads.get(20).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("fn()".to_string(), -1),
-                ("a".to_string(), 10000)
+                ("Ret".to_string(), Addr::Addr(GTEMP_START)),
+                (
+                    "temp9".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 3)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(21).unwrap(),
-            &Quadruple::Era("fn".to_string())
+            &Quadruple::Assign(
+                "=".to_string(),
+                (
+                    "temp9".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 3)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(22).unwrap(),
-            &Quadruple::GoSub("fn".to_string(), 1)
+            &Quadruple::Era("fn".to_string())
         );
         assert_eq!(
             evaluator.quads.get(23).unwrap(),
-            &Quadruple::Op(
-                "*".to_string(),
-                ("fn()".to_string(), -1),
-                ("5".to_string(), 100001),
-                ("temp9".to_string(), 70003)
-            )
+            &Quadruple::GoSub("fn".to_string(), 1)
         );
         assert_eq!(
             evaluator.quads.get(24).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp9".to_string(), 70003),
-                ("b".to_string(), 20000)
+                ("Ret".to_string(), Addr::Addr(GTEMP_START)),
+                (
+                    "temp10".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 4)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(25).unwrap(),
-            &Quadruple::Read("Read".to_string(), ("a".to_string(), 10000))
+            &Quadruple::Op(
+                "*".to_string(),
+                (
+                    "temp10".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 4)
+                ),
+                (
+                    "5".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp11".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 5)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(26).unwrap(),
-            &Quadruple::Read("Read".to_string(), ("b".to_string(), 20000))
+            &Quadruple::Assign(
+                "=".to_string(),
+                (
+                    "temp11".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 5)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(27).unwrap(),
-            &Quadruple::Op(
-                "*".to_string(),
-                ("True".to_string(), 120000),
-                ("c".to_string(), 30000),
-                ("temp10".to_string(), 70004)
+            &Quadruple::Read(
+                "Read".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(28).unwrap(),
-            &Quadruple::Op(
-                "+".to_string(),
-                ("a".to_string(), 10000),
-                ("temp10".to_string(), 70004),
-                ("temp11".to_string(), 70005)
+            &Quadruple::Read(
+                "Read".to_string(),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(29).unwrap(),
-            &Quadruple::Print("Print".to_string(), ("temp11".to_string(), 70005))
+            &Quadruple::Op(
+                "*".to_string(),
+                (
+                    "True".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "c".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp12".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 6)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(30).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"Hello".to_string(), 130000))
+            &Quadruple::Op(
+                "+".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "temp12".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 6)
+                ),
+                (
+                    "temp13".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 7)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(31).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"wow!".to_string(), 130001))
+            &Quadruple::Print(
+                "Print".to_string(),
+                (
+                    "temp13".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 7)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(32).unwrap(),
-            &Quadruple::Op(
-                "*".to_string(),
-                ("a".to_string(), 10000),
-                ("b".to_string(), 20000),
-                ("temp12".to_string(), 80001)
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"Hello".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(33).unwrap(),
-            &Quadruple::Print("Print".to_string(), ("temp12".to_string(), 80001))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"wow!".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 1)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(34).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"nope".to_string(), 130002))
+            &Quadruple::Op(
+                "*".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET)
+                ),
+                (
+                    "temp14".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_FLOAT_OFFSET + 1)
+                )
+            )
         );
-        assert_eq!(evaluator.quads.get(35).unwrap(), &Quadruple::EndFunc());
+        assert_eq!(
+            evaluator.quads.get(35).unwrap(),
+            &Quadruple::Print(
+                "Print".to_string(),
+                (
+                    "temp14".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_FLOAT_OFFSET + 1)
+                )
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(36).unwrap(),
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"nope".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 2)
+                )
+            )
+        );
+        assert_eq!(evaluator.quads.get(37).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -1201,112 +1432,214 @@ mod tests {
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
         assert_eq!(evaluator.quads.len(), 14);
-        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                ("2".to_string(), 100000),
-                ("b".to_string(), 30000),
-                ("temp1".to_string(), 70000)
+                ("2".to_string(), Addr::Addr(CNST_START + LOCAL_INT_OFFSET)),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("temp1".to_string(), 70000),
-                ("b".to_string(), 30000),
-                ("temp2".to_string(), 70001)
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
             &Quadruple::Op(
                 "/".to_string(),
-                ("i".to_string(), 10000),
-                ("i".to_string(), 10000),
-                ("temp3".to_string(), 70002)
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 2)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
             &Quadruple::Op(
                 "-".to_string(),
-                ("temp2".to_string(), 70001),
-                ("temp3".to_string(), 70002),
-                ("temp4".to_string(), 70003)
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 2)
+                ),
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 3)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                ("temp4".to_string(), 70003),
-                ("b".to_string(), 30000),
-                ("temp5".to_string(), 70004)
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 3)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp5".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 4)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
             &Quadruple::Op(
                 ">".to_string(),
-                ("temp5".to_string(), 70004),
-                ("False".to_string(), 120000),
-                ("temp6".to_string(), 90000)
+                (
+                    "temp5".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 4)
+                ),
+                (
+                    "False".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp6".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
             &Quadruple::Op(
                 "!=".to_string(),
-                ("10".to_string(), 100001),
-                ("i".to_string(), 10000),
-                ("temp7".to_string(), 90001)
+                (
+                    "10".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "temp7".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
             &Quadruple::Op(
                 "Or".to_string(),
-                ("temp7".to_string(), 90001),
-                ("True".to_string(), 120001),
-                ("temp8".to_string(), 90002)
+                (
+                    "temp7".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 1)
+                ),
+                (
+                    "True".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET + 1)
+                ),
+                (
+                    "temp8".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 2)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(9).unwrap(),
             &Quadruple::Op(
                 "And".to_string(),
-                ("temp6".to_string(), 90000),
-                ("temp8".to_string(), 90002),
-                ("temp9".to_string(), 90003)
+                (
+                    "temp6".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp8".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 2)
+                ),
+                (
+                    "temp9".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 3)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(10).unwrap(),
             &Quadruple::Op(
                 "Or".to_string(),
-                ("temp9".to_string(), 90003),
-                ("b".to_string(), 30000),
-                ("temp10".to_string(), 90004)
+                (
+                    "temp9".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 3)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp10".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 4)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(11).unwrap(),
             &Quadruple::Op(
                 "Or".to_string(),
-                ("temp10".to_string(), 90004),
-                ("i".to_string(), 10000),
-                ("temp11".to_string(), 90005)
+                (
+                    "temp10".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 4)
+                ),
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "temp11".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 5)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(12).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp11".to_string(), 90005),
-                ("res".to_string(), 30001)
+                (
+                    "temp11".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 5)
+                ),
+                (
+                    "res".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET + 1)
+                )
             )
         );
         assert_eq!(evaluator.quads.get(13).unwrap(), &Quadruple::EndFunc());
@@ -1348,61 +1681,115 @@ mod tests {
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
         assert_eq!(evaluator.quads.len(), 11);
-        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
-            &Quadruple::Read("Read".to_string(), ("a".to_string(), 10000))
+            &Quadruple::Read(
+                "Read".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("12".to_string(), 100000),
-                ("a".to_string(), 10000),
-                ("temp1".to_string(), 70000)
+                ("12".to_string(), Addr::Addr(CNST_START + LOCAL_INT_OFFSET)),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
             &Quadruple::Op(
                 ">".to_string(),
-                ("temp1".to_string(), 70000),
-                ("18".to_string(), 100001),
-                ("temp2".to_string(), 90000)
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                ),
+                (
+                    "18".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
-            &Quadruple::GoToF(("temp2".to_string(), 90000), 8)
+            &Quadruple::GoToF(
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                ),
+                8
+            )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("a".to_string(), 10000),
-                ("12".to_string(), 100000),
-                ("temp3".to_string(), 70001)
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                ("12".to_string(), Addr::Addr(CNST_START + LOCAL_INT_OFFSET)),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp3".to_string(), 70001),
-                ("a".to_string(), 10000)
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"If".to_string(), 130000))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                ("\"If".to_string(), Addr::Addr(CNST_START + STRLIT_OFFSET))
+            )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"End".to_string(), 130001))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"End".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 1)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(9).unwrap(),
-            &Quadruple::Print("Print".to_string(), ("a".to_string(), 10000))
+            &Quadruple::Print(
+                "Print".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(evaluator.quads.get(10).unwrap(), &Quadruple::EndFunc());
     }
@@ -1417,127 +1804,250 @@ mod tests {
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
         assert_eq!(evaluator.quads.len(), 20);
-        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
-            &Quadruple::Read("Read".to_string(), ("a".to_string(), 10000))
+            &Quadruple::Read(
+                "Read".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
-            &Quadruple::Read("Read".to_string(), ("b".to_string(), 10001))
+            &Quadruple::Read(
+                "Read".to_string(),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET + 1)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("a".to_string(), 10000),
-                ("3".to_string(), 100000),
-                ("temp1".to_string(), 70000)
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                ("3".to_string(), Addr::Addr(CNST_START + LOCAL_INT_OFFSET)),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("b".to_string(), 10001),
-                ("5".to_string(), 100001),
-                ("temp2".to_string(), 70001)
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET + 1)
+                ),
+                (
+                    "5".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
             &Quadruple::Op(
                 "!=".to_string(),
-                ("temp1".to_string(), 70000),
-                ("temp2".to_string(), 70001),
-                ("temp3".to_string(), 90000)
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                ),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
-            &Quadruple::GoToF(("temp3".to_string(), 90000), 11)
+            &Quadruple::GoToF(
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                ),
+                11
+            )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                ("a".to_string(), 10000),
-                ("1".to_string(), 100002),
-                ("temp4".to_string(), 70002)
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "1".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 2)
+                ),
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 2)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp4".to_string(), 70002),
-                ("a".to_string(), 10000)
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 2)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(9).unwrap(),
-            &Quadruple::Print("Print".to_string(), ("a".to_string(), 10000))
+            &Quadruple::Print(
+                "Print".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(evaluator.quads.get(10).unwrap(), &Quadruple::GoTo(15));
         assert_eq!(
             evaluator.quads.get(11).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                ("a".to_string(), 10000),
-                ("b".to_string(), 10001),
-                ("temp5".to_string(), 70003)
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp5".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 3)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(12).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                ("temp5".to_string(), 70003),
-                ("1".to_string(), 100002),
-                ("temp6".to_string(), 70004)
+                (
+                    "temp5".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 3)
+                ),
+                (
+                    "1".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 2)
+                ),
+                (
+                    "temp6".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 4)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(13).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp6".to_string(), 70004),
-                ("b".to_string(), 10001)
+                (
+                    "temp6".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 4)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(14).unwrap(),
-            &Quadruple::Print("Print".to_string(), ("b".to_string(), 10001))
+            &Quadruple::Print(
+                "Print".to_string(),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET + 1)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(15).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("a".to_string(), 10000),
-                ("b".to_string(), 10001),
-                ("temp7".to_string(), 70005)
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp7".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 5)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(16).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                ("temp7".to_string(), 70005),
-                ("2".to_string(), 100003),
-                ("temp8".to_string(), 70006)
+                (
+                    "temp7".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 5)
+                ),
+                (
+                    "2".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 3)
+                ),
+                (
+                    "temp8".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 6)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(17).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp8".to_string(), 70006),
-                ("a".to_string(), 10000)
+                (
+                    "temp8".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 6)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(18).unwrap(),
-            &Quadruple::Print("Print".to_string(), ("a".to_string(), 10000))
+            &Quadruple::Print(
+                "Print".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(evaluator.quads.get(19).unwrap(), &Quadruple::EndFunc());
     }
@@ -1566,110 +2076,227 @@ mod tests {
         // Test vir mem addresses
         // Globals
         let global_map = &evaluator.dir_func.get("testVirMemAlloc").unwrap().dir_var;
-        assert_eq!(global_map.get("a").unwrap().addr, 10000);
-        assert_eq!(global_map.get("b").unwrap().addr, 10001);
-        assert_eq!(global_map.get("c").unwrap().addr, 10002);
-        assert_eq!(global_map.get("d").unwrap().addr, 20000);
-        assert_eq!(global_map.get("e").unwrap().addr, 20001);
-        assert_eq!(global_map.get("f").unwrap().addr, 20002);
-        assert_eq!(global_map.get("g").unwrap().addr, 30000);
-        assert_eq!(global_map.get("h").unwrap().addr, 30001);
-        assert_eq!(global_map.get("i").unwrap().addr, 30002);
+        assert_eq!(
+            global_map.get("a").unwrap().addr,
+            GLOBAL_START + GLOBAL_INT_OFFSET
+        );
+        assert_eq!(
+            global_map.get("b").unwrap().addr,
+            GLOBAL_START + GLOBAL_INT_OFFSET + 1
+        );
+        assert_eq!(
+            global_map.get("c").unwrap().addr,
+            GLOBAL_START + GLOBAL_INT_OFFSET + 2
+        );
+        assert_eq!(
+            global_map.get("d").unwrap().addr,
+            GLOBAL_START + GLOBAL_FLOAT_OFFSET
+        );
+        assert_eq!(
+            global_map.get("e").unwrap().addr,
+            GLOBAL_START + GLOBAL_FLOAT_OFFSET + 1
+        );
+        assert_eq!(
+            global_map.get("f").unwrap().addr,
+            GLOBAL_START + GLOBAL_FLOAT_OFFSET + 2
+        );
+        assert_eq!(
+            global_map.get("g").unwrap().addr,
+            GLOBAL_START + GLOBAL_BOOL_OFFSET
+        );
+        assert_eq!(
+            global_map.get("h").unwrap().addr,
+            GLOBAL_START + GLOBAL_BOOL_OFFSET + 1
+        );
+        assert_eq!(
+            global_map.get("i").unwrap().addr,
+            GLOBAL_START + GLOBAL_BOOL_OFFSET + 2
+        );
         // Locals
         let fn_one_map = &evaluator.dir_func.get("fnOne").unwrap().dir_var;
-        assert_eq!(fn_one_map.get("a").unwrap().addr, 40000);
-        assert_eq!(fn_one_map.get("b").unwrap().addr, 50000);
-        assert_eq!(fn_one_map.get("c").unwrap().addr, 60000);
+        assert_eq!(
+            fn_one_map.get("a").unwrap().addr,
+            LOCAL_START + LOCAL_INT_OFFSET
+        );
+        assert_eq!(
+            fn_one_map.get("b").unwrap().addr,
+            LOCAL_START + LOCAL_FLOAT_OFFSET
+        );
+        assert_eq!(
+            fn_one_map.get("c").unwrap().addr,
+            LOCAL_START + LOCAL_BOOL_OFFSET
+        );
         let fn_two_map = &evaluator.dir_func.get("fnOne").unwrap().dir_var;
-        assert_eq!(fn_two_map.get("a").unwrap().addr, 40000);
-        assert_eq!(fn_two_map.get("b").unwrap().addr, 50000);
-        assert_eq!(fn_two_map.get("c").unwrap().addr, 60000);
+        assert_eq!(
+            fn_two_map.get("a").unwrap().addr,
+            LOCAL_START + LOCAL_INT_OFFSET
+        );
+        assert_eq!(
+            fn_two_map.get("b").unwrap().addr,
+            LOCAL_START + LOCAL_FLOAT_OFFSET
+        );
+        assert_eq!(
+            fn_two_map.get("c").unwrap().addr,
+            LOCAL_START + LOCAL_BOOL_OFFSET
+        );
         // Test Quads
         assert_eq!(evaluator.quads.len(), 14);
-        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(3));
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(3));
         assert_eq!(evaluator.quads.get(1).unwrap(), &Quadruple::EndFunc());
         assert_eq!(evaluator.quads.get(2).unwrap(), &Quadruple::EndFunc());
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("b".to_string(), 10001),
-                ("c".to_string(), 10002),
-                ("temp1".to_string(), 70000)
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET + 1)
+                ),
+                (
+                    "c".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET + 2)
+                ),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("temp1".to_string(), 70000),
-                ("1".to_string(), 100000),
-                ("temp2".to_string(), 70001)
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                ),
+                ("1".to_string(), Addr::Addr(CNST_START + LOCAL_INT_OFFSET)),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp2".to_string(), 70001),
-                ("a".to_string(), 10000)
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
             &Quadruple::Op(
                 "/".to_string(),
-                ("e".to_string(), 20001),
-                ("f".to_string(), 20002),
-                ("temp3".to_string(), 80000)
+                (
+                    "e".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET + 1)
+                ),
+                (
+                    "f".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET + 2)
+                ),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_FLOAT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("temp3".to_string(), 80000),
-                ("1.2".to_string(), 110000),
-                ("temp4".to_string(), 80001)
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_FLOAT_OFFSET)
+                ),
+                (
+                    "1.2".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_FLOAT_OFFSET)
+                ),
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_FLOAT_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp4".to_string(), 80001),
-                ("d".to_string(), 20000)
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_FLOAT_OFFSET + 1)
+                ),
+                (
+                    "d".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_FLOAT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(9).unwrap(),
             &Quadruple::Op(
                 "And".to_string(),
-                ("h".to_string(), 30001),
-                ("i".to_string(), 30002),
-                ("temp5".to_string(), 90000)
+                (
+                    "h".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET + 1)
+                ),
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET + 2)
+                ),
+                (
+                    "temp5".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(10).unwrap(),
             &Quadruple::Op(
                 "Or".to_string(),
-                ("temp5".to_string(), 90000),
-                ("True".to_string(), 120000),
-                ("temp6".to_string(), 90001)
+                (
+                    "temp5".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "True".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp6".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(11).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp6".to_string(), 90001),
-                ("g".to_string(), 30000)
+                (
+                    "temp6".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 1)
+                ),
+                (
+                    "g".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(12).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"Wow".to_string(), 130000))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                ("\"Wow".to_string(), Addr::Addr(CNST_START + STRLIT_OFFSET))
+            )
         );
         assert_eq!(evaluator.quads.get(13).unwrap(), &Quadruple::EndFunc());
     }
@@ -1684,71 +2311,140 @@ mod tests {
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
         assert_eq!(evaluator.quads.len(), 13);
-        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
-            &Quadruple::Read("Read".to_string(), ("a".to_string(), 10000))
+            &Quadruple::Read(
+                "Read".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                ("a".to_string(), 10000),
-                ("5".to_string(), 100000),
-                ("temp1".to_string(), 70000)
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                ("5".to_string(), Addr::Addr(CNST_START + GLOBAL_INT_OFFSET)),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("10".to_string(), 100001),
-                ("2".to_string(), 100002),
-                ("temp2".to_string(), 70001)
+                (
+                    "10".to_string(),
+                    Addr::Addr(CNST_START + GLOBAL_INT_OFFSET + 1)
+                ),
+                (
+                    "2".to_string(),
+                    Addr::Addr(CNST_START + GLOBAL_INT_OFFSET + 2)
+                ),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
             &Quadruple::Op(
                 "<".to_string(),
-                ("temp1".to_string(), 70000),
-                ("temp2".to_string(), 70001),
-                ("temp3".to_string(), 90000)
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                ),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
-            &Quadruple::GoToF(("temp3".to_string(), 90000), 10)
+            &Quadruple::GoToF(
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                ),
+                10
+            )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
-            &Quadruple::Print("Print".to_string(), ("a".to_string(), 10000))
+            &Quadruple::Print(
+                "Print".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                ("a".to_string(), 10000),
-                ("1".to_string(), 100003),
-                ("temp4".to_string(), 70002)
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "1".to_string(),
+                    Addr::Addr(CNST_START + GLOBAL_INT_OFFSET + 3)
+                ),
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 2)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp4".to_string(), 70002),
-                ("a".to_string(), 10000)
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 2)
+                ),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(evaluator.quads.get(9).unwrap(), &Quadruple::GoTo(2));
         assert_eq!(
             evaluator.quads.get(10).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"Finish".to_string(), 130000))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"Finish".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(11).unwrap(),
-            &Quadruple::Print("Print".to_string(), ("a".to_string(), 10000))
+            &Quadruple::Print(
+                "Print".to_string(),
+                (
+                    "a".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(evaluator.quads.get(12).unwrap(), &Quadruple::EndFunc());
     }
@@ -1763,62 +2459,119 @@ mod tests {
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
         assert_eq!(evaluator.quads.len(), 12);
-        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
-            &Quadruple::Read("Read".to_string(), ("i".to_string(), 10000))
+            &Quadruple::Read(
+                "Read".to_string(),
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
             &Quadruple::Op(
                 "+".to_string(),
-                ("i".to_string(), 10000),
-                ("1".to_string(), 100000),
-                ("temp1".to_string(), 70000)
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                ("1".to_string(), Addr::Addr(CNST_START + LOCAL_INT_OFFSET)),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
             &Quadruple::Op(
                 ">".to_string(),
-                ("temp1".to_string(), 70000),
-                ("5".to_string(), 100001),
-                ("temp2".to_string(), 90000)
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                ),
+                (
+                    "5".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
-            &Quadruple::GoToF(("temp2".to_string(), 90000), 10)
+            &Quadruple::GoToF(
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                ),
+                10
+            )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"Loop".to_string(), 130000))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                ("\"Loop".to_string(), Addr::Addr(CNST_START + STRLIT_OFFSET))
+            )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
-            &Quadruple::Print("Print".to_string(), ("i".to_string(), 10000))
+            &Quadruple::Print(
+                "Print".to_string(),
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
             &Quadruple::Op(
                 "*".to_string(),
-                ("2".to_string(), 100002),
-                ("i".to_string(), 10000),
-                ("temp3".to_string(), 70001)
+                (
+                    "2".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 2)
+                ),
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("temp3".to_string(), 70001),
-                ("i".to_string(), 10000)
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
             )
         );
         assert_eq!(evaluator.quads.get(9).unwrap(), &Quadruple::GoTo(2));
         assert_eq!(
             evaluator.quads.get(10).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"Finish".to_string(), 130001))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"Finish".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 1)
+                )
+            )
         );
         assert_eq!(evaluator.quads.get(11).unwrap(), &Quadruple::EndFunc());
     }
@@ -1833,117 +2586,255 @@ mod tests {
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
         assert_eq!(evaluator.quads.len(), 26);
-        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"ProgramStt".to_string(), 130000))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"ProgramStt".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(2).unwrap(),
             &Quadruple::Op(
                 "==".to_string(),
-                ("i".to_string(), 30000),
-                ("True".to_string(), 120000),
-                ("temp1".to_string(), 90000)
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "True".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(3).unwrap(),
-            &Quadruple::GoToF(("temp1".to_string(), 90000), 24)
+            &Quadruple::GoToF(
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                ),
+                24
+            )
         );
         assert_eq!(
             evaluator.quads.get(4).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"ForStt".to_string(), 130001))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"ForStt".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 1)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(5).unwrap(),
             &Quadruple::Op(
                 "==".to_string(),
-                ("i".to_string(), 30000),
-                ("True".to_string(), 120000),
-                ("temp2".to_string(), 90001)
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "True".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 1)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(6).unwrap(),
-            &Quadruple::GoToF(("temp2".to_string(), 90001), 15)
+            &Quadruple::GoToF(
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 1)
+                ),
+                15
+            )
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"IfStt".to_string(), 130002))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"IfStt".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 2)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
             &Quadruple::Op(
                 "==".to_string(),
-                ("i".to_string(), 30000),
-                ("True".to_string(), 120000),
-                ("temp3".to_string(), 90002)
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "True".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 2)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(9).unwrap(),
-            &Quadruple::GoToF(("temp3".to_string(), 90002), 12)
+            &Quadruple::GoToF(
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 2)
+                ),
+                12
+            )
         );
         assert_eq!(
             evaluator.quads.get(10).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"While".to_string(), 130003))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"While".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 3)
+                )
+            )
         );
         assert_eq!(evaluator.quads.get(11).unwrap(), &Quadruple::GoTo(8));
         assert_eq!(
             evaluator.quads.get(12).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"ExitWhile".to_string(), 130004))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"ExitWhile".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 4)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(13).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"IfEnd".to_string(), 130005))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"IfEnd".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 5)
+                )
+            )
         );
         assert_eq!(evaluator.quads.get(14).unwrap(), &Quadruple::GoTo(21));
         assert_eq!(
             evaluator.quads.get(15).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"ElseStt".to_string(), 130006))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"ElseStt".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 6)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(16).unwrap(),
             &Quadruple::Op(
                 "==".to_string(),
-                ("i".to_string(), 30000),
-                ("False".to_string(), 120001),
-                ("temp4".to_string(), 90003)
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                ),
+                (
+                    "False".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET + 1)
+                ),
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 3)
+                )
             )
         );
         assert_eq!(
             evaluator.quads.get(17).unwrap(),
-            &Quadruple::GoToF(("temp4".to_string(), 90003), 19)
+            &Quadruple::GoToF(
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET + 3)
+                ),
+                19
+            )
         );
         assert_eq!(
             evaluator.quads.get(18).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"If2".to_string(), 130007))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"If2".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 7)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(19).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"ExitIf2".to_string(), 130008))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"ExitIf2".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 8)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(20).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"ElseEnd".to_string(), 130009))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"ElseEnd".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 9)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(21).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"ForEnd".to_string(), 130010))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"ForEnd".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 10)
+                )
+            )
         );
         assert_eq!(
             evaluator.quads.get(22).unwrap(),
             &Quadruple::Assign(
                 "=".to_string(),
-                ("True".to_string(), 120000),
-                ("i".to_string(), 30000)
+                (
+                    "True".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET)
+                ),
+                (
+                    "i".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_BOOL_OFFSET)
+                )
             )
         );
         assert_eq!(evaluator.quads.get(23).unwrap(), &Quadruple::GoTo(2));
         assert_eq!(
             evaluator.quads.get(24).unwrap(),
-            &Quadruple::Print("PrintSL".to_string(), ("\"ProgramEnd".to_string(), 130011))
+            &Quadruple::Print(
+                "PrintSL".to_string(),
+                (
+                    "\"ProgramEnd".to_string(),
+                    Addr::Addr(CNST_START + STRLIT_OFFSET + 11)
+                )
+            )
         );
         assert_eq!(evaluator.quads.get(25).unwrap(), &Quadruple::EndFunc());
     }
@@ -1958,22 +2849,22 @@ mod tests {
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
         let fn_info = evaluator.dir_func.get("fnVoidParams").unwrap();
-        assert_eq!(fn_info.size, [1, 1, 1]);
+        assert_eq!(fn_info.size_loc, [1, 1, 1]);
         assert_eq!(fn_info.params, [Tipo::Int, Tipo::Bool, Tipo::Float]);
         let fn_info = evaluator.dir_func.get("fnIntParams").unwrap();
-        assert_eq!(fn_info.size, [1, 1, 2]);
+        assert_eq!(fn_info.size_loc, [1, 1, 2]);
         assert_eq!(
             fn_info.params,
             [Tipo::Bool, Tipo::Float, Tipo::Int, Tipo::Bool]
         );
         let fn_info = evaluator.dir_func.get("fnVoid").unwrap();
-        assert_eq!(fn_info.size, [0, 0, 0]);
+        assert_eq!(fn_info.size_loc, [0, 0, 0]);
         assert_eq!(fn_info.params, []);
         let fn_info = evaluator.dir_func.get("fnFloat").unwrap();
-        assert_eq!(fn_info.size, [0, 0, 0]);
+        assert_eq!(fn_info.size_loc, [0, 0, 0]);
         assert_eq!(fn_info.params, []);
         let fn_info = evaluator.dir_func.get("Tabby").unwrap();
-        assert_eq!(fn_info.size, [0, 0, 0]);
+        assert_eq!(fn_info.size_loc, [0, 0, 0]);
         assert_eq!(fn_info.params, []);
     }
 
@@ -1988,22 +2879,27 @@ mod tests {
         evaluator.eval_program(my_ast);
         let fn_info = evaluator.dir_func.get("testFunctionSize").unwrap();
         assert_eq!(fn_info.params, []);
-        assert_eq!(fn_info.size, [3, 0, 0]);
+        assert_eq!(fn_info.size_loc, [3, 0, 0]);
+        assert_eq!(fn_info.size_tmp, [0, 0, 0]);
         let fn_info = evaluator.dir_func.get("fnVoidParams").unwrap();
         assert_eq!(fn_info.params, [Tipo::Int, Tipo::Int]);
-        assert_eq!(fn_info.size, [4, 0, 1]);
+        assert_eq!(fn_info.size_loc, [2, 0, 0]);
+        assert_eq!(fn_info.size_tmp, [2, 0, 1]);
         let fn_info = evaluator.dir_func.get("fnIntParams").unwrap();
         assert_eq!(fn_info.params, [Tipo::Bool, Tipo::Float, Tipo::Int]);
-        assert_eq!(fn_info.size, [1, 2, 3]);
+        assert_eq!(fn_info.size_loc, [1, 1, 1]);
+        assert_eq!(fn_info.size_tmp, [0, 1, 2]);
         let fn_info = evaluator.dir_func.get("fnVoid").unwrap();
         assert_eq!(fn_info.params, []);
-        assert_eq!(fn_info.size, [2, 0, 2]);
+        assert_eq!(fn_info.size_loc, [0, 0, 0]);
+        assert_eq!(fn_info.size_tmp, [2, 0, 2]);
         let fn_info = evaluator.dir_func.get("fnFloat").unwrap();
         assert_eq!(fn_info.params, []);
-        assert_eq!(fn_info.size, [0, 0, 0]);
+        assert_eq!(fn_info.size_loc, [0, 0, 0]);
         let fn_info = evaluator.dir_func.get("Tabby").unwrap();
         assert_eq!(fn_info.params, []);
-        assert_eq!(fn_info.size, [0, 0, 1]);
+        assert_eq!(fn_info.size_loc, [0, 0, 0]);
+        assert_eq!(fn_info.size_tmp, [0, 0, 1]);
     }
 
     #[test]
@@ -2015,28 +2911,36 @@ mod tests {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 17);
-        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(16));
+        assert_eq!(evaluator.quads.len(), 18);
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(17));
         // fnVoid starts and has 5 ops
         assert_eq!(evaluator.quads.get(6).unwrap(), &Quadruple::EndFunc());
         // fnInit starts and has 5 irrelevant quads
         assert_eq!(
             evaluator.quads.get(12).unwrap(),
-            &Quadruple::Return(("b".to_string(), 10001))
+            &Quadruple::Assign(
+                "=".to_string(),
+                (
+                    "b".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET + 1)
+                ),
+                ("Ret".to_string(), Addr::Addr(GTEMP_START))
+            )
         );
-        assert_eq!(evaluator.quads.get(13).unwrap(), &Quadruple::EndFunc());
+        assert_eq!(evaluator.quads.get(13).unwrap(), &Quadruple::Return());
+        assert_eq!(evaluator.quads.get(14).unwrap(), &Quadruple::EndFunc());
         // fnFloat starts and has 1 irrelevant quad
-        assert_eq!(evaluator.quads.get(15).unwrap(), &Quadruple::EndFunc());
         assert_eq!(evaluator.quads.get(16).unwrap(), &Quadruple::EndFunc());
+        assert_eq!(evaluator.quads.get(17).unwrap(), &Quadruple::EndFunc());
 
         let fn_info = evaluator.dir_func.get("fnVoid").unwrap();
         assert_eq!(fn_info.pos_init, 1);
         let fn_info = evaluator.dir_func.get("fnInt").unwrap();
         assert_eq!(fn_info.pos_init, 7);
         let fn_info = evaluator.dir_func.get("fnFloat").unwrap();
-        assert_eq!(fn_info.pos_init, 14);
+        assert_eq!(fn_info.pos_init, 15);
         let fn_info = evaluator.dir_func.get("Tabby").unwrap();
-        assert_eq!(fn_info.pos_init, 16);
+        assert_eq!(fn_info.pos_init, 17);
     }
 
     #[test]
@@ -2061,5 +2965,285 @@ mod tests {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_return_fail_3() {
+        let filename = "./tests/return_fail_3.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_return_fail_4() {
+        let filename = "./tests/return_fail_4.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+    }
+
+    #[test]
+    fn test_quads_ret_ok_1() {
+        let filename = "./tests/quads_ret_ok_1.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        assert_eq!(evaluator.quads.len(), 21);
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(14));
+        assert_eq!(
+            evaluator.quads.get(1).unwrap(),
+            &Quadruple::Op(
+                "==".to_string(),
+                ("x".to_string(), Addr::Addr(LOCAL_START + LOCAL_INT_OFFSET)),
+                ("0".to_string(), Addr::Addr(CNST_START + LOCAL_INT_OFFSET)),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                ),
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(2).unwrap(),
+            &Quadruple::GoToF(
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                ),
+                5
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(3).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                (
+                    "1".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 1)
+                ),
+                ("Ret".to_string(), Addr::Addr(GTEMP_START))
+            )
+        );
+        assert_eq!(evaluator.quads.get(4).unwrap(), &Quadruple::Return());
+        assert_eq!(
+            evaluator.quads.get(5).unwrap(),
+            &Quadruple::Era("fib".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(6).unwrap(),
+            &Quadruple::Op(
+                "-".to_string(),
+                ("x".to_string(), Addr::Addr(LOCAL_START + LOCAL_INT_OFFSET)),
+                (
+                    "1".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_INT_OFFSET + 1)
+                ),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                ),
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(7).unwrap(),
+            &Quadruple::Parameter(
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                ),
+                0
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(8).unwrap(),
+            &Quadruple::GoSub("fib".to_string(), 1)
+        );
+        assert_eq!(
+            evaluator.quads.get(9).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("Ret".to_string(), Addr::Addr(GTEMP_START)),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                )
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(10).unwrap(),
+            &Quadruple::Op(
+                "*".to_string(),
+                (
+                    "temp3".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 1)
+                ),
+                ("x".to_string(), Addr::Addr(LOCAL_START + LOCAL_INT_OFFSET)),
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 2)
+                ),
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(11).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                (
+                    "temp4".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET + 2)
+                ),
+                ("Ret".to_string(), Addr::Addr(GTEMP_START))
+            )
+        );
+        assert_eq!(evaluator.quads.get(12).unwrap(), &Quadruple::Return());
+        assert_eq!(evaluator.quads.get(13).unwrap(), &Quadruple::EndFunc());
+        assert_eq!(
+            evaluator.quads.get(14).unwrap(),
+            &Quadruple::Read(
+                "Read".to_string(),
+                (
+                    "n".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                )
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(15).unwrap(),
+            &Quadruple::Era("fib".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(16).unwrap(),
+            &Quadruple::Parameter(
+                (
+                    "n".to_string(),
+                    Addr::Addr(GLOBAL_START + GLOBAL_INT_OFFSET)
+                ),
+                0
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(17).unwrap(),
+            &Quadruple::GoSub("fib".to_string(), 1)
+        );
+        assert_eq!(
+            evaluator.quads.get(18).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("Ret".to_string(), Addr::Addr(GTEMP_START)),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                )
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(19).unwrap(),
+            &Quadruple::Print(
+                "Print".to_string(),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_INT_OFFSET)
+                )
+            )
+        );
+        assert_eq!(evaluator.quads.get(20).unwrap(), &Quadruple::EndFunc());
+    }
+
+    #[test]
+    fn test_quads_ret_ok_2() {
+        let filename = "./tests/quads_ret_ok_2.tabby";
+        let contents = fs::read_to_string(filename).unwrap();
+        let res = tabby::PROGRAMParser::new().parse(&contents);
+        assert!(res.is_ok());
+        let my_ast = res.unwrap();
+        let mut evaluator = AstEvaluator::new();
+        evaluator.eval_program(my_ast);
+        assert_eq!(evaluator.quads.len(), 17);
+        assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::Init(8));
+        assert_eq!(
+            evaluator.quads.get(1).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                (
+                    "1.2".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_FLOAT_OFFSET)
+                ),
+                ("Ret".to_string(), Addr::Addr(GTEMP_START + 1))
+            )
+        );
+        assert_eq!(evaluator.quads.get(2).unwrap(), &Quadruple::Return());
+        assert_eq!(evaluator.quads.get(3).unwrap(), &Quadruple::EndFunc());
+        assert_eq!(
+            evaluator.quads.get(4).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                (
+                    "True".to_string(),
+                    Addr::Addr(CNST_START + LOCAL_BOOL_OFFSET)
+                ),
+                ("Ret".to_string(), Addr::Addr(GTEMP_START + 2))
+            )
+        );
+        assert_eq!(evaluator.quads.get(5).unwrap(), &Quadruple::Return());
+        assert_eq!(evaluator.quads.get(6).unwrap(), &Quadruple::EndFunc());
+        assert_eq!(evaluator.quads.get(7).unwrap(), &Quadruple::EndFunc());
+        assert_eq!(
+            evaluator.quads.get(8).unwrap(),
+            &Quadruple::Era("float".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(9).unwrap(),
+            &Quadruple::GoSub("float".to_string(), 1)
+        );
+        assert_eq!(
+            evaluator.quads.get(10).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("Ret".to_string(), Addr::Addr(GTEMP_START + 1)),
+                (
+                    "temp1".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_FLOAT_OFFSET)
+                )
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(11).unwrap(),
+            &Quadruple::Era("bool".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(12).unwrap(),
+            &Quadruple::GoSub("bool".to_string(), 4)
+        );
+        assert_eq!(
+            evaluator.quads.get(13).unwrap(),
+            &Quadruple::Assign(
+                "=".to_string(),
+                ("Ret".to_string(), Addr::Addr(GTEMP_START + 2)),
+                (
+                    "temp2".to_string(),
+                    Addr::Addr(LTEMP_START + LOCAL_BOOL_OFFSET)
+                )
+            )
+        );
+        assert_eq!(
+            evaluator.quads.get(14).unwrap(),
+            &Quadruple::Era("void".to_string())
+        );
+        assert_eq!(
+            evaluator.quads.get(15).unwrap(),
+            &Quadruple::GoSub("void".to_string(), 7)
+        );
+        assert_eq!(evaluator.quads.get(16).unwrap(), &Quadruple::EndFunc());
     }
 }

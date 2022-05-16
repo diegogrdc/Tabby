@@ -58,9 +58,7 @@ pub enum Function {
 #[derive(Debug)]
 pub enum Params {
     Param(Type, String),
-    ArrParam(Type, String),
     ParamAnd(Type, String, Box<Params>),
-    ArrParamAnd(Type, String, Box<Params>),
 }
 
 #[derive(Debug)]

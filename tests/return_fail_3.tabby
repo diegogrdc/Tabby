@@ -1,0 +1,7 @@
+Program testReturnFailWriteVoid;
+
+Fn Void fnVoid() {}
+
+Tabby() {
+    Write(fnVoid());
+}

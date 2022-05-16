@@ -56,9 +56,7 @@ FUNCTION: Box<ast::Function> = {
 
 PARAMS: Box<ast::Params> = {
     <t:TYPE> <id:ID> => Box::new(ast::Params::Param(t, id)),
-    "Arr" <t:TYPE> <id:ID> => Box::new(ast::Params::ArrParam(t, id)),
     <t:TYPE> <id:ID> "," <p:PARAMS> => Box::new(ast::Params::ParamAnd(t, id, p)),
-    "Arr" <t:TYPE> <id:ID> "," <p:PARAMS> => Box::new(ast::Params::ArrParamAnd(t, id, p)),
 };
 
 TABBY: Box<ast::Tabby> = {

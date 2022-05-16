@@ -1,0 +1,15 @@
+Program testQuadsReturn;
+
+Var Int n;
+
+Fn Int fib(Int x) {
+    If(x == 0) {
+        Return 1;
+    }
+    Return fib(x - 1) * x;
+}
+
+Tabby() {
+    Read(n);
+    Write(fib(n));
+}

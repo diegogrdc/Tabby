@@ -3,27 +3,36 @@ use crate::tipo::Tipo;
 use std::collections::HashMap;
 
 // constants
-pub const BLOCK_SIZE: i32 = 30000; // Divisible by 3
-pub const GLOBAL_START: i32 = 10000;
-pub const GLOBAL_END: i32 = GLOBAL_START + BLOCK_SIZE - 1;
-pub const LOCAL_START: i32 = GLOBAL_END + 1;
-pub const LOCAL_END: i32 = LOCAL_START + BLOCK_SIZE - 1;
-pub const TEMP_START: i32 = LOCAL_END + 1;
-pub const TEMP_END: i32 = TEMP_START + BLOCK_SIZE - 1;
-pub const CNST_START: i32 = TEMP_END + 1;
-pub const CNST_END: i32 = CNST_START + BLOCK_SIZE / 3 * 4 - 1;
+pub const LOCAL_BLOCK_SIZE: i32 = 10002; // Divisible by 3
+pub const GLOBAL_BLOCK_SIZE: i32 = 100002; // Divisible by 3
 
-pub const INT_OFFSET: i32 = 0;
-pub const FLOAT_OFFSET: i32 = BLOCK_SIZE / 3;
-pub const BOOL_OFFSET: i32 = BLOCK_SIZE / 3 * 2;
-pub const STRLIT_OFFSET: i32 = BLOCK_SIZE / 3 * 3;
+pub const GLOBAL_START: i32 = 0;
+pub const GLOBAL_END: i32 = GLOBAL_START + GLOBAL_BLOCK_SIZE - 1;
+pub const GTEMP_START: i32 = GLOBAL_END + 1;
+pub const GTEMP_END: i32 = GTEMP_START + 3 - 1;
+pub const LOCAL_START: i32 = GTEMP_END + 1;
+pub const LOCAL_END: i32 = LOCAL_START + LOCAL_BLOCK_SIZE - 1;
+pub const LTEMP_START: i32 = LOCAL_END + 1;
+pub const LTEMP_END: i32 = LTEMP_START + LOCAL_BLOCK_SIZE - 1;
+pub const CNST_START: i32 = LTEMP_END + 1;
+pub const CNST_END: i32 = CNST_START + LOCAL_BLOCK_SIZE / 3 * 4 - 1;
+
+pub const GLOBAL_INT_OFFSET: i32 = 0;
+pub const GLOBAL_FLOAT_OFFSET: i32 = GLOBAL_BLOCK_SIZE / 3;
+pub const GLOBAL_BOOL_OFFSET: i32 = GLOBAL_BLOCK_SIZE / 3 * 2;
+
+pub const LOCAL_INT_OFFSET: i32 = 0;
+pub const LOCAL_FLOAT_OFFSET: i32 = LOCAL_BLOCK_SIZE / 3;
+pub const LOCAL_BOOL_OFFSET: i32 = LOCAL_BLOCK_SIZE / 3 * 2;
+pub const STRLIT_OFFSET: i32 = LOCAL_BLOCK_SIZE / 3 * 3;
 
 // Struct to take care of virtual memory allocation
 pub struct VirMemAllocator {
     pub global: [i32; 3],
+    pub gtemp: [i32; 3],
     pub local: [i32; 3],
-    pub temp: [i32; 3],
-    pub temp_map: HashMap<String, i32>,
+    pub ltemp: [i32; 3],
+    pub ltemp_map: HashMap<String, i32>,
     pub cnst: [i32; 4],
     pub cnst_map: HashMap<String, i32>,
 }
@@ -32,25 +41,26 @@ impl VirMemAllocator {
     pub fn new() -> VirMemAllocator {
         VirMemAllocator {
             global: [
-                GLOBAL_START + INT_OFFSET,
-                GLOBAL_START + FLOAT_OFFSET,
-                GLOBAL_START + BOOL_OFFSET,
+                GLOBAL_START + GLOBAL_INT_OFFSET,
+                GLOBAL_START + GLOBAL_FLOAT_OFFSET,
+                GLOBAL_START + GLOBAL_BOOL_OFFSET,
             ],
+            gtemp: [GTEMP_START + 0, GTEMP_START + 1, GTEMP_START + 2],
             local: [
-                LOCAL_START + INT_OFFSET,
-                LOCAL_START + FLOAT_OFFSET,
-                LOCAL_START + BOOL_OFFSET,
+                LOCAL_START + LOCAL_INT_OFFSET,
+                LOCAL_START + LOCAL_FLOAT_OFFSET,
+                LOCAL_START + LOCAL_BOOL_OFFSET,
             ],
-            temp: [
-                TEMP_START + INT_OFFSET,
-                TEMP_START + FLOAT_OFFSET,
-                TEMP_START + BOOL_OFFSET,
+            ltemp: [
+                LTEMP_START + LOCAL_INT_OFFSET,
+                LTEMP_START + LOCAL_FLOAT_OFFSET,
+                LTEMP_START + LOCAL_BOOL_OFFSET,
             ],
-            temp_map: HashMap::new(),
+            ltemp_map: HashMap::new(),
             cnst: [
-                CNST_START + INT_OFFSET,
-                CNST_START + FLOAT_OFFSET,
-                CNST_START + BOOL_OFFSET,
+                CNST_START + LOCAL_INT_OFFSET,
+                CNST_START + LOCAL_FLOAT_OFFSET,
+                CNST_START + LOCAL_BOOL_OFFSET,
                 CNST_START + STRLIT_OFFSET,
             ],
             cnst_map: HashMap::new(),
@@ -59,23 +69,29 @@ impl VirMemAllocator {
 
     pub fn reset_local(&mut self) {
         self.local = [
-            LOCAL_START + INT_OFFSET,
-            LOCAL_START + FLOAT_OFFSET,
-            LOCAL_START + BOOL_OFFSET,
+            LOCAL_START + LOCAL_INT_OFFSET,
+            LOCAL_START + LOCAL_FLOAT_OFFSET,
+            LOCAL_START + LOCAL_BOOL_OFFSET,
         ];
+        self.ltemp = [
+            LTEMP_START + LOCAL_INT_OFFSET,
+            LTEMP_START + LOCAL_FLOAT_OFFSET,
+            LTEMP_START + LOCAL_BOOL_OFFSET,
+        ];
+        self.ltemp_map = HashMap::new();
     }
 
-    pub fn get_global_addr(&mut self, tipo: &Tipo) -> i32 {
+    pub fn get_global_addr(&mut self, tipo: &Tipo, qnt: i32) -> i32 {
         let pos = self.get_pos(&tipo);
 
         let lim: i32 = match *tipo {
-            Tipo::Int => GLOBAL_START + FLOAT_OFFSET - 1,
-            Tipo::Float => GLOBAL_START + BOOL_OFFSET - 1,
+            Tipo::Int => GLOBAL_START + GLOBAL_FLOAT_OFFSET - 1,
+            Tipo::Float => GLOBAL_START + GLOBAL_BOOL_OFFSET - 1,
             Tipo::Bool => GLOBAL_END,
             _ => 0,
         };
 
-        if self.global[pos] + 1 > lim {
+        if self.global[pos] + qnt > lim {
             panic!(
                 "ERROR: Too many global variables of type {:?} declared\n",
                 tipo
@@ -83,16 +99,21 @@ impl VirMemAllocator {
         }
 
         let mem = self.global[pos];
-        self.global[pos] = self.global[pos] + 1;
+        self.global[pos] = self.global[pos] + qnt;
         mem
+    }
+
+    pub fn get_gtemp_addr(&mut self, tipo: &Tipo) -> i32 {
+        let pos = self.get_pos(&tipo);
+        self.gtemp[pos]
     }
 
     pub fn get_local_addr(&mut self, tipo: &Tipo) -> i32 {
         let pos = self.get_pos(&tipo);
 
         let lim: i32 = match *tipo {
-            Tipo::Int => LOCAL_START + FLOAT_OFFSET - 1,
-            Tipo::Float => LOCAL_START + BOOL_OFFSET - 1,
+            Tipo::Int => LOCAL_START + LOCAL_FLOAT_OFFSET - 1,
+            Tipo::Float => LOCAL_START + LOCAL_BOOL_OFFSET - 1,
             Tipo::Bool => LOCAL_END,
             _ => 0,
         };
@@ -109,30 +130,30 @@ impl VirMemAllocator {
         mem
     }
 
-    pub fn get_temp_addr(&mut self, id: &String, tipo: &Tipo) -> i32 {
-        if let Some(addr) = self.temp_map.get(id) {
+    pub fn get_ltemp_addr(&mut self, id: &String, tipo: &Tipo) -> i32 {
+        if let Some(addr) = self.ltemp_map.get(id) {
             return *addr;
         }
 
         let pos = self.get_pos(&tipo);
 
         let lim: i32 = match *tipo {
-            Tipo::Int => TEMP_START + FLOAT_OFFSET - 1,
-            Tipo::Float => TEMP_START + BOOL_OFFSET - 1,
-            Tipo::Bool => TEMP_END,
+            Tipo::Int => LTEMP_START + LOCAL_FLOAT_OFFSET - 1,
+            Tipo::Float => LTEMP_START + LOCAL_BOOL_OFFSET - 1,
+            Tipo::Bool => LTEMP_END,
             _ => 0,
         };
 
-        if self.temp[pos] + 1 > lim {
+        if self.ltemp[pos] + 1 > lim {
             panic!(
                 "ERROR: Too many temporal variables of type {:?} generated\n",
                 tipo
             );
         }
 
-        let mem = self.temp[pos];
-        self.temp_map.insert(id.clone(), mem);
-        self.temp[pos] = self.temp[pos] + 1;
+        let mem = self.ltemp[pos];
+        self.ltemp_map.insert(id.clone(), mem);
+        self.ltemp[pos] = self.ltemp[pos] + 1;
         mem
     }
 
@@ -143,8 +164,8 @@ impl VirMemAllocator {
         let pos = self.get_pos(&tipo);
 
         let lim: i32 = match *tipo {
-            Tipo::Int => CNST_START + FLOAT_OFFSET - 1,
-            Tipo::Float => CNST_START + BOOL_OFFSET - 1,
+            Tipo::Int => CNST_START + LOCAL_FLOAT_OFFSET - 1,
+            Tipo::Float => CNST_START + LOCAL_BOOL_OFFSET - 1,
             Tipo::Bool => CNST_START + STRLIT_OFFSET - 1,
             Tipo::StrLit => CNST_END - 1,
             _ => 0,

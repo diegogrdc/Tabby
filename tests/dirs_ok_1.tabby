@@ -20,7 +20,7 @@ Fn Int fnIntParams(Int pInt, Bool pBool, Float pFloat) {
 
 }
 
-Fn Void fnVoidParams(Arr Int arrInt, Arr Bool arrBool, ArrFloat arrFloat) {}
+Fn Void fnVoidParams(Int int, Bool bool, Float float) {}
 
 Tabby() {
 }

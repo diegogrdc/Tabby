@@ -11,7 +11,8 @@ pub struct FuncInfo {
     pub tipo: Tipo,
     pub dir_var: DirVar,
     pub pos_init: i32,
-    pub size: [i32; 3],
+    pub size_loc: [i32; 3],
+    pub size_tmp: [i32; 3],
     pub params: Vec<Tipo>,
 }
 
