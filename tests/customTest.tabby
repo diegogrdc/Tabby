@@ -2,7 +2,11 @@ Program testReturnFailWriteVoid;
 
 Var Bool a;
 
-Fn Void fnVoid() {}
+Fn Void fnVoid() {
+    int();
+}
+
+Fn Int int() {}
 
 Tabby() {
     a = fnVoid();
