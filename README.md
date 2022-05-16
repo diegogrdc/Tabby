@@ -58,3 +58,9 @@ Para poder soportar esto, se cambió la definición de las variables de `Quadrup
 Todo el nuevo código fue probado extensamente con muchos casos de prueba nuevos, y la modificación de varios existentes para incluir la comprobación de estos nuevos elementos. 
 Los siguientes pasos involucran generar los cuádruplos para las funciones, con las variaciones y nuevas variantes de cuádruplos que generen. Esto se debe encargar del código dentro de funciones, y de las variables locales y parámetros. 
 
+### Avance 5: Generación de Código de Funciones
+Para la entrega semanal, se pidió que se agregara la generación de cuádruplos para código de funciones. Esto involucra todo lo que rodea a funciones, desde el código dentro de estas, los retornos, los fin de función, las llamadas, los parámetros, el tamaño de las funciones, los comandos de almacenamiento de memoria al llamar funciones, las migas de pan para poder regresar a dónde estábamos después de la llamada de una función, entre otras cosas. 
+En esta entrega se generó toda la lógica para poder lograr todas estas funcionalidades. Desde nuevos cuádruplos para estas instrucciones, reacomodos en el árbol de sintaxis, modificaciones en la memoria virtual, creación de puntos neurálgicos dentro del AST para agregar la funcionalidad, y el desarrollo de casos de prueba para asegurar el correcto funcionamiento del compilador. 
+Al finalizar esta entrega, los cuádruplos contienen completamente la funcionalidad para funciones y su acomodo en la memoria virtual, todos probados con su correcto funcionamiento. 
+Lo siguientes pasos involucran la creación de cuádruplos para arreglos, y también la implementación de la máquina virtual para poder ejecutar nuestro código intermedio. 
+
