@@ -220,6 +220,7 @@ impl AstEvaluator {
                         VarInfo {
                             tipo: tipo_from_type(&typ),
                             addr: self.vir_mem_alloc.get_global_addr(&tipo_from_type(&typ), 1),
+                            dim: Dim::Single,
                         },
                     );
                     self.add_loc_var_to_size(&tipo_from_type(&typ));
@@ -227,6 +228,9 @@ impl AstEvaluator {
             }
             ast::Vardec::Arr(typ, id, sz) => {
                 self.check_multiple_dec_var(&id, &vars);
+                if sz < 1 {
+                    panic!("ERROR: Array size must be greater than 0");
+                }
                 vars.insert(
                     id,
                     VarInfo {
@@ -234,11 +238,15 @@ impl AstEvaluator {
                         addr: self
                             .vir_mem_alloc
                             .get_global_addr(&tipo_from_type(&typ), sz),
+                        dim: Dim::Arr(sz),
                     },
                 );
             }
             ast::Vardec::Mat(typ, id, sz1, sz2) => {
                 self.check_multiple_dec_var(&id, &vars);
+                if sz1 < 1 || sz2 < 1 {
+                    panic!("ERROR: All Matrix dimension sizes must be greater than 0");
+                }
                 vars.insert(
                     id,
                     VarInfo {
@@ -246,6 +254,7 @@ impl AstEvaluator {
                         addr: self
                             .vir_mem_alloc
                             .get_global_addr(&tipo_from_type(&typ), sz1 * sz2),
+                        dim: Dim::Mat(sz1, sz2),
                     },
                 );
             }
@@ -364,6 +373,7 @@ impl AstEvaluator {
             VarInfo {
                 tipo: tip.clone(),
                 addr: self.vir_mem_alloc.get_local_addr(&tip),
+                dim: Dim::Single,
             },
         );
     }
@@ -502,15 +512,103 @@ impl AstEvaluator {
         match *variable {
             ast::Variable::Id(id) => {
                 let tipo = self.get_var_tipo_from_id(&id);
-                self.st_vals.push(id.clone());
+                // Push var to stack
+                self.st_vals.push(id);
                 self.st_tips.push(tipo);
             }
+            ast::Variable::Arr(id, exp) => {
+                let (tipo, sz) = self.get_arr_tipo_and_sz_from_id(&id);
+                // Get base array position
+                let (_, addr) = self.get_id_addr(&id, &tipo);
+
+                let id_addr_exp = self.gen_quads_ver_tam(exp, sz);
+
+                // We store that offset of memory as a constant
+                let id_addr_cnst = self.get_id_addr(&addr.to_string(), &Tipo::Int);
+
+                // We store pointer in temp as res
+                let ptr_val = self.get_next_ltemp(&Tipo::Int);
+                let ptr_tipo = Tipo::Int;
+                let ptr_id_addr = self.get_id_addr(&ptr_val, &ptr_tipo);
+                self.quads.push(Quadruple::Op(
+                    "+".to_string(),
+                    id_addr_exp,
+                    id_addr_cnst,
+                    ptr_id_addr.clone(),
+                ));
+                let res_val = self.get_next_ltemp(&tipo);
+                let res_tipo = tipo.clone();
+                let res_id_addr = self.get_id_addr(&res_val, &res_tipo);
+                self.quads.push(Quadruple::Deref(ptr_id_addr, res_id_addr));
+
+                // Push var to stack
+                self.st_vals.push(res_val);
+                self.st_tips.push(res_tipo);
+            }
             // TODO
-            ast::Variable::Arr(_id, _esz1) => {}
-            // TODO
-            ast::Variable::Mat(_id, _esz1, _esz2) => {}
+            ast::Variable::Mat(id, exp1, exp2) => {
+                let (tipo, sz1, sz2) = self.get_mat_tipo_and_sz_from_id(&id);
+                // Get base array position
+                let (_, addr) = self.get_id_addr(&id, &tipo);
+
+                let id_addr_exp_1 = self.gen_quads_ver_tam(exp1, sz1);
+                let id_addr_exp_2 = self.gen_quads_ver_tam(exp2, sz2);
+
+                // We store second dim size as offset
+                let id_addr_off = self.get_id_addr(&sz2.to_string(), &Tipo::Int);
+                let ptr_val = self.get_next_ltemp(&Tipo::Int);
+                let ptr_tipo = Tipo::Int;
+                let ptr_id_addr = self.get_id_addr(&ptr_val, &ptr_tipo);
+
+                self.quads.push(Quadruple::Op(
+                    "*".to_string(),
+                    id_addr_exp_1,
+                    id_addr_off,
+                    ptr_id_addr.clone(),
+                ));
+
+                self.quads.push(Quadruple::Op(
+                    "+".to_string(),
+                    ptr_id_addr.clone(),
+                    id_addr_exp_2,
+                    ptr_id_addr.clone(),
+                ));
+
+                // We store that offset of memory as a constant
+                let id_addr_cnst = self.get_id_addr(&addr.to_string(), &Tipo::Int);
+
+                self.quads.push(Quadruple::Op(
+                    "+".to_string(),
+                    ptr_id_addr.clone(),
+                    id_addr_cnst,
+                    ptr_id_addr.clone(),
+                ));
+                let res_val = self.get_next_ltemp(&tipo);
+                let res_tipo = tipo.clone();
+                let res_id_addr = self.get_id_addr(&res_val, &res_tipo);
+                self.quads.push(Quadruple::Deref(ptr_id_addr, res_id_addr));
+
+                // Push var to stack
+                self.st_vals.push(res_val);
+                self.st_tips.push(res_tipo);
+            }
         };
         true
+    }
+
+    pub fn gen_quads_ver_tam(&mut self, exp: Box<ast::Exp>, sz: i32) -> IdAddr {
+        self.eval_exp(exp);
+
+        let id_exp = self.st_vals.pop().unwrap();
+        let tipo_exp = self.st_tips.pop().unwrap();
+        // Check it is not a type bool as we cant check a dim with float
+        if tipo_exp == Tipo::Float {
+            panic!("ERROR: Cannot access array with a Float number");
+        }
+        let id_addr_exp = self.get_id_addr(&id_exp, &tipo_exp);
+        // Quadruple to verify out of bounds
+        self.quads.push(Quadruple::Verify(id_addr_exp.clone(), sz));
+        id_addr_exp
     }
 
     pub fn eval_call(&mut self, call: Box<ast::Call>) -> bool {
@@ -554,7 +652,7 @@ impl AstEvaluator {
                     // on type
                     let id_addr_ret = (
                         "Ret".to_string(),
-                        Addr::Addr(self.vir_mem_alloc.get_gtemp_addr(&fn_tipo)),
+                        self.vir_mem_alloc.get_gtemp_addr(&fn_tipo),
                     );
                     let res_id = self.get_next_ltemp(&fn_tipo);
                     let res_id_addr = self.get_id_addr(&res_id, &fn_tipo);
@@ -700,7 +798,7 @@ impl AstEvaluator {
                 let lt_tipo = self.curr_fn_tipo.clone();
                 let lt_id_addr = (
                     "Ret".to_string(),
-                    Addr::Addr(self.vir_mem_alloc.get_gtemp_addr(&lt_tipo)),
+                    self.vir_mem_alloc.get_gtemp_addr(&lt_tipo),
                 );
                 // Get result type to assure no type mismatch
                 self.get_result_tipo(&lt_tipo, &rt_tipo, "Return");
@@ -918,6 +1016,52 @@ impl AstEvaluator {
         self.dir_func.get(id).unwrap().tipo.clone()
     }
 
+    pub fn get_arr_tipo_and_sz_from_id(&self, id: &String) -> (Tipo, i32) {
+        // We check global scope
+        // As arrays are just global
+        let vars = &self
+            .dir_func
+            .get(self.glob_scope.as_ref().unwrap())
+            .unwrap()
+            .dir_var;
+        if let None = vars.get(id) {
+            // It is undeclared
+            let place: &String = self.glob_scope.as_ref().unwrap();
+            panic!("ERROR: Undeclared array \"{}\" at \"{}\"", id, place);
+        }
+        let var = vars.get(id).unwrap();
+        // Check dims
+        self.check_var_dim_is_ok(id, &var.dim, &Dim::Arr(0));
+        let sz = match var.dim {
+            Dim::Arr(sz) => sz,
+            _ => panic!("DEV ERROR: Should be arr"),
+        };
+        (var.tipo.clone(), sz)
+    }
+
+    pub fn get_mat_tipo_and_sz_from_id(&self, id: &String) -> (Tipo, i32, i32) {
+        // We check global scope
+        // As arrays are just global
+        let vars = &self
+            .dir_func
+            .get(self.glob_scope.as_ref().unwrap())
+            .unwrap()
+            .dir_var;
+        if let None = vars.get(id) {
+            // It is undeclared
+            let place: &String = self.glob_scope.as_ref().unwrap();
+            panic!("ERROR: Undeclared matrix \"{}\" at \"{}\"", id, place);
+        }
+        let var = vars.get(id).unwrap();
+        // Check dims
+        self.check_var_dim_is_ok(id, &var.dim, &Dim::Mat(0, 0));
+        let (sz1, sz2) = match var.dim {
+            Dim::Mat(sz1, sz2) => (sz1, sz2),
+            _ => panic!("DEV ERROR: Should be mat"),
+        };
+        (var.tipo.clone(), sz1, sz2)
+    }
+
     pub fn get_var_tipo_from_id(&self, id: &String) -> Tipo {
         // First check local scope
         if let Some(loc_scope) = self.loc_scope.as_ref() {
@@ -925,6 +1069,8 @@ impl AstEvaluator {
             let vars = &self.dir_func.get(loc_scope).unwrap().dir_var;
             // Query var
             if let Some(var) = vars.get(id) {
+                // Check dims
+                self.check_var_dim_is_ok(id, &var.dim, &Dim::Single);
                 return var.tipo.clone();
             }
         }
@@ -945,7 +1091,30 @@ impl AstEvaluator {
             };
             panic!("ERROR: Undeclared variable \"{}\" at \"{}\"", id, place);
         }
-        vars.get(id).unwrap().tipo.clone()
+        let var = vars.get(id).unwrap();
+        // Check dims
+        self.check_var_dim_is_ok(id, &var.dim, &Dim::Single);
+        var.tipo.clone()
+    }
+
+    pub fn check_var_dim_is_ok(&self, id: &String, dim: &Dim, dim2: &Dim) {
+        // Check dimensions are correct
+        let dim_str = self.get_string_from_dim(dim);
+        let dim_str2 = self.get_string_from_dim(dim2);
+        if dim_str != dim_str2 {
+            panic!(
+                "ERROR: \"{}\" has dimensions \"{}\" but was called with dimensions \"{}\"",
+                id, dim_str, dim_str2
+            );
+        }
+    }
+
+    pub fn get_string_from_dim(&self, dim: &Dim) -> String {
+        match *dim {
+            Dim::Single => format!("Single"),
+            Dim::Arr(_) => format!("Array"),
+            Dim::Mat(_, _) => format!("Matrix"),
+        }
     }
 
     pub fn check_tipo_can_eval_as_bool(&self, tipo: &Tipo) {
@@ -975,7 +1144,7 @@ impl AstEvaluator {
         if id.contains("#") {
             return (
                 id[1..].to_string(),
-                Addr::Addr(self.vir_mem_alloc.get_ltemp_addr(id, tip)),
+                self.vir_mem_alloc.get_ltemp_addr(id, tip),
             );
         }
 
@@ -987,10 +1156,7 @@ impl AstEvaluator {
             || id.chars().nth(0).unwrap() == 'T'
             || id.chars().nth(0).unwrap() == 'F'
         {
-            return (
-                id.clone(),
-                Addr::Addr(self.vir_mem_alloc.get_cnst_addr(&id, tip)),
-            );
+            return (id.clone(), self.vir_mem_alloc.get_cnst_addr(&id, tip));
         }
 
         // Variable?
@@ -1000,7 +1166,7 @@ impl AstEvaluator {
             let vars = &self.dir_func.get(loc_scope).unwrap().dir_var;
             // Query var
             if let Some(var) = vars.get(id) {
-                return (id.clone(), Addr::Addr(var.addr));
+                return (id.clone(), var.addr);
             }
         }
         // If local not found
@@ -1017,7 +1183,7 @@ impl AstEvaluator {
             panic!("DEV ERROR: Variable with id {} should exist", id);
         }
         let var = var.unwrap();
-        (id.clone(), Addr::Addr(var.addr))
+        (id.clone(), var.addr)
     }
 
     pub fn add_loc_var_to_size(&mut self, tipo: &Tipo) {

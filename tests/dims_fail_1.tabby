@@ -1,0 +1,8 @@
+Program dimsFail;
+
+Var Arr Bool a[10][10];
+Var Int i, j;
+
+Tabby() {
+    Write(a[2]);
+}

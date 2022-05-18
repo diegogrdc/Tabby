@@ -1,0 +1,19 @@
+Program testVirMemAllocNonAtomic;
+
+Var Arr Int ia[20];
+Var Arr Int ib[3][100];
+Var Arr Int ic[20][30];
+Var Arr Int id[5];
+
+Var Arr Float fa[3];
+Var Arr Float fb[4][4];
+Var Arr Float fc[1000][2];
+Var Arr Float fd[12];
+
+Var Arr Bool ba[13];
+Var Arr Bool bb[7][22];
+Var Arr Bool bc[3][1];
+Var Arr Bool bd[6];
+
+Tabby() {
+}

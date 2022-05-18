@@ -1,0 +1,6 @@
+Program zeroSizeMat;
+
+Var Arr Int a[2][0];
+
+Tabby() {
+}

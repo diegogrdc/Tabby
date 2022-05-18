@@ -1,0 +1,7 @@
+Program tooManyVars;
+
+Var Arr Int a[10000000];
+
+
+Tabby() {
+}

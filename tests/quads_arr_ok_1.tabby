@@ -1,0 +1,14 @@
+Program quadsArray;
+
+Var Arr Int arr[100];
+Var Int n, i;
+
+Tabby() {
+    Read(n);
+    i = 0;
+    For(i < n; i = i + 1) {
+        Read(arr[i + 1]);
+        arr[i] = arr[i] + 1;
+        Write(arr[i]);
+    }
+}

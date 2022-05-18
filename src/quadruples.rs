@@ -20,12 +20,8 @@ pub enum Quadruple {
     EndFunc(),
     Return(),
     Temp(),
+    Verify(IdAddr, i32),
+    Deref(IdAddr, IdAddr),
 }
 
-#[derive(Debug, PartialEq)]
-pub enum Addr {
-    Addr(i32),
-    Pointer(String),
-}
-
-pub type IdAddr = (String, Addr);
+pub type IdAddr = (String, i32);

@@ -1,0 +1,6 @@
+Program negSizeArr;
+
+Var Arr Int a[-10];
+
+Tabby() {
+}

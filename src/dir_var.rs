@@ -10,6 +10,7 @@ use std::collections::HashMap;
 pub struct VarInfo {
     pub tipo: Tipo,
     pub addr: i32,
+    pub dim: Dim,
 }
 
 // Directory of Variables
@@ -18,3 +19,10 @@ pub struct VarInfo {
 // and variable information as value
 // stored as a DirFuncInfo
 pub type DirVar = HashMap<String, VarInfo>;
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Dim {
+    Single,
+    Arr(i32),
+    Mat(i32, i32),
+}

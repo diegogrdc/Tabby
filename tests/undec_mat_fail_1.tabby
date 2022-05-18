@@ -1,0 +1,5 @@
+Program undeclaredMat;
+
+Tabby() {
+    a[1][1] = 1;
+}
