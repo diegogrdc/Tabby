@@ -60,12 +60,28 @@ fn get_ast(contents: String, filename: &String) -> Box<ast::Program> {
     res.unwrap()
 }
 
-fn print_quads_to_file(eval: AstEvaluator, filename: &String) {
+fn print_ic_file(eval: AstEvaluator, filename: &String) {
     let mut file = File::create(format!("./main/{}.tabbyic", filename))
         .expect("DEV ERROR: Could not create IC file");
+
+    let err = "DEV ERROR: Could not write no IC file";
+    let cnst_stacks = &eval.vir_mem_alloc.cnst_vals;
+    // Print constants
+    for i in 0..4 {
+        let cnst_vec = &cnst_stacks[i];
+        writeln!(file, "{}", cnst_vec.len()).expect(err);
+        if cnst_vec.len() > 0 {
+            for cnst in cnst_vec {
+                write!(file, "{} ", cnst).expect(err);
+            }
+            write!(file, "\n").expect(err);
+        }
+    }
+
+    // Print quads
     for quad in eval.quads {
         let quad_printable = Quadruple::get_printable(&quad);
-        writeln!(file, "{}", quad_printable).expect("DEV ERROR: Could not write no IC file");
+        writeln!(file, "{}", quad_printable).expect(err);
     }
 }
 
@@ -84,6 +100,6 @@ fn main() {
     // Save program name
     let program_name = evaluator.glob_scope.clone().unwrap();
 
-    print_quads_to_file(evaluator, &filename);
+    print_ic_file(evaluator, &filename);
     println!("\nProgram \"{}\" compiled succesfully!\n", program_name);
 }

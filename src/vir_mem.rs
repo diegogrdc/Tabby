@@ -35,6 +35,7 @@ pub struct VirMemAllocator {
     pub ltemp_map: HashMap<String, i32>,
     pub cnst: [i32; 4],
     pub cnst_map: HashMap<String, i32>,
+    pub cnst_vals: [Vec<String>; 4],
 }
 
 impl VirMemAllocator {
@@ -64,6 +65,7 @@ impl VirMemAllocator {
                 CNST_START + STRLIT_OFFSET,
             ],
             cnst_map: HashMap::new(),
+            cnst_vals: [Vec::new(), Vec::new(), Vec::new(), Vec::new()],
         }
     }
 
@@ -92,10 +94,11 @@ impl VirMemAllocator {
         };
 
         if self.global[pos] + qnt > lim {
-            panic!(
-                "ERROR: Too many global variables of type {:?} declared\n",
+            eprintln!(
+                "\nCOMPILATION ERROR: Too many global variables of type {:?} declared\n",
                 tipo
             );
+            std::process::exit(1);
         }
 
         let mem = self.global[pos];
@@ -119,10 +122,11 @@ impl VirMemAllocator {
         };
 
         if self.local[pos] + 1 > lim {
-            panic!(
-                "ERROR: Too many local variables of type {:?} declared\n",
+            eprintln!(
+                "\n COMPILATION ERROR: Too many local variables of type {:?} declared\n",
                 tipo
             );
+            std::process::exit(1);
         }
 
         let mem = self.local[pos];
@@ -145,10 +149,11 @@ impl VirMemAllocator {
         };
 
         if self.ltemp[pos] + 1 > lim {
-            panic!(
-                "ERROR: Too many temporal variables of type {:?} generated\n",
+            eprintln!(
+                "\nCOMPILATION ERROR: Too many temporal variables of type {:?} generated\n",
                 tipo
             );
+            std::process::exit(1);
         }
 
         let mem = self.ltemp[pos];
@@ -157,11 +162,18 @@ impl VirMemAllocator {
         mem
     }
 
-    pub fn get_cnst_addr(&mut self, num: &String, tipo: &Tipo) -> i32 {
-        if let Some(addr) = self.cnst_map.get(num) {
+    pub fn get_cnst_addr(&mut self, cnst: &String, tipo: &Tipo) -> i32 {
+        if let Some(addr) = self.cnst_map.get(cnst) {
             return *addr;
         }
         let pos = self.get_pos(&tipo);
+        if pos == 3 {
+            let mut chars = cnst.chars();
+            chars.next();
+            self.cnst_vals[pos].push(chars.as_str().to_string());
+        } else {
+            self.cnst_vals[pos].push(cnst.clone());
+        }
 
         let lim: i32 = match *tipo {
             Tipo::Int => CNST_START + LOCAL_FLOAT_OFFSET - 1,
@@ -172,14 +184,15 @@ impl VirMemAllocator {
         };
 
         if self.cnst[pos] + 1 > lim {
-            panic!(
-                "ERROR: Too many constant variables of type {:?} declared\n",
+            eprintln!(
+                "\nCOMPILATION ERROR: Too many constant variables of type {:?} declared\n",
                 tipo
             );
+            std::process::exit(1);
         }
 
         let mem = self.cnst[pos];
-        self.cnst_map.insert(num.clone(), mem);
+        self.cnst_map.insert(cnst.clone(), mem);
         self.cnst[pos] = self.cnst[pos] + 1;
         mem
     }
