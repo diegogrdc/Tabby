@@ -19,7 +19,7 @@ pub mod vir_mem;
 // Main File
 fn main() {
     // Parse file
-    let filename = "./tests/customTest.tabby";
+    let filename = "./main/main.tabby";
     // Get contents
     let contents = fs::read_to_string(filename).expect("\nSomething went wrong reading the file\n");
     // Use LALRPOP parser to generate AST

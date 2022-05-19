@@ -103,6 +103,11 @@ neuralgic points implementation to
 check semantics and generate IC code
 */
 impl AstEvaluator {
+    pub fn throw_compile_error(&self, msg: String) {
+        eprintln!("\nCOMPILE ERROR: {}\n", msg);
+        std::process::exit(1);
+    }
+
     pub fn eval_program(&mut self, program: Box<ast::Program>) -> bool {
         // Push a temporal quadruple that will call a
         // goto into Tabby Function
@@ -229,7 +234,7 @@ impl AstEvaluator {
             ast::Vardec::Arr(typ, id, sz) => {
                 self.check_multiple_dec_var(&id, &vars);
                 if sz < 1 {
-                    panic!("ERROR: Array size must be greater than 0");
+                    self.throw_compile_error(format!("Array size must be greater than 0"));
                 }
                 vars.insert(
                     id,
@@ -245,7 +250,9 @@ impl AstEvaluator {
             ast::Vardec::Mat(typ, id, sz1, sz2) => {
                 self.check_multiple_dec_var(&id, &vars);
                 if sz1 < 1 || sz2 < 1 {
-                    panic!("ERROR: All Matrix dimension sizes must be greater than 0");
+                    self.throw_compile_error(format!(
+                        "All Matrix dimension sizes must be greater than 0"
+                    ));
                 }
                 vars.insert(
                     id,
@@ -471,7 +478,7 @@ impl AstEvaluator {
                 let id = self.st_vals.pop().unwrap();
                 let tip = self.st_tips.pop().unwrap();
                 if tip == Tipo::Void {
-                    panic!("ERROR: Can't print a Void type");
+                    self.throw_compile_error(format!("Can't print a Void type"));
                 }
                 let id_addr = self.get_id_addr(&id, &tip);
                 self.quads
@@ -489,7 +496,7 @@ impl AstEvaluator {
                 let id = self.st_vals.pop().unwrap();
                 let tip = self.st_tips.pop().unwrap();
                 if tip == Tipo::Void {
-                    panic!("ERROR: Can't print a Void type");
+                    self.throw_compile_error(format!("Can't print a Void type"));
                 }
                 let id_addr = self.get_id_addr(&id, &tip);
                 self.quads
@@ -603,7 +610,7 @@ impl AstEvaluator {
         let tipo_exp = self.st_tips.pop().unwrap();
         // Check it is not a type bool as we cant check a dim with float
         if tipo_exp == Tipo::Float {
-            panic!("ERROR: Cannot access array with a Float number");
+            self.throw_compile_error(format!("Cannot access array with a Float number"));
         }
         let id_addr_exp = self.get_id_addr(&id_exp, &tipo_exp);
         // Quadruple to verify out of bounds
@@ -622,12 +629,12 @@ impl AstEvaluator {
                 let params = self.dir_func.get(&id).unwrap().params.clone();
 
                 if exp_vec.len() != params.len() {
-                    panic!(
+                    self.throw_compile_error(format!(
                         "Function \"{}\" expected {} parameters, got {}",
                         &id,
                         params.len(),
                         exp_vec.len()
-                    );
+                    ));
                 }
 
                 for (idx, exp) in exp_vec.into_iter().enumerate() {
@@ -784,7 +791,7 @@ impl AstEvaluator {
             ast::Return::Return(exp) => {
                 // Check if Void function
                 if self.curr_fn_tipo == Tipo::Void {
-                    panic!("ERROR: Cannot call \"Return\" in a Void Function");
+                    self.throw_compile_error(format!("Cannot call \"Return\" in a Void Function"));
                 }
                 // Push operator
                 self.st_ops.push("Return".to_string());
@@ -954,19 +961,19 @@ impl AstEvaluator {
 
     pub fn check_multiple_dec_var(&self, id: &String, vars: &DirVar) {
         if let Some(_) = vars.get(id) {
-            panic!(
-                "ERROR: Multiple variable declaration: \"{}\" was declared multiple times",
-                id
-            );
+            self.throw_compile_error(format!(
+                "Multiple variable declaration: \"{}\" was declared multiple times",
+                id,
+            ));
         }
     }
 
     pub fn check_multiple_dec_fns(&self, id: &String) {
         if let Some(_) = self.dir_func.get(id) {
-            panic!(
-                "ERROR: Multiple function declaration: \"{}\" was declared multiple times",
+            self.throw_compile_error(format!(
+                "Multiple function declaration: \"{}\" was declared multiple times",
                 id
-            );
+            ));
         }
     }
 
@@ -995,10 +1002,10 @@ impl AstEvaluator {
             SC::op_to_val(op),
         ));
         if res_tipo == None {
-            panic!(
-                "ERROR: Type Mismatch! Operation \"{}\" Between {:?} and {:?} is not allowed",
+            self.throw_compile_error(format!(
+                "Type Mismatch! Operation \"{}\" Between {:?} and {:?} is not allowed",
                 op, left, right
-            );
+            ));
         }
         SC::val_to_tipo(*res_tipo.unwrap())
     }
@@ -1011,7 +1018,7 @@ impl AstEvaluator {
 
     pub fn get_fn_tipo_from_id(&self, id: &String) -> Tipo {
         if let None = self.dir_func.get(id) {
-            panic!("ERROR: Undeclared function call: \"{}\"", id);
+            self.throw_compile_error(format!("Undeclared function call: \"{}\"", id));
         }
         self.dir_func.get(id).unwrap().tipo.clone()
     }
@@ -1027,7 +1034,7 @@ impl AstEvaluator {
         if let None = vars.get(id) {
             // It is undeclared
             let place: &String = self.glob_scope.as_ref().unwrap();
-            panic!("ERROR: Undeclared array \"{}\" at \"{}\"", id, place);
+            self.throw_compile_error(format!("Undeclared array \"{}\" at \"{}\"", id, place));
         }
         let var = vars.get(id).unwrap();
         // Check dims
@@ -1050,7 +1057,7 @@ impl AstEvaluator {
         if let None = vars.get(id) {
             // It is undeclared
             let place: &String = self.glob_scope.as_ref().unwrap();
-            panic!("ERROR: Undeclared matrix \"{}\" at \"{}\"", id, place);
+            self.throw_compile_error(format!("Undeclared matrix \"{}\" at \"{}\"", id, place));
         }
         let var = vars.get(id).unwrap();
         // Check dims
@@ -1089,7 +1096,7 @@ impl AstEvaluator {
             } else {
                 self.loc_scope.as_ref().unwrap()
             };
-            panic!("ERROR: Undeclared variable \"{}\" at \"{}\"", id, place);
+            self.throw_compile_error(format!("Undeclared variable \"{}\" at \"{}\"", id, place));
         }
         let var = vars.get(id).unwrap();
         // Check dims
@@ -1102,10 +1109,10 @@ impl AstEvaluator {
         let dim_str = self.get_string_from_dim(dim);
         let dim_str2 = self.get_string_from_dim(dim2);
         if dim_str != dim_str2 {
-            panic!(
-                "ERROR: \"{}\" has dimensions \"{}\" but was called with dimensions \"{}\"",
+            self.throw_compile_error(format!(
+                "\"{}\" has dimensions \"{}\" but was called with dimensions \"{}\"",
                 id, dim_str, dim_str2
-            );
+            ));
         }
     }
 
@@ -1120,10 +1127,10 @@ impl AstEvaluator {
     pub fn check_tipo_can_eval_as_bool(&self, tipo: &Tipo) {
         // Just Int and Bool can eval as Bool
         if tipo != &Tipo::Bool && tipo != &Tipo::Int {
-            panic!(
-                "ERROR: Cannot eval a conditional expression. Expected Bool or Int. Got {:?}",
+            self.throw_compile_error(format!(
+                "Cannot eval a conditional expression. Expected Bool or Int. Got {:?}",
                 tipo
-            );
+            ));
         }
     }
 

@@ -1,0 +1,13 @@
+Program testQuadsIf;
+
+Var Int a;
+
+Tabby() {
+    Read(a);
+    If(12 * a > 18) {
+        a = a * 12;
+        Write("If");
+    } 
+    Write("End");
+    Write(a);
+}

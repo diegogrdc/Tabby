@@ -11,3 +11,11 @@ lalrpop = "0.19.7"
 [dependencies]
 lalrpop-util = { version = "0.19.7", features = ["lexer"] }
 regex = "1"
+
+[[bin]]
+name="main"
+path="src/main.rs"
+
+[[bin]]
+name="compile"
+path="src/compile.rs"
