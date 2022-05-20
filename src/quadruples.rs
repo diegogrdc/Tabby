@@ -36,8 +36,8 @@ impl Quadruple {
             Quadruple::Read(_, (_, addr)) => {
                 format!("Read {} -1 - 1", addr)
             }
-            Quadruple::Print(op, (_, addr)) => {
-                format!("{} {} -1 -1", op, addr)
+            Quadruple::Print(_, (_, addr)) => {
+                format!("Print {} -1 -1", addr)
             }
             Quadruple::GoToF((_, addr), pos) => {
                 format!("Gotof {} {} -1", addr, pos)

@@ -1,13 +1,27 @@
-Program testQuadsIf;
+Program testFunctionSize;
 
-Var Int a;
+Var Int a, b, c;
+
+Fn Void fnVoidParams(Int a, Int b) {
+    b = 2 * a;
+    a = b + 15 Or False;
+}
+
+Fn Int fnIntParams(Bool a, Float b, Int c) {
+    c = True;
+    a = False Or 1 < 4;
+    b = 2.15 / 1;
+}
+
+Fn Void fnVoid() {
+    a = 12 * True;
+    b = 15 Or 2 And 1;
+    c = True;
+    a = 12 * 15;
+}
+
+Fn Float fnFloat() {}
 
 Tabby() {
-    Read(a);
-    If(12 * a > 18) {
-        a = a * 12;
-        Write("If");
-    } 
-    Write("End");
-    Write(a);
+    a = True Or False;
 }
