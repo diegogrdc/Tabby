@@ -19,3 +19,7 @@ path="src/main.rs"
 [[bin]]
 name="compile"
 path="src/compile.rs"
+
+[[bin]]
+name="execute"
+path="src/execute.rs"

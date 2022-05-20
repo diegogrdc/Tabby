@@ -52,10 +52,16 @@ Params:
     Optional string with name of the current local
     scope (function) to fetch local var names and types
     to validate their usage
-- curr_fn_size
+- curr_fn_size_loc
     List of size 3 used to store current declared variables in
     local context to calculate workspace size
     required in execution
+    Represents local vars
+- curr_fn_size_tmp
+    List of size 3 used to store current created variables in
+    local context to calculate workspace size
+    required in execution
+    Represents temporal variables created and used in ic
 - curr_fn_tipo
     Current function type used to determine
     if returns are valid or not
@@ -136,7 +142,7 @@ impl AstEvaluator {
                         dir_var: glob_vars,
                         pos_init: -1,
                         size_loc: self.curr_fn_size_loc.clone(),
-                        size_tmp: self.curr_fn_size_tmp.clone(),
+                        size_tmp: [1, 1, 1],
                         params: Vec::new(),
                     },
                 );

@@ -1,29 +1,31 @@
 testFunctionSize
-3 0 0
-1 1 1
-5
+6
 fnVoid
 0 0 0
 2 0 2
-fnIntParams
-1 1 1
-0 1 2
-Tabby
-0 0 0
-0 0 1
 fnVoidParams
 2 0 0
 2 0 1
+testFunctionSize
+3 0 0
+1 1 1
+fnIntParams
+1 1 1
+0 1 2
 fnFloat
 0 0 0
 0 0 0
+Tabby
+0 0 0
+0 0 1
 5
-2 15 1 4 12 
+2 15 1 4 12
 1
-2.15 
+2.15
 2
-False True 
+False True
 0
+
 27
 Init 24 -1 -1
 * 120009 100005 110007

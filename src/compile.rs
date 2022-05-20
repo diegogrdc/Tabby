@@ -1,3 +1,5 @@
+// Execute Command: cargo run --bin compile file_name
+
 // Imports
 #[macro_use]
 extern crate lalrpop_util;
@@ -67,25 +69,13 @@ fn print_ic_file(eval: AstEvaluator, filename: &String, program_name: &String) {
     let err = "DEV ERROR: Could not write no IC file";
     let cnst_stacks = &eval.vir_mem_alloc.cnst_vals;
 
-    // Print Global Sizes (name, 3 local, 3 temps)
-    let global_info = eval.dir_func.get(program_name).unwrap();
+    // Print Program Name
     writeln!(file, "{}", program_name).expect(err);
-    writeln!(
-        file,
-        "{} {} {}",
-        global_info.size_loc[0], global_info.size_loc[1], global_info.size_loc[2]
-    )
-    .expect(err);
-    writeln!(file, "1 1 1").expect(err);
 
     // First print # of functions
-    writeln!(file, "{}", eval.dir_func.len() - 1).expect(err);
+    writeln!(file, "{}", eval.dir_func.len()).expect(err);
     // Print Function Sizes (name, 3 local, 3 temps)
     for (fn_name, fn_info) in eval.dir_func.iter() {
-        // Avoid global scope
-        if fn_name == program_name {
-            continue;
-        }
         writeln!(file, "{}", fn_name).expect(err);
         writeln!(
             file,
@@ -104,12 +94,14 @@ fn print_ic_file(eval: AstEvaluator, filename: &String, program_name: &String) {
     for i in 0..4 {
         let cnst_vec = &cnst_stacks[i];
         writeln!(file, "{}", cnst_vec.len()).expect(err);
-        if cnst_vec.len() > 0 {
-            for cnst in cnst_vec {
+        for (idx, cnst) in cnst_vec.iter().enumerate() {
+            if idx < cnst_vec.len() - 1 {
                 write!(file, "{} ", cnst).expect(err);
+            } else {
+                write!(file, "{}", cnst).expect(err);
             }
-            write!(file, "\n").expect(err);
         }
+        write!(file, "\n").expect(err);
     }
 
     // Print quads
