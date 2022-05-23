@@ -26,6 +26,22 @@ pub const LOCAL_FLOAT_OFFSET: i32 = LOCAL_BLOCK_SIZE / 3;
 pub const LOCAL_BOOL_OFFSET: i32 = LOCAL_BLOCK_SIZE / 3 * 2;
 pub const STRLIT_OFFSET: i32 = LOCAL_BLOCK_SIZE / 3 * 3;
 
+pub const GLOBAL_START_INT: i32 = GLOBAL_START + GLOBAL_INT_OFFSET;
+pub const GLOBAL_START_FLOAT: i32 = GLOBAL_START + GLOBAL_FLOAT_OFFSET;
+pub const GLOBAL_START_BOOL: i32 = GLOBAL_START + GLOBAL_BOOL_OFFSET;
+pub const GTEMP_START_INT: i32 = GTEMP_START + 0;
+pub const GTEMP_START_FLOAT: i32 = GTEMP_START + 1;
+pub const GTEMP_START_BOOL: i32 = GTEMP_START + 2;
+pub const LOCAL_START_INT: i32 = LOCAL_START + LOCAL_INT_OFFSET;
+pub const LOCAL_START_FLOAT: i32 = LOCAL_START + LOCAL_FLOAT_OFFSET;
+pub const LOCAL_START_BOOL: i32 = LOCAL_START + LOCAL_BOOL_OFFSET;
+pub const LTEMP_START_INT: i32 = LTEMP_START + LOCAL_INT_OFFSET;
+pub const LTEMP_START_FLOAT: i32 = LTEMP_START + LOCAL_FLOAT_OFFSET;
+pub const LTEMP_START_BOOL: i32 = LTEMP_START + LOCAL_BOOL_OFFSET;
+pub const CNST_START_INT: i32 = CNST_START + LOCAL_INT_OFFSET;
+pub const CNST_START_FLOAT: i32 = CNST_START + LOCAL_FLOAT_OFFSET;
+pub const CNST_START_BOOL: i32 = CNST_START + LOCAL_BOOL_OFFSET;
+pub const CNST_START_STRLIT: i32 = CNST_START + STRLIT_OFFSET;
 // Struct to take care of virtual memory allocation
 pub struct VirMemAllocator {
     pub global: [i32; 3],
@@ -98,7 +114,7 @@ impl VirMemAllocator {
                 "\nCOMPILATION ERROR: Too many global variables of type {:?} declared\n",
                 tipo
             );
-            std::process::exit(1);
+            panic!();
         }
 
         let mem = self.global[pos];
@@ -126,7 +142,7 @@ impl VirMemAllocator {
                 "\n COMPILATION ERROR: Too many local variables of type {:?} declared\n",
                 tipo
             );
-            std::process::exit(1);
+            panic!();
         }
 
         let mem = self.local[pos];
@@ -153,7 +169,7 @@ impl VirMemAllocator {
                 "\nCOMPILATION ERROR: Too many temporal variables of type {:?} generated\n",
                 tipo
             );
-            std::process::exit(1);
+            panic!();
         }
 
         let mem = self.ltemp[pos];
@@ -188,7 +204,7 @@ impl VirMemAllocator {
                 "\nCOMPILATION ERROR: Too many constant variables of type {:?} declared\n",
                 tipo
             );
-            std::process::exit(1);
+            panic!();
         }
 
         let mem = self.cnst[pos];

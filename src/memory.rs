@@ -26,4 +26,21 @@ impl Memory {
             bool_off: off_bool,
         }
     }
+
+    pub fn empty() -> Memory {
+        Memory {
+            int_mem: Vec::new(),
+            float_mem: Vec::new(),
+            bool_mem: Vec::new(),
+            int_off: 0,
+            float_off: 0,
+            bool_off: 0,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct MemoryInfo {
+    pub locs: [i32; 3],
+    pub tmps: [i32; 3],
 }

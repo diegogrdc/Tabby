@@ -12,7 +12,6 @@ pub mod dir_func;
 pub mod dir_var;
 pub mod quadruples;
 pub mod semantic_cube;
-pub mod tests;
 pub mod tipo;
 pub mod vir_mem;
 

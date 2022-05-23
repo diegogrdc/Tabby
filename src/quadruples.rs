@@ -14,7 +14,6 @@ pub enum Quadruple {
     GoToF(IdAddr, i32),
     GoTo(i32),
     GoSub(String, i32),
-    Init(i32),
     Era(String),
     Parameter(IdAddr, i32),
     EndFunc(),
@@ -22,6 +21,7 @@ pub enum Quadruple {
     Temp(),
     Verify(IdAddr, i32),
     Deref(IdAddr, IdAddr),
+    Println(),
 }
 
 impl Quadruple {
@@ -48,9 +48,6 @@ impl Quadruple {
             Quadruple::GoSub(fn_name, pos) => {
                 format!("Gosub {} {} -1", fn_name, pos)
             }
-            Quadruple::Init(pos) => {
-                format!("Init {} -1 -1", pos)
-            }
             Quadruple::Era(fn_name) => {
                 format!("Era {} -1 -1", fn_name)
             }
@@ -68,6 +65,9 @@ impl Quadruple {
             }
             Quadruple::Deref((_, addr), (_, addr2)) => {
                 format!("Deref {} {} -1", addr, addr2)
+            }
+            Quadruple::Println() => {
+                format!("Println -1 -1 -1")
             }
             Quadruple::Temp() => {
                 panic!("DEV ERROR: Yoy should not print any temp quadruples");

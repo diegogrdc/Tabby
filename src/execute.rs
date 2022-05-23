@@ -5,9 +5,13 @@ use std::io::{BufRead, BufReader, Lines};
 pub mod virtual_machine;
 use virtual_machine::VirtualMachine;
 pub mod memory;
-use memory::Memory;
+use memory::*;
 pub mod cnsts_memory;
 use cnsts_memory::CnstsMemory;
+pub mod ast;
+pub mod mem_ptr;
+pub mod tipo;
+pub mod vir_mem;
 
 fn get_line(lines: &mut Lines<BufReader<File>>) -> String {
     lines.next().unwrap().unwrap()
@@ -42,25 +46,21 @@ fn get_lines(path: &String, filename: &String) -> Lines<BufReader<File>> {
     reader.lines()
 }
 
-fn get_int_vec_from_string(lines: &mut Lines<BufReader<File>>) -> Vec<i32> {
+fn get_int_list_from_string(lines: &mut Lines<BufReader<File>>) -> [i32; 3] {
     let line = get_line(lines);
     let vec: Vec<i32> = line.split(" ").map(|x| x.parse::<i32>().unwrap()).collect();
-    vec
+    [vec[0], vec[1], vec[2]]
 }
 
 fn get_fn_mem_size(lines: &mut Lines<BufReader<File>>, vir_mach: &mut VirtualMachine) {
     let fn_name = get_line(lines);
-    let locs = get_int_vec_from_string(lines);
-    let tmps = get_int_vec_from_string(lines);
-    let mem = Memory::new(
-        locs[0] + tmps[0],
-        locs[0],
-        locs[1] + tmps[1],
-        locs[1],
-        locs[2] + tmps[2],
-        locs[2],
-    );
-    vir_mach.mem_szs.insert(fn_name.to_string(), mem);
+    let locs = get_int_list_from_string(lines);
+    let tmps = get_int_list_from_string(lines);
+    let mem_info = MemoryInfo {
+        locs: locs,
+        tmps: tmps,
+    };
+    vir_mach.mem_szs.insert(fn_name.to_string(), mem_info);
 }
 
 fn get_cnsts(lines: &mut Lines<BufReader<File>>, vir_mach: &mut VirtualMachine) {
@@ -96,15 +96,10 @@ fn get_cnsts(lines: &mut Lines<BufReader<File>>, vir_mach: &mut VirtualMachine) 
     assert_eq!(bool_sz, vec_bools.len() as i32);
     // Strlits
     let strlit_sz = get_line(lines).parse::<i32>().unwrap();
-    let line = get_line(lines);
-    println!("line: {:?}", line);
-    let vec_strlits: Vec<String> = if strlit_sz == 0 {
-        Vec::new()
-    } else {
-        line.split(" ")
-            .map(|x| x.parse::<String>().unwrap())
-            .collect()
-    };
+    let mut vec_strlits: Vec<String> = Vec::new();
+    for _ in 0..strlit_sz {
+        vec_strlits.push(get_line(lines).to_string());
+    }
     assert_eq!(strlit_sz, vec_strlits.len() as i32);
 
     // Set
@@ -160,6 +155,12 @@ fn main() {
     // Get Quads
     get_quads(&mut lines, &mut vir_mach);
 
+    // Assert lines are empty
+    assert!(lines.next().is_none());
+
+    // Execute
+    vir_mach.execute();
+
     // Debug
-    println!("{:#?}", vir_mach);
+    println!("{:?}", vir_mach);
 }

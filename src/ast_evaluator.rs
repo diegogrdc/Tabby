@@ -111,7 +111,7 @@ check semantics and generate IC code
 impl AstEvaluator {
     pub fn throw_compile_error(&self, msg: String) {
         eprintln!("\nCOMPILE ERROR: {}\n", msg);
-        std::process::exit(1);
+        panic!();
     }
 
     pub fn eval_program(&mut self, program: Box<ast::Program>) -> bool {
@@ -398,7 +398,7 @@ impl AstEvaluator {
                 // Change first quad to point here
                 self.curr_fn_tipo = Tipo::Void;
                 self.quads
-                    .insert(0, Quadruple::Init(self.quads.len() as i32));
+                    .insert(0, Quadruple::GoTo(self.quads.len() as i32));
                 self.quads.remove(1);
                 let pos_init = self.quads.len() as i32;
 
@@ -471,6 +471,7 @@ impl AstEvaluator {
         match *print {
             ast::Print::Print(print_vars) => {
                 self.eval_print_vars(print_vars);
+                self.quads.push(Quadruple::Println());
             }
         };
         true

@@ -95,13 +95,17 @@ fn print_ic_file(eval: AstEvaluator, filename: &String, program_name: &String) {
         let cnst_vec = &cnst_stacks[i];
         writeln!(file, "{}", cnst_vec.len()).expect(err);
         for (idx, cnst) in cnst_vec.iter().enumerate() {
-            if idx < cnst_vec.len() - 1 {
+            if i == 3 {
+                writeln!(file, "{}", cnst).expect(err);
+            } else if idx < cnst_vec.len() - 1 {
                 write!(file, "{} ", cnst).expect(err);
             } else {
                 write!(file, "{}", cnst).expect(err);
             }
         }
-        write!(file, "\n").expect(err);
+        if i != 3 {
+            write!(file, "\n").expect(err);
+        }
     }
 
     // Print quads

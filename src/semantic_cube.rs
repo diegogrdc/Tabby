@@ -90,14 +90,6 @@ impl SemanticCube {
             table.insert(
                 (
                     SC::tipo_to_val(&Bool),
-                    SC::tipo_to_val(&Float),
-                    SC::op_to_val(op),
-                ),
-                SC::tipo_to_val(&Bool),
-            );
-            table.insert(
-                (
-                    SC::tipo_to_val(&Bool),
                     SC::tipo_to_val(&Bool),
                     SC::op_to_val(op),
                 ),
@@ -115,14 +107,6 @@ impl SemanticCube {
                 (
                     SC::tipo_to_val(&Float),
                     SC::tipo_to_val(&Float),
-                    SC::op_to_val(op),
-                ),
-                SC::tipo_to_val(&Bool),
-            );
-            table.insert(
-                (
-                    SC::tipo_to_val(&Float),
-                    SC::tipo_to_val(&Bool),
                     SC::op_to_val(op),
                 ),
                 SC::tipo_to_val(&Bool),
@@ -187,6 +171,22 @@ impl SemanticCube {
                     SC::op_to_val(op),
                 ),
                 SC::tipo_to_val(&Int),
+            );
+            table.insert(
+                (
+                    SC::tipo_to_val(&Float),
+                    SC::tipo_to_val(&Bool),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Float),
+            );
+            table.insert(
+                (
+                    SC::tipo_to_val(&Bool),
+                    SC::tipo_to_val(&Float),
+                    SC::op_to_val(op),
+                ),
+                SC::tipo_to_val(&Float),
             );
         }
         // Assigmnent and Return
