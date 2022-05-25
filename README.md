@@ -69,10 +69,12 @@ Además, por decisión propia, se implementó tambien para esta semana los cuád
 
 En este entregable, se generaron los dos comandos básicos que serán utilizados para la ejecución del código en Tabby. Uno para la compilación de código, el cuál involucra todo el análisis léxico, sintáctico y semántico. Este toma como entrada un archivo escrito en Tabby `archivo.tabby`, y genera un archivo de código intermedio con el mismo nombre pero diferente terminación (`tabbyic`), con los cuádruplos y otra información relevante como constantes o tamaño de memoria en funciones. Para ejecutar el comando de compilación, debemos de generar nuestro código/archivo en la carpeta `./main/`, y darle la terminación `.tabby`. Después, podemos correr el comando
 > cargo run --bin compile archivo
+
 Este comando generará el archivo con código intermedio en la misma carpeta en caso de que todo este correcto, o mostrará al usuario el error obtenido en caso de que exista algo incorrecto en el archivo. 
 
 El segundo comando es el comando de ejecución. Este comando toma como entrada el código intermedio en compilación y lo ejecuta, generando cualquier resultado esperado, ya sea leer números, imprimir cálculos, entre muchas otras cosas. Este comando toma como entrada un archivo con terminación `tabbyic`, el cuál fue generado automáticamente por la compilación, y genera las salidas que se hayan especificado en el código base. Para ejecutar este comando, debemos de compilar nuestro archivo, y ya que todo este bien correr el comando
 > cargo run --bin execute archivo
+
 Este comando utiliza la maquina virtual para correr el código, y deteca errores en ejecución cómo “Out Of Bounds”, ”ciclos infinitos”, “overflow”, entre otros errores que son imposibles de detectar en compilación. 
 
 Al entregar este adelando semanal, estos comandos pueden ser usados para correr códigos que lean cosas de consola, impriman cosas, ejecuten expresiónes aritméticas, y comandos como asignación y goto que se usan en Ifs. Como ejemplo, utilizé un programa que lee un número e imprime si es negativo, cero o positivo, el cuál ya es ejecutado completamente por la máquina virtual de manera correcta. 
