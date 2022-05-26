@@ -1,0 +1,16 @@
+Program ifElseOk; 
+
+Var Int num;
+
+Tabby() {
+    num = 3;
+    If(num > 0) {
+        Write("Positive\n");
+    } Else {
+        If(num < 0) {
+            Write("Negative\n");
+        } Else {
+            Write("Zero\n");
+        }
+    }
+}

@@ -1,0 +1,14 @@
+Program printOk; 
+
+Var Int a;
+Var Float b;
+Var Bool c;
+
+Tabby() {
+    a = -10;
+    b = 0.99;
+    c = True;
+    Write("Hello World!\n");
+    Write(1, " ", 2, " ", 3, "\n");
+    Write(a, " ", b, " ", c, " End\n");
+}

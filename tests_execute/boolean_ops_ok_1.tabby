@@ -1,0 +1,9 @@
+Program booleanOps; 
+
+Tabby() {
+    Write(True And False, ", ");
+    Write(True Or False, ", ");
+    Write(False And True, ", ");
+    Write(False Or True, ", ");
+    Write(1 > 2 Or 2 > 2, "\n");
+}

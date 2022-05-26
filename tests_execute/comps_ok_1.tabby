@@ -1,0 +1,10 @@
+Program compOps; 
+
+Tabby() {
+    Write(True != False, ", ");
+    Write(12 > 3, ", ");
+    Write(0.1 < 14, ", ");
+    Write(0.1 == 1, ", ");
+    Write(0.99 <= 1, ", ");
+    Write(14 >= 2 * 7, "\n");
+}

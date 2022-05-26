@@ -1,0 +1,17 @@
+Program whileOk; 
+
+Var Int i, n;
+
+Tabby() {
+    i = 1;
+    n = 10;
+    While(i <= n) {
+        If(i == n) {
+            Write(i, "\n");
+        }
+        Else {
+            Write(i, ", ");
+        }
+        i = i + 1;
+    }
+}

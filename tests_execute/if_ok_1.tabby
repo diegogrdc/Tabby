@@ -1,0 +1,11 @@
+Program ifOkOne; 
+
+Var Int age;
+
+Tabby() {
+    age = 20;
+    If(age >= 18) {
+        Write("In If\n");
+    }
+    Write("After If\n");
+}

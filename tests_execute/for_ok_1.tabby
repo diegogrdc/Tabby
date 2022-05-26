@@ -1,0 +1,11 @@
+Program forOk; 
+
+Var Int i;
+
+Tabby() {
+    i = 1;
+    For(i <= 2000; i = i * 2) {
+        Write(i, "->");
+    }
+    Write(i);
+}

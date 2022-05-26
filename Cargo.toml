@@ -13,13 +13,14 @@ lalrpop-util = { version = "0.19.7", features = ["lexer"] }
 regex = "1"
 
 [[bin]]
-name="main"
-path="src/main.rs"
-
-[[bin]]
 name="compile"
-path="src/compile.rs"
+path="src/compile/main.rs"
+
 
 [[bin]]
 name="execute"
-path="src/execute.rs"
+path="src/execute/main.rs"
+
+[lib]
+name = "lib"
+path = "src/lib/lib.rs"

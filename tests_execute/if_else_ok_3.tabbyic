@@ -1,0 +1,31 @@
+ifElseOk
+2
+ifElseOk
+1 0 0
+1 1 1
+Tabby
+0 0 0
+0 0 2
+2
+-10 0
+0
+
+0
+
+3
+Positive\n
+Negative\n
+Zero\n
+12
+Goto 1 -1 -1
+= 120009 0 -1
+> 0 120010 116675
+Gotof 116675 6 -1
+Print 130011 -1 -1
+Goto 11 -1 -1
+< 0 120010 116676
+Gotof 116676 10 -1
+Print 130012 -1 -1
+Goto 11 -1 -1
+Print 130013 -1 -1
+Endfunc -1 -1 -1
