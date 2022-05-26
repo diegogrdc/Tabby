@@ -339,7 +339,7 @@ impl AstEvaluator {
         self.dir_func.insert(
             fn_id.clone(),
             FuncInfo {
-                tipo: fn_tipo,
+                tipo: fn_tipo.clone(),
                 dir_var: vars,
                 pos_init: pos_init,
                 size_loc: [0, 0, 0],
@@ -349,6 +349,11 @@ impl AstEvaluator {
         );
         // Eval fn block
         self.eval_block(fn_block);
+
+        // Instert a Default Value Set If No Return
+        // Only If Not Void
+        self.insert_default_ret_val(&fn_tipo);
+
         // Insert End Command
         self.quads.push(Quadruple::EndFunc());
         // Add size
@@ -356,6 +361,39 @@ impl AstEvaluator {
         // Remove current local scope
         self.loc_scope = None;
         true
+    }
+
+    pub fn insert_default_ret_val(&mut self, fn_tipo: &Tipo) {
+        match fn_tipo {
+            Tipo::Int => {
+                let lt_id_addr = self.get_id_addr(&"0".to_string(), &Tipo::Int);
+                let rt_id_addr = (
+                    "Ret".to_string(),
+                    self.vir_mem_alloc.get_gtemp_addr(&fn_tipo),
+                );
+                self.quads
+                    .push(Quadruple::Assign("=".to_string(), lt_id_addr, rt_id_addr));
+            }
+            Tipo::Float => {
+                let lt_id_addr = self.get_id_addr(&"0.0".to_string(), &Tipo::Float);
+                let rt_id_addr = (
+                    "Ret".to_string(),
+                    self.vir_mem_alloc.get_gtemp_addr(&fn_tipo),
+                );
+                self.quads
+                    .push(Quadruple::Assign("=".to_string(), lt_id_addr, rt_id_addr));
+            }
+            Tipo::Bool => {
+                let lt_id_addr = self.get_id_addr(&"False".to_string(), &Tipo::Bool);
+                let rt_id_addr = (
+                    "Ret".to_string(),
+                    self.vir_mem_alloc.get_gtemp_addr(&fn_tipo),
+                );
+                self.quads
+                    .push(Quadruple::Assign("=".to_string(), lt_id_addr, rt_id_addr));
+            }
+            _ => {}
+        }
     }
 
     pub fn eval_params(
