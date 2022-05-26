@@ -1,0 +1,16 @@
+Program arraysOk; 
+
+Var Arr Int a[10];
+Var Int i;
+
+Tabby() {
+    i = 1;
+    For(i <= 5; i = i + 1) {
+        a[i] = i * i;
+    }
+    i = 1;
+    For(i <= 4; i = i + 1) {
+        Write(a[i], ", ");
+    }
+    Write(a[i], "\n");
+}

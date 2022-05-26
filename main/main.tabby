@@ -1,16 +1,5 @@
-Program basicProgram;
-
-Var Int n;
+Program helloWorld;
 
 Tabby() {
-    Read(n);
-    If(n > 0) {
-        Write("Positive");
-    } Else {
-        If(n == 0) {
-            Write("Zero");
-        } Else {
-            Write("Negative");
-        }
-    }
+    Write("Hello World!\n");
 }

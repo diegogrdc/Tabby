@@ -164,6 +164,6 @@ fn main() {
     vir_mach.execute();
 
     // Debug
-    println!("{:?}", vir_mach);
-    println!("{}", vir_mach.output);
+    // println!("{:?}", vir_mach);
+    // println!("{}", vir_mach.output);
 }

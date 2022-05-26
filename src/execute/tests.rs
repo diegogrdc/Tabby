@@ -161,4 +161,28 @@ mod tests_execute {
         // Assert output
         assert_eq!(vir_mach.output, format!("3 1.1 True\n"));
     }
+
+    #[test]
+    fn test_arrays_ok_1() {
+        // Setup
+        let filename = "arrays_ok_1".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+        // Assert output
+        assert_eq!(vir_mach.output, format!("1, 4, 9, 16, 25\n"));
+    }
+
+    #[test]
+    fn test_mats_ok_1() {
+        // Setup
+        let filename = "mats_ok_1".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+        // Assert output
+        assert_eq!(vir_mach.output, format!("3 6 9 \n2 5 8 \n1 4 7 \n"));
+    }
 }

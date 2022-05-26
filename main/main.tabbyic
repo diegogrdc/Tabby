@@ -1,34 +1,20 @@
-basicProgram
+helloWorld
 2
-basicProgram
-1 0 0
-1 1 1
 Tabby
 0 0 0
-0 0 2
+0 0 0
+helloWorld
+0 0 0
+1 1 1
+0
+
+0
+
+0
+
 1
-0
-0
-
-0
-
+Hello World!\n
 3
-Positive
-Zero
-Negative
-15
 Goto 1 -1 -1
-Read 0 -1 - 1
-> 0 120009 116675
-Gotof 116675 7 -1
 Print 130011 -1 -1
-Println -1 -1 -1
-Goto 14 -1 -1
-== 0 120009 116676
-Gotof 116676 12 -1
-Print 130012 -1 -1
-Println -1 -1 -1
-Goto 14 -1 -1
-Print 130013 -1 -1
-Println -1 -1 -1
 Endfunc -1 -1 -1

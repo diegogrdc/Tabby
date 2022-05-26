@@ -27,6 +27,7 @@ pub struct VirtualMachine {
     pub loc_mem: Memory,
     pub stack_ips: Vec<i32>,
     pub stack_mems: Vec<Memory>,
+    pub ptrs: HashMap<i32, i32>,
     pub output: String,
 }
 
@@ -45,6 +46,7 @@ impl VirtualMachine {
             loc_mem: Memory::empty(),
             stack_ips: Vec::new(),
             stack_mems: Vec::new(),
+            ptrs: HashMap::new(),
             output: String::new(),
         }
     }
@@ -133,8 +135,13 @@ impl VirtualMachine {
             "Endfunc" => {
                 self.move_ip(1);
             }
-            // Gotof
-            // Gosub, Era, Param, Verify, Deref, EndFunc, Return, Verify
+            "Deref" => {
+                self.quad_deref(&quad);
+            }
+            "Verify" => {
+                self.quad_verify(&quad);
+            }
+            // Gosub, Era, Param, EndFunc, Return
             err_sym => {
                 eprintln!("\nDEV ERROR: Unrecognized Operation {}", err_sym);
                 panic!();
@@ -166,6 +173,39 @@ impl VirtualMachine {
             );
             panic!();
         }
+    }
+
+    pub fn quad_deref(&mut self, quad: &[String; 4]) {
+        let imp_addr_addr = as_i32(&quad[1]);
+        if let MemVal::Int(imp_addr) = self.get_mem_val(imp_addr_addr) {
+            let new_ptr = as_i32(&quad[2]);
+            self.ptrs.insert(new_ptr, imp_addr);
+        } else {
+            eprintln!(
+                "DEV ERROR: Deref first element should always be Int, it got {:?}",
+                self.get_mem_val(imp_addr_addr)
+            );
+            panic!();
+        }
+        self.move_ip(1);
+    }
+
+    pub fn quad_verify(&mut self, quad: &[String; 4]) {
+        let addr_val = as_i32(&quad[1]);
+        let lim = as_i32(&quad[2]);
+        if let MemVal::Int(val) = self.get_mem_val(addr_val) {
+            if val >= lim || val < 0 {
+                eprintln!("EXECUTION ERROR: Out of Bounds. Tried to access an array in an invalid index: {}. Index was expected between {} and {}", val, 0, lim);
+                panic!();
+            }
+        } else {
+            eprintln!(
+                "DEV ERROR: Verify first element must contain an Int. It contains: {:?}\n",
+                self.get_mem_val(addr_val)
+            );
+            panic!();
+        }
+        self.move_ip(1);
     }
 
     pub fn quad_read(&mut self, quad: &[String; 4]) {
@@ -577,7 +617,12 @@ impl VirtualMachine {
         *ip = *ip + qnt;
     }
 
-    pub fn get_mem_ptr(&mut self, addr: i32) -> MemPtr {
+    pub fn get_mem_ptr(&mut self, addr_ptr: i32) -> MemPtr {
+        // Check if ptr and convert to addr
+        let mut addr = addr_ptr;
+        if self.ptrs.get(&addr_ptr).is_some() {
+            addr = *self.ptrs.get(&addr_ptr).unwrap();
+        }
         // Global
         if addr <= GLOBAL_END {
             // Int
@@ -703,7 +748,12 @@ impl VirtualMachine {
         panic!();
     }
 
-    pub fn get_mem_val(&mut self, addr: i32) -> MemVal {
+    pub fn get_mem_val(&mut self, addr_ptr: i32) -> MemVal {
+        // Check if ptr and convert to addr
+        let mut addr = addr_ptr;
+        if self.ptrs.get(&addr_ptr).is_some() {
+            addr = *self.ptrs.get(&addr_ptr).unwrap();
+        }
         // Global
         if addr <= GLOBAL_END {
             // Int
