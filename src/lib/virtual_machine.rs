@@ -326,7 +326,11 @@ impl VirtualMachine {
                 *t = buffer.trim().parse::<f64>().unwrap();
             }
             MemPtr::Bool(t) => {
-                *t = buffer.trim().to_lowercase().parse::<bool>().unwrap();
+                *t = buffer
+                    .trim()
+                    .to_lowercase()
+                    .parse::<bool>()
+                    .unwrap_or(buffer.trim().to_lowercase().parse::<i32>().unwrap() != 0);
             }
         };
         self.move_ip(1);

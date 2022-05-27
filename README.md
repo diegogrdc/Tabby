@@ -81,3 +81,16 @@ Al entregar este adelando semanal, estos comandos pueden ser usados para correr 
 
 Los siguientes pasos son seguir con la implementación de la máquina virtual, para funciones, arreglos, ciclos. Además, falta definir bien las funciones necesarias de nuestro lenguaje particular, cómo mediana, media, plot, etc, para generar sus cuádruplos e implementar las acciones correspondientes, aunque será de las últimas cosas en agregarse, pues primero quiero tener algo funcional con todos los básicos.  
 
+### Avance 7. Ejecución de Arreglos, Matrices y Funciones y Pruebas en Ejecución
+
+Para la entrega semanal, me hacía falta agregar la funcionalidad para poder utilizar funciones y arreglos/matrices en ejecución, generando el código de la máquina virtual para todos los cuádruplos relacionados con estos conceptos. Además, estaba pendiente generar pruebas para poder asegurar que el comportamiento de la máquina virtual al ejecutar códigos fuera el esperado.  
+
+Para el uso de arreglos, se implementaron todos los cuádruplos en ejecución de verificación de tamaño, creación del apuntador en vez de una dirección de memoria, y los cuádruplos para obtener la dirección necesaria dependiendo de la posición que se quiere acceder.
+
+Para el uso de funciones, se implementó los cuádruplos en ejecución de gosub, era, endfunc y return. Cada uno de estos involucra la creación de nueva memoria, redirección de información de retorno, cambios de contexto, y regresar a contextos pasados. Con varias pilas que guardan la memoria y los apuntadores de instrucciones, esto se implementó de manera simple y con toda la funcionalidad necesaria. 
+
+Además se crearon varios casos de prueba para cada una de las funcionalidades de la ejecución en la máquina virtual, en los que se toman códigos en Tabby, y se ejecutan para comparar el output a lo esperado, buscando ver si el programa logró hacer lo que se esperaba
+
+Teniendo todo esto, tenemos ya una base sólida de un lenguaje simple de programación. Ya todo está en funcionamiento, desde la compilación hasta la ejecución. Se crearon varios programas clásicos como Fibonacci o Factorial, y esto muestra el gran avance que se generó en el proyecto hasta esta semana.
+
+Las cosas que quedan pendientes agregar son las funciones especiales de nuestro lenguaje, que nos ayudan con estadística, el cuál es el enfoque del lenguaje. Además, existen un par de cosas extras que se podría buscar mejorar si queda tiempo, como errores más claros del analizador léxico. 

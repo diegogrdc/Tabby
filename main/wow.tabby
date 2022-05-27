@@ -1,30 +1,7 @@
 Program outOfBounds; 
 
-Var Arr Int arr[100];
-Var Arr Bool isPar[100];
-Var Int n, i;
-
-Fn Void genIfPar() {
-    i = 1;
-    For(i <= n; i = i + 1) {
-        isPar[i] = False;
-        If(arr[i] / 2 * 2 == arr[i]) {
-            isPar[i] = True;
-        }
-    }
-}
-
+Var Int x;
 Tabby() {
-    n = 10;
-    i = 1;
-    For(i <= n; i = i + 1) {
-        Read(arr[i]);
-    }
-    genIfPar();
-    i = 1;
-    For(i <= n; i = i + 1) {
-        Write(isPar[i], " ");
-    }
-    Write("\n");
-
+    x = 5000000000;
+    Write(x, "\n");
 }
