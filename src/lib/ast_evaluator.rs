@@ -144,6 +144,7 @@ impl AstEvaluator {
                         size_loc: self.curr_fn_size_loc.clone(),
                         size_tmp: [1, 1, 1],
                         params: Vec::new(),
+                        params_addrs: Vec::new(),
                     },
                 );
 
@@ -298,6 +299,7 @@ impl AstEvaluator {
         let fn_tipo: Tipo;
         let fn_block: Box<ast::Block>;
         let mut param_list: Vec<Tipo> = Vec::new();
+        let mut param_addrs: Vec<i32> = Vec::new();
 
         // Eval params when needed and get
         // relevant info like id, type and block
@@ -307,14 +309,14 @@ impl AstEvaluator {
                 fn_tipo = tipo_from_type(&typ);
                 fn_block = block;
 
-                self.eval_params(params, &mut vars, &mut param_list);
+                self.eval_params(params, &mut vars, &mut param_list, &mut param_addrs);
             }
             ast::Function::FnVoidParams(id, params, block) => {
                 fn_id = id.clone();
                 fn_tipo = Tipo::Void;
                 fn_block = block;
 
-                self.eval_params(params, &mut vars, &mut param_list);
+                self.eval_params(params, &mut vars, &mut param_list, &mut param_addrs);
             }
             ast::Function::Fn(typ, id, block) => {
                 fn_id = id.clone();
@@ -345,6 +347,7 @@ impl AstEvaluator {
                 size_loc: [0, 0, 0],
                 size_tmp: [0, 0, 0],
                 params: param_list,
+                params_addrs: param_addrs,
             },
         );
         // Eval fn block
@@ -401,34 +404,39 @@ impl AstEvaluator {
         params: Box<ast::Params>,
         vars: &mut DirVar,
         param_list: &mut Vec<Tipo>,
+        param_addrs: &mut Vec<i32>,
     ) -> bool {
         // Remember arrs and mats are sent as references
         match *params {
             ast::Params::Param(typ, id) => {
-                self.add_param(id, tipo_from_type(&typ), vars);
+                let addr = self.add_param(id, tipo_from_type(&typ), vars);
                 param_list.push(tipo_from_type(&typ));
+                param_addrs.push(addr);
             }
             ast::Params::ParamAnd(typ, id, params) => {
-                self.add_param(id, tipo_from_type(&typ), vars);
+                let addr = self.add_param(id, tipo_from_type(&typ), vars);
                 param_list.push(tipo_from_type(&typ));
+                param_addrs.push(addr);
 
-                self.eval_params(params, vars, param_list);
+                self.eval_params(params, vars, param_list, param_addrs);
             }
         };
         true
     }
 
-    pub fn add_param(&mut self, id: String, tip: Tipo, vars: &mut DirVar) {
+    pub fn add_param(&mut self, id: String, tip: Tipo, vars: &mut DirVar) -> i32 {
         self.check_multiple_dec_var(&id, &vars);
         self.add_loc_var_to_size(&tip, 1);
+        let addr = self.vir_mem_alloc.get_local_addr(&tip);
         vars.insert(
             id,
             VarInfo {
                 tipo: tip.clone(),
-                addr: self.vir_mem_alloc.get_local_addr(&tip),
+                addr: addr,
                 dim: Dim::Single,
             },
         );
+        addr
     }
 
     pub fn eval_tabby(&mut self, tabby: Box<ast::Tabby>) -> bool {
@@ -452,13 +460,11 @@ impl AstEvaluator {
                         size_loc: [0, 0, 0],
                         size_tmp: [0, 0, 0],
                         params: Vec::new(),
+                        params_addrs: Vec::new(),
                     },
                 );
 
                 self.eval_block(block);
-
-                // Insert End Command
-                self.quads.push(Quadruple::EndFunc());
                 self.set_fn_size(&"Tabby".to_string());
             }
         };
@@ -673,6 +679,7 @@ impl AstEvaluator {
                 // to check semantics are ok
                 let fn_tipo: Tipo = self.get_fn_tipo_from_id(&id);
                 let params = self.dir_func.get(&id).unwrap().params.clone();
+                let params_addrs = self.dir_func.get(&id).unwrap().params_addrs.clone();
 
                 if exp_vec.len() != params.len() {
                     self.throw_compile_error(format!(
@@ -692,7 +699,8 @@ impl AstEvaluator {
                     self.get_result_tipo(&params[idx], &tipo, "Param");
                     // Gen param quad
                     let id_addr = self.get_id_addr(&val, &tipo);
-                    self.quads.push(Quadruple::Parameter(id_addr, idx as i32));
+                    let param_addr = params_addrs[idx];
+                    self.quads.push(Quadruple::Parameter(id_addr, param_addr));
                 }
                 // Generate GoSub call
                 let goto_pos = self.dir_func.get(&id).unwrap().pos_init;

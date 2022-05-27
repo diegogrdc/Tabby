@@ -1,0 +1,9 @@
+Program outOfBounds; 
+
+Var Int i;
+Var Arr Int arr[10];
+
+Tabby() {
+    i = 2 * 5;
+    Write(arr[i]);
+}

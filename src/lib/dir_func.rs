@@ -14,6 +14,7 @@ pub struct FuncInfo {
     pub size_loc: [i32; 3],
     pub size_tmp: [i32; 3],
     pub params: Vec<Tipo>,
+    pub params_addrs: Vec<i32>,
 }
 
 // Directory of Functions,

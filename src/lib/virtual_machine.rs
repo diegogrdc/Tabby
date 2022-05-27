@@ -16,6 +16,7 @@ use crate::mem_ptr::*;
 use crate::memory::*;
 use crate::vir_mem::*;
 use std::collections::HashMap;
+use std::mem;
 
 #[derive(Debug)]
 pub struct VirtualMachine {
@@ -27,6 +28,7 @@ pub struct VirtualMachine {
     pub loc_mem: Memory,
     pub stack_ips: Vec<i32>,
     pub stack_mems: Vec<Memory>,
+    pub stack_params: Vec<(MemVal, i32)>,
     pub ptrs: HashMap<i32, i32>,
     pub output: String,
 }
@@ -46,6 +48,7 @@ impl VirtualMachine {
             loc_mem: Memory::empty(),
             stack_ips: Vec::new(),
             stack_mems: Vec::new(),
+            stack_params: Vec::new(),
             ptrs: HashMap::new(),
             output: String::new(),
         }
@@ -132,19 +135,118 @@ impl VirtualMachine {
             "Gotof" => {
                 self.quad_gotof(&quad);
             }
-            "Endfunc" => {
-                self.move_ip(1);
-            }
             "Deref" => {
                 self.quad_deref(&quad);
             }
             "Verify" => {
                 self.quad_verify(&quad);
             }
-            // Gosub, Era, Param, EndFunc, Return
+            "Gosub" => {
+                self.quad_gosub(&quad);
+            }
+            "Era" => {
+                self.quad_era();
+            }
+            "Endfunc" => {
+                self.quad_endfunc();
+            }
+            "Return" => {
+                self.quad_return();
+            }
+            "Parameter" => {
+                self.quad_parameter(&quad);
+            }
             err_sym => {
                 eprintln!("\nDEV ERROR: Unrecognized Operation {}", err_sym);
                 panic!();
+            }
+        }
+    }
+
+    pub fn quad_parameter(&mut self, quad: &[String; 4]) {
+        let addr_from = as_i32(&quad[1]);
+        let val_from = self.get_mem_val(addr_from);
+        let addr_to = as_i32(&quad[2]);
+        self.stack_params.push((val_from, addr_to));
+        self.move_ip(1);
+    }
+
+    pub fn quad_return(&mut self) {
+        self.quad_endfunc();
+    }
+
+    pub fn quad_endfunc(&mut self) {
+        self.stack_ips.pop();
+        self.move_ip(1);
+        let loc_mem = &mut self.loc_mem;
+        let stack_mem = self.stack_mems.last_mut().unwrap();
+        mem::swap(loc_mem, stack_mem);
+        self.stack_mems.pop();
+    }
+
+    pub fn quad_era(&mut self) {
+        self.stack_params.push((MemVal::Int(0), -1));
+        self.move_ip(1);
+    }
+
+    pub fn setup_new_mem_fn(&mut self, fn_name: &String) {
+        let fn_sz = self.mem_szs.get(fn_name).unwrap();
+        let mut new_mem = Memory::new(
+            fn_sz.locs[0] + fn_sz.tmps[0],
+            fn_sz.locs[0],
+            fn_sz.locs[1] + fn_sz.tmps[1],
+            fn_sz.locs[1],
+            fn_sz.locs[2] + fn_sz.tmps[2],
+            fn_sz.locs[2],
+        );
+        let old_mem = &mut self.loc_mem;
+        mem::swap(&mut new_mem, old_mem);
+        self.stack_mems.push(new_mem);
+    }
+
+    pub fn quad_gosub(&mut self, quad: &[String; 4]) {
+        self.setup_new_mem_fn(&quad[1]);
+        self.copy_params_fn();
+        let new_ip = as_i32(&quad[2]);
+        self.stack_ips.push(new_ip);
+    }
+
+    pub fn copy_params_fn(&mut self) {
+        loop {
+            let (val_from, addr) = self.stack_params.pop().unwrap();
+            if addr == -1 {
+                break;
+            }
+            let ptr_to = self.get_mem_ptr(addr);
+            match (val_from, ptr_to) {
+                (MemVal::Int(f), MemPtr::Int(t)) => {
+                    *t = f;
+                }
+                (MemVal::Int(f), MemPtr::Float(t)) => {
+                    *t = f as f64;
+                }
+                (MemVal::Int(f), MemPtr::Bool(t)) => {
+                    *t = f != 0;
+                }
+                (MemVal::Float(f), MemPtr::Float(t)) => {
+                    *t = f;
+                }
+                (MemVal::Float(f), MemPtr::Int(t)) => {
+                    *t = f as i32;
+                }
+                (MemVal::Bool(f), MemPtr::Bool(t)) => {
+                    *t = f;
+                }
+                (MemVal::Bool(f), MemPtr::Int(t)) => {
+                    *t = f as i32;
+                }
+                (f, t) => {
+                    eprintln!(
+                        "\nDEV ERROR: Params setup should be of same type. Got {:?} to {:?}",
+                        f, t
+                    );
+                    panic!();
+                }
             }
         }
     }
@@ -182,7 +284,7 @@ impl VirtualMachine {
             self.ptrs.insert(new_ptr, imp_addr);
         } else {
             eprintln!(
-                "DEV ERROR: Deref first element should always be Int, it got {:?}",
+                "\nDEV ERROR: Deref first element should always be Int, it got {:?}",
                 self.get_mem_val(imp_addr_addr)
             );
             panic!();
@@ -195,12 +297,12 @@ impl VirtualMachine {
         let lim = as_i32(&quad[2]);
         if let MemVal::Int(val) = self.get_mem_val(addr_val) {
             if val >= lim || val < 0 {
-                eprintln!("EXECUTION ERROR: Out of Bounds. Tried to access an array in an invalid index: {}. Index was expected between {} and {}", val, 0, lim);
+                eprintln!("\nEXECUTION ERROR: Out of Bounds. Tried to access an array in an invalid index: {}.\nIndex was expected between {} and {}\n", val, 0, lim - 1);
                 panic!();
             }
         } else {
             eprintln!(
-                "DEV ERROR: Verify first element must contain an Int. It contains: {:?}\n",
+                "\nDEV ERROR: Verify first element must contain an Int. It contains: {:?}\n",
                 self.get_mem_val(addr_val)
             );
             panic!();
@@ -215,7 +317,7 @@ impl VirtualMachine {
         let mut buffer = String::new();
         std::io::stdin()
             .read_line(&mut buffer)
-            .expect("\nEXECUTION ERROR: Error reading variable");
+            .expect("\nEXECUTION ERROR: Error reading variable\n");
         match ptr_to {
             MemPtr::Int(t) => {
                 *t = buffer.trim().parse::<i32>().unwrap();
@@ -744,7 +846,7 @@ impl VirtualMachine {
             }
         }
         // Cnsts should never be pointers
-        eprintln!("DEV ERROR: Memory should always be found and correct");
+        eprintln!("\nDEV ERROR: Memory should always be found and correct");
         panic!();
     }
 
@@ -919,7 +1021,7 @@ impl VirtualMachine {
                 return MemVal::Bool(mem_val);
             }
         }
-        eprintln!("DEV ERROR: Memory should always be found and correct");
+        eprintln!("\nDEV ERROR: Memory should always be found and correct");
         panic!();
     }
 

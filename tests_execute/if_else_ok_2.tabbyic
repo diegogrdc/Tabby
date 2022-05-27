@@ -16,7 +16,7 @@ Tabby
 Positive\n
 Negative\n
 Zero\n
-12
+11
 Goto 1 -1 -1
 = 120009 0 -1
 > 0 120009 116675
@@ -28,4 +28,3 @@ Gotof 116676 10 -1
 Print 130012 -1 -1
 Goto 11 -1 -1
 Print 130013 -1 -1
-Endfunc -1 -1 -1

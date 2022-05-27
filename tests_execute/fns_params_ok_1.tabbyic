@@ -1,0 +1,99 @@
+fnsParamsOk
+6
+bool
+1 1 1
+0 0 0
+void
+1 1 1
+0 0 0
+Tabby
+0 0 0
+4 4 3
+int
+1 1 1
+0 0 0
+fnsParamsOk
+0 0 0
+1 1 1
+float
+1 1 1
+0 0 0
+6
+0 1 2 3 5 12
+4
+0.0 0.4 4.2 0.2
+1
+False
+1
+\n
+70
+Goto 24 -1 -1
+Print 100005 -1 -1
+Print 103339 -1 -1
+Print 106673 -1 -1
+Print 130011 -1 -1
+= 120009 100002 -1
+Endfunc -1 -1 -1
+Print 103339 -1 -1
+Print 106673 -1 -1
+Print 100005 -1 -1
+Print 130011 -1 -1
+= 123343 100003 -1
+Endfunc -1 -1 -1
+Print 106673 -1 -1
+Print 100005 -1 -1
+Print 103339 -1 -1
+Print 130011 -1 -1
+= 126677 100004 -1
+Endfunc -1 -1 -1
+Print 100005 -1 -1
+Print 103339 -1 -1
+Print 106673 -1 -1
+Print 130011 -1 -1
+Endfunc -1 -1 -1
+Era int -1 -1
+- 120010 120010 110007
+Parameter 110007 100005 -1
+/ 120011 123344 113341
+Parameter 113341 103339 -1
+Parameter 120012 106673 -1
+Gosub int 1 -1
+= 100002 110008 -1
+Era float -1 -1
+Parameter 123345 103339 -1
+Parameter 120009 106673 -1
+Parameter 120013 100005 -1
+Gosub float 7 -1
+= 100003 113342 -1
+Era bool -1 -1
+> 120014 120012 116675
+Parameter 116675 106673 -1
+* 120011 120012 110009
+Parameter 110009 100005 -1
+/ 123344 123346 113343
+Parameter 113343 103339 -1
+Gosub bool 13 -1
+= 100004 116676 -1
+Era void -1 -1
+Era int -1 -1
+Parameter 120009 100005 -1
+Parameter 120009 103339 -1
+Parameter 120009 106673 -1
+Gosub int 1 -1
+= 100002 110010 -1
+Parameter 110010 100005 -1
+Era float -1 -1
+Parameter 120009 103339 -1
+Parameter 120009 106673 -1
+Parameter 120009 100005 -1
+Gosub float 7 -1
+= 100003 113344 -1
+Parameter 113344 103339 -1
+Era bool -1 -1
+Parameter 120009 106673 -1
+Parameter 120009 100005 -1
+Parameter 120009 103339 -1
+Gosub bool 13 -1
+= 100004 116677 -1
+Parameter 116677 106673 -1
+Gosub void 19 -1

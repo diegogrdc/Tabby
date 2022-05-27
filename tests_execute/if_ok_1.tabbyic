@@ -15,11 +15,10 @@ ifOkOne
 2
 In If\n
 After If\n
-7
+6
 Goto 1 -1 -1
 = 120009 0 -1
 >= 0 120010 116675
 Gotof 116675 5 -1
 Print 130011 -1 -1
 Print 130012 -1 -1
-Endfunc -1 -1 -1

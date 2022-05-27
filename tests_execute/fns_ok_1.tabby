@@ -1,0 +1,22 @@
+Program fnsOk; 
+
+Fn Int int() {
+    Return 4;
+}
+
+Fn Float float() {
+    Return 0.192;
+}
+
+Fn Bool bool() {
+    Return 12 > 4;
+}
+
+Fn Void void() {
+    Write("Void!");
+}
+
+Tabby() {
+    Write(int(), " ", float(), " ", bool(), "\n");
+    void();
+}

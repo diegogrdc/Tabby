@@ -1,25 +1,30 @@
-Program matsOk; 
+Program outOfBounds; 
 
-Var Arr Int a[10][10];
-Var Int i, j;
+Var Arr Int arr[100];
+Var Arr Bool isPar[100];
+Var Int n, i;
+
+Fn Void genIfPar() {
+    i = 1;
+    For(i <= n; i = i + 1) {
+        isPar[i] = False;
+        If(arr[i] / 2 * 2 == arr[i]) {
+            isPar[i] = True;
+        }
+    }
+}
 
 Tabby() {
-    a[1][1] = 1;
-    a[1][2] = 2;
-    a[1][3] = 3;
-    a[2][1] = 4;
-    a[2][2] = 5;
-    a[2][3] = 6;
-    a[3][1] = 7;
-    a[3][2] = 8;
-    a[3][3] = 9;
-
-    j = 3;
-    For(j >= 1; j = j - 1) {
-        i = 1;
-        For(i <= 3; i = i + 1) {
-            Write(a[i][j], " ");
-        }
-        Write("\n");
+    n = 10;
+    i = 1;
+    For(i <= n; i = i + 1) {
+        Read(arr[i]);
     }
+    genIfPar();
+    i = 1;
+    For(i <= n; i = i + 1) {
+        Write(isPar[i], " ");
+    }
+    Write("\n");
+
 }

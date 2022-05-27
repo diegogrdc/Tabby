@@ -1,0 +1,64 @@
+fnsOk
+6
+int
+0 0 0
+0 0 0
+float
+0 0 0
+0 0 0
+bool
+0 0 0
+0 0 1
+fnsOk
+0 0 0
+1 1 1
+void
+0 0 0
+0 0 0
+Tabby
+0 0 0
+1 1 1
+3
+4 0 12
+2
+0.192 0.0
+1
+False
+3
+Void!
+ 
+\n
+33
+Goto 16 -1 -1
+= 120009 100002 -1
+Return -1 -1 -1
+= 120010 100002 -1
+Endfunc -1 -1 -1
+= 123343 100003 -1
+Return -1 -1 -1
+= 123344 100003 -1
+Endfunc -1 -1 -1
+> 120011 120009 116675
+= 116675 100004 -1
+Return -1 -1 -1
+= 126677 100004 -1
+Endfunc -1 -1 -1
+Print 130011 -1 -1
+Endfunc -1 -1 -1
+Era int -1 -1
+Gosub int 1 -1
+= 100002 110007 -1
+Print 110007 -1 -1
+Print 130012 -1 -1
+Era float -1 -1
+Gosub float 5 -1
+= 100003 113341 -1
+Print 113341 -1 -1
+Print 130012 -1 -1
+Era bool -1 -1
+Gosub bool 9 -1
+= 100004 116675 -1
+Print 116675 -1 -1
+Print 130013 -1 -1
+Era void -1 -1
+Gosub void 14 -1

@@ -1,0 +1,11 @@
+Program fnsImplicitOk; 
+
+Fn Int int() {}
+
+Fn Float float() {}
+
+Fn Bool bool() {}
+
+Tabby() {
+    Write(int(), " ", float(), " ", bool(), "\n");
+}

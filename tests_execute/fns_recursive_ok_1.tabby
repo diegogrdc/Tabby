@@ -1,0 +1,18 @@
+Program fnsParamsOk; 
+
+Var Int i;
+
+Fn Int fib(Int x) {
+    If(x <= 2) {
+        Return 1;
+    }
+    Return fib(x - 1) + fib(x - 2);
+}
+
+Tabby() {
+    i = 1;
+    For(i <= 7; i = i + 1) {
+        Write(fib(i), ", ");
+    }
+    Write(fib(i));
+}

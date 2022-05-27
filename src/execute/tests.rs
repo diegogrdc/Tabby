@@ -185,4 +185,68 @@ mod tests_execute {
         // Assert output
         assert_eq!(vir_mach.output, format!("3 6 9 \n2 5 8 \n1 4 7 \n"));
     }
+
+    #[test]
+    fn test_fns_ok_1() {
+        // Setup
+        let filename = "fns_ok_1".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+        // Assert output
+        assert_eq!(vir_mach.output, format!("4 0.192 True\nVoid!"));
+    }
+
+    #[test]
+    fn test_fns_ok_2() {
+        // Setup
+        let filename = "fns_ok_2".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+        // Assert output
+        assert_eq!(vir_mach.output, format!("0 0 False\n"));
+    }
+
+    #[test]
+    fn test_fns_params_ok_1() {
+        // Setup
+        let filename = "fns_params_ok_1".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+        // Assert output
+        assert_eq!(
+            vir_mach.output,
+            format!("05True\n4.2False5\nTrue62\n00False\n0False0\nFalse00\n00False\n")
+        );
+    }
+
+    #[test]
+    fn test_fns_recursive_ok_1() {
+        // Setup
+        let filename = "fns_recursive_ok_1".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+        // Assert output
+        assert_eq!(vir_mach.output, format!("1, 1, 2, 3, 5, 8, 13, 21"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_out_of_bounds_fail_1() {
+        // Setup
+        let filename = "out_of_bounds_fail_1".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+        // Assert output
+        assert_eq!(vir_mach.output, format!("1, 1, 2, 3, 5, 8, 13, 21"));
+    }
 }

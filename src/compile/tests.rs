@@ -952,7 +952,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 39);
+        assert_eq!(evaluator.quads.len(), 38);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(3));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
@@ -1232,7 +1232,6 @@ mod tests_compile {
                 ("\"nope".to_string(), (CNST_START + STRLIT_OFFSET + 2))
             )
         );
-        assert_eq!(evaluator.quads.get(38).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -1244,7 +1243,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 14);
+        assert_eq!(evaluator.quads.len(), 13);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
@@ -1353,7 +1352,6 @@ mod tests_compile {
                 ("res".to_string(), (GLOBAL_START + GLOBAL_BOOL_OFFSET + 1))
             )
         );
-        assert_eq!(evaluator.quads.get(13).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -1391,7 +1389,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 11);
+        assert_eq!(evaluator.quads.len(), 10);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
@@ -1460,7 +1458,6 @@ mod tests_compile {
                 ("a".to_string(), (GLOBAL_START + GLOBAL_INT_OFFSET))
             )
         );
-        assert_eq!(evaluator.quads.get(10).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -1472,7 +1469,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 20);
+        assert_eq!(evaluator.quads.len(), 19);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
@@ -1610,7 +1607,6 @@ mod tests_compile {
                 ("a".to_string(), (GLOBAL_START + GLOBAL_INT_OFFSET))
             )
         );
-        assert_eq!(evaluator.quads.get(19).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -1701,7 +1697,7 @@ mod tests_compile {
             LOCAL_START + LOCAL_BOOL_OFFSET
         );
         // Test Quads
-        assert_eq!(evaluator.quads.len(), 14);
+        assert_eq!(evaluator.quads.len(), 13);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(3));
         assert_eq!(evaluator.quads.get(1).unwrap(), &Quadruple::EndFunc());
         assert_eq!(evaluator.quads.get(2).unwrap(), &Quadruple::EndFunc());
@@ -1790,7 +1786,6 @@ mod tests_compile {
                 ("\"Wow".to_string(), (CNST_START + STRLIT_OFFSET))
             )
         );
-        assert_eq!(evaluator.quads.get(13).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -1872,7 +1867,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 13);
+        assert_eq!(evaluator.quads.len(), 12);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
@@ -1951,7 +1946,6 @@ mod tests_compile {
                 ("a".to_string(), (GLOBAL_START + GLOBAL_INT_OFFSET))
             )
         );
-        assert_eq!(evaluator.quads.get(12).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -1963,7 +1957,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 12);
+        assert_eq!(evaluator.quads.len(), 11);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
@@ -2033,7 +2027,6 @@ mod tests_compile {
                 ("\"Finish".to_string(), (CNST_START + STRLIT_OFFSET + 1))
             )
         );
-        assert_eq!(evaluator.quads.get(11).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -2045,7 +2038,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 26);
+        assert_eq!(evaluator.quads.len(), 25);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
@@ -2206,7 +2199,6 @@ mod tests_compile {
                 )
             )
         );
-        assert_eq!(evaluator.quads.get(25).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -2281,7 +2273,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 20);
+        assert_eq!(evaluator.quads.len(), 19);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(19));
         // fnVoid starts and has 5 ops
         assert_eq!(evaluator.quads.get(6).unwrap(), &Quadruple::EndFunc());
@@ -2314,7 +2306,6 @@ mod tests_compile {
             )
         );
         assert_eq!(evaluator.quads.get(18).unwrap(), &Quadruple::EndFunc());
-        assert_eq!(evaluator.quads.get(19).unwrap(), &Quadruple::EndFunc());
 
         let fn_info = evaluator.dir_func.get("fnVoid").unwrap();
         assert_eq!(fn_info.pos_init, 1);
@@ -2383,7 +2374,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 22);
+        assert_eq!(evaluator.quads.len(), 21);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(15));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
@@ -2422,7 +2413,10 @@ mod tests_compile {
         );
         assert_eq!(
             evaluator.quads.get(7).unwrap(),
-            &Quadruple::Parameter(("temp2".to_string(), (LTEMP_START + LOCAL_INT_OFFSET)), 0)
+            &Quadruple::Parameter(
+                ("temp2".to_string(), (LTEMP_START + LOCAL_INT_OFFSET)),
+                LOCAL_START_INT
+            )
         );
         assert_eq!(
             evaluator.quads.get(8).unwrap(),
@@ -2476,7 +2470,10 @@ mod tests_compile {
         );
         assert_eq!(
             evaluator.quads.get(17).unwrap(),
-            &Quadruple::Parameter(("n".to_string(), (GLOBAL_START + GLOBAL_INT_OFFSET)), 0)
+            &Quadruple::Parameter(
+                ("n".to_string(), (GLOBAL_START + GLOBAL_INT_OFFSET)),
+                LOCAL_START_INT
+            )
         );
         assert_eq!(
             evaluator.quads.get(18).unwrap(),
@@ -2497,7 +2494,6 @@ mod tests_compile {
                 ("temp1".to_string(), (LTEMP_START + LOCAL_INT_OFFSET))
             )
         );
-        assert_eq!(evaluator.quads.get(21).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -2509,7 +2505,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 19);
+        assert_eq!(evaluator.quads.len(), 18);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(10));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),
@@ -2588,7 +2584,6 @@ mod tests_compile {
             evaluator.quads.get(17).unwrap(),
             &Quadruple::GoSub("void".to_string(), 9)
         );
-        assert_eq!(evaluator.quads.get(18).unwrap(), &Quadruple::EndFunc());
     }
 
     #[test]
@@ -2672,7 +2667,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 26);
+        assert_eq!(evaluator.quads.len(), 25);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
         // Read(n), i = 0, i < N, GoToF, i + 1
         assert_eq!(
@@ -2786,7 +2781,7 @@ mod tests_compile {
         let my_ast = res.unwrap();
         let mut evaluator = AstEvaluator::new();
         evaluator.eval_program(my_ast);
-        assert_eq!(evaluator.quads.len(), 19);
+        assert_eq!(evaluator.quads.len(), 18);
         assert_eq!(evaluator.quads.get(0).unwrap(), &Quadruple::GoTo(1));
         assert_eq!(
             evaluator.quads.get(1).unwrap(),

@@ -48,7 +48,7 @@ impl Quadruple {
                 format!("Gosub {} {} -1", fn_name, pos)
             }
             Quadruple::Era(fn_name) => {
-                format!("Era {} -1 -1", fn_name)
+                format!("Era {} -1 -1", fn_name)
             }
             Quadruple::Parameter((_, addr), num) => {
                 format!("Parameter {} {} -1", addr, num)

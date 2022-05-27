@@ -1,0 +1,24 @@
+Program fnsParamsOk; 
+
+Fn Int int(Int a, Float b, Bool c) {
+    Write(a, b, c, "\n");
+}
+
+Fn Float float(Float a, Bool b, Int c) {
+    Write(a, b, c, "\n");
+}
+
+Fn Bool bool(Bool a, Int b, Float c) {
+    Write(a, b, c, "\n");
+}
+
+Fn Void void(Int a, Float b, Bool c) {
+    Write(a, b, c, "\n");
+}
+
+Tabby() {
+    int(1 - 1, 2 / 0.4, 3);
+    float(4.2, 0, 5);
+    bool(12 > 3, 2 * 3, 0.4 / 0.2);
+    void(int(0, 0, 0), float(0, 0, 0), bool(0 ,0 ,0));
+}
