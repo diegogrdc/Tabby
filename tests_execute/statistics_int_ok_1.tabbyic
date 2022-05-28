@@ -1,0 +1,95 @@
+statisticsOk
+3
+statisticsOk
+27 0 0
+1 1 1
+Tabby
+0 0 0
+10 0 0
+calculateStatistics
+0 0 0
+7 3 1
+10
+1 0 5 10 2 6 3 4 9 13
+0
+
+0
+
+10
+Info on arr: 
+ 
+\n
+Min is: 
+Max is: 
+Range is: 
+Mean is: 
+Mode is: 
+Median is: 
+Variance is: 
+66
+Goto 43 -1 -1
+Print 130011 -1 -1
+= 120009 25 -1
+<= 25 26 116675
+Gotof 116675 13 -1
+Verify 25 25 -1
++ 25 120010 110007
+Deref 110007 110008 -1
+Print 110008 -1 -1
+Print 130012 -1 -1
++ 25 120009 110009
+= 110009 25 -1
+Goto 3 -1 -1
+Print 130013 -1 -1
+Print 130014 -1 -1
+MinInt 0 120009,26,25 110010
+Print 110010 -1 -1
+Print 130013 -1 -1
+Print 130015 -1 -1
+MaxInt 0 120009,26,25 110011
+Print 110011 -1 -1
+Print 130013 -1 -1
+Print 130016 -1 -1
+RangeInt 0 120009,26,25 110012
+Print 110012 -1 -1
+Print 130013 -1 -1
+Print 130017 -1 -1
+MeanInt 0 120009,26,25 113341
+Print 113341 -1 -1
+Print 130013 -1 -1
+Print 130018 -1 -1
+ModeInt 0 120009,26,25 110013
+Print 110013 -1 -1
+Print 130013 -1 -1
+Print 130019 -1 -1
+MedianInt 0 120009,26,25 113342
+Print 113342 -1 -1
+Print 130013 -1 -1
+Print 130020 -1 -1
+VarianceInt 0 120009,26,25 113343
+Print 113343 -1 -1
+Print 130013 -1 -1
+Endfunc -1 -1 -1
+= 120011 26 -1
+Verify 120009 25 -1
++ 120009 120010 110007
+Deref 110007 110008 -1
+= 120012 110008 -1
+Verify 120013 25 -1
++ 120013 120010 110009
+Deref 110009 110010 -1
+= 120014 110010 -1
+Verify 120015 25 -1
++ 120015 120010 110011
+Deref 110011 110012 -1
+= 120014 110012 -1
+Verify 120016 25 -1
++ 120016 120010 110013
+Deref 110013 110014 -1
+= 120017 110014 -1
+Verify 120011 25 -1
++ 120011 120010 110015
+Deref 110015 110016 -1
+= 120018 110016 -1
+Era calculateStatistics -1 -1
+Gosub calculateStatistics 1 -1

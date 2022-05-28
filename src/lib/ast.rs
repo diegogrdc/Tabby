@@ -177,4 +177,24 @@ pub enum Fact {
     Bool(bool),
     Call(Box<Call>),
     Variable(Box<Variable>),
+    Statistics(Box<Statistics>),
+}
+
+#[derive(Debug)]
+pub enum Statistics {
+    MinFlt(String, Box<Exp>, Box<Exp>),
+    MinInt(String, Box<Exp>, Box<Exp>),
+    MaxFlt(String, Box<Exp>, Box<Exp>),
+    MaxInt(String, Box<Exp>, Box<Exp>),
+    RangeFlt(String, Box<Exp>, Box<Exp>),
+    RangeInt(String, Box<Exp>, Box<Exp>),
+    MeanFlt(String, Box<Exp>, Box<Exp>),
+    MeanInt(String, Box<Exp>, Box<Exp>),
+    ModeInt(String, Box<Exp>, Box<Exp>),
+    MedianFlt(String, Box<Exp>, Box<Exp>),
+    MedianInt(String, Box<Exp>, Box<Exp>),
+    StdDevFlt(String, Box<Exp>, Box<Exp>),
+    StdDevInt(String, Box<Exp>, Box<Exp>),
+    VarianceFlt(String, Box<Exp>, Box<Exp>),
+    VarianceInt(String, Box<Exp>, Box<Exp>),
 }

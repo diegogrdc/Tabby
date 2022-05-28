@@ -1,0 +1,37 @@
+Program statisticsOk; 
+
+Var Arr Int a[25];
+Var Int i, n;
+
+Fn Void calculateStatistics() {
+    Write("Info on arr: ");
+    i = 1;
+    For(i <= n; i = i + 1) {
+        Write(a[i], " ");
+    }
+    Write("\n");
+    Write("Min is: ", MinInt(a, 1, n));
+    Write("\n");
+    Write("Max is: ", MaxInt(a, 1, n));
+    Write("\n");
+    Write("Range is: ", RangeInt(a, 1, n));
+    Write("\n");
+    Write("Mean is: ", MeanInt(a, 1, n));
+    Write("\n");
+    Write("Mode is: ", ModeInt(a, 1, n));
+    Write("\n");
+    Write("Median is: ", MedianInt(a, 1, n));
+    Write("\n");
+    Write("Variance is: ", VarianceInt(a, 1, n));
+    Write("\n");
+}
+
+Tabby() {
+    n = 5;
+    a[1] = 10;
+    a[2] = 6;
+    a[3] = 6;
+    a[4] = 9;
+    a[5] = 13;
+    calculateStatistics();
+}

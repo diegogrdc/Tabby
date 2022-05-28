@@ -1,7 +1,7 @@
-Program outOfBounds; 
+Program statisticsDiffType; 
 
-Var Int x;
+Var Arr Int a[25];
+
 Tabby() {
-    x = 5000000000;
-    Write(x, "\n");
+    Write(MinFlt(a, 0, 100));
 }

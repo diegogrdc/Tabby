@@ -249,4 +249,55 @@ mod tests_execute {
         // Assert output
         assert_eq!(vir_mach.output, format!("1, 1, 2, 3, 5, 8, 13, 21"));
     }
+
+    #[test]
+    fn test_statistics_int_ok_1() {
+        // Setup
+        let filename = "statistics_int_ok_1".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+        // Assert output
+        assert_eq!(vir_mach.output, format!("Info on arr: 10 6 6 9 13 \nMin is: 6\nMax is: 13\nRange is: 7\nMean is: 9\nMode is: 6\nMedian is: 9\nVariance is: 6\n"));
+    }
+
+    #[test]
+    fn test_statistics_flt_ok_1() {
+        // Setup
+        let filename = "statistics_flt_ok_1".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+        // Assert output
+        assert_eq!(
+            vir_mach.output,
+            format!(
+                "Info on arr: 10 6 6 10 13 \nMin is: 6\nMax is: 13\nRange is: 7\nMean is: 9.8\nMedian is: 9.8\n"
+            )
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_statistics_oob_fail_1() {
+        // Setup
+        let filename = "statistics_oob_fail_1".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_statistics_rev_fail_1() {
+        // Setup
+        let filename = "statistics_rev_fail_1".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+    }
 }

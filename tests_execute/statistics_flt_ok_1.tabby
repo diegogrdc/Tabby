@@ -1,0 +1,33 @@
+Program statisticsFltOk; 
+
+Var Arr Float a[25];
+Var Int i, n;
+
+Fn Void calculateStatistics() {
+    Write("Info on arr: ");
+    i = 1;
+    For(i <= n; i = i + 1) {
+        Write(a[i], " ");
+    }
+    Write("\n");
+    Write("Min is: ", MinFlt(a, 1, n));
+    Write("\n");
+    Write("Max is: ", MaxFlt(a, 1, n));
+    Write("\n");
+    Write("Range is: ", RangeFlt(a, 1, n));
+    Write("\n");
+    Write("Mean is: ", MeanFlt(a, 1, n));
+    Write("\n");
+    Write("Median is: ", MedianFlt(a, 1, n));
+    Write("\n");
+}
+
+Tabby() {
+    n = 5;
+    a[1] = 10.0;
+    a[2] = 6.0;
+    a[3] = 6.0;
+    a[4] = 10.0;
+    a[5] = 13.0;
+    calculateStatistics();
+}

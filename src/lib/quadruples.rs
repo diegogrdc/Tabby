@@ -21,6 +21,7 @@ pub enum Quadruple {
     Temp(),
     Verify(IdAddr, i32),
     Deref(IdAddr, IdAddr),
+    Statistics(String, IdAddr, IdAddr, IdAddr, i32, IdAddr),
 }
 
 impl Quadruple {
@@ -67,6 +68,19 @@ impl Quadruple {
             }
             Quadruple::Temp() => {
                 panic!("DEV ERROR: Yoy should not print any temp quadruples");
+            }
+            Quadruple::Statistics(
+                op,
+                (_, arr_addr),
+                (_, low_addr),
+                (_, high_addr),
+                lim,
+                (_, to_addr),
+            ) => {
+                format!(
+                    "{} {} {},{},{} {}",
+                    op, arr_addr, low_addr, high_addr, lim, to_addr
+                )
             }
         }
     }

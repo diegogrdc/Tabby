@@ -1,0 +1,19 @@
+statisticsOutOfBounds
+2
+Tabby
+0 0 0
+1 0 0
+statisticsOutOfBounds
+25 0 0
+1 1 1
+2
+-1 0
+0
+
+0
+
+0
+3
+Goto 1 -1 -1
+MinInt 0 120009,120010,25 110007
+Print 110007 -1 -1

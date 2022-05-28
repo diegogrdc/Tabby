@@ -1,0 +1,7 @@
+Program statisticsOutOfBounds; 
+
+Var Arr Int a[25];
+
+Tabby() {
+    Write(MinInt(a, -1, 0));
+}

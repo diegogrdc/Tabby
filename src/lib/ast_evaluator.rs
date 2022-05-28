@@ -1009,8 +1009,185 @@ impl AstEvaluator {
             ast::Fact::Variable(var) => {
                 self.eval_variable(var);
             }
+            ast::Fact::Statistics(st) => {
+                self.eval_statistics(st);
+            }
         };
         true
+    }
+
+    pub fn eval_statistics(&mut self, statistics: Box<ast::Statistics>) -> bool {
+        let fn_arr_tipo: Tipo;
+        let ret_tipo: Tipo;
+        let fn_name: String;
+        let low_exp: Box<ast::Exp>;
+        let high_exp: Box<ast::Exp>;
+        let id: String;
+        // Get info specific from statistics function
+        match *statistics {
+            ast::Statistics::MinFlt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "MinFlt".to_string();
+                fn_arr_tipo = Tipo::Float;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::MinInt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "MinInt".to_string();
+                fn_arr_tipo = Tipo::Int;
+                ret_tipo = Tipo::Int;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::MaxFlt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "MaxFlt".to_string();
+                fn_arr_tipo = Tipo::Float;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::MaxInt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "MaxInt".to_string();
+                fn_arr_tipo = Tipo::Int;
+                ret_tipo = Tipo::Int;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::RangeFlt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "RangeFlt".to_string();
+                fn_arr_tipo = Tipo::Float;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::RangeInt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "RangeInt".to_string();
+                fn_arr_tipo = Tipo::Int;
+                ret_tipo = Tipo::Int;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::MeanFlt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "MeanFlt".to_string();
+                fn_arr_tipo = Tipo::Float;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::MeanInt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "MeanInt".to_string();
+                fn_arr_tipo = Tipo::Int;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::ModeInt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "ModeInt".to_string();
+                fn_arr_tipo = Tipo::Int;
+                ret_tipo = Tipo::Int;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::MedianFlt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "MedianFlt".to_string();
+                fn_arr_tipo = Tipo::Float;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::MedianInt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "MedianInt".to_string();
+                fn_arr_tipo = Tipo::Int;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::StdDevFlt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "StdDevFlt".to_string();
+                fn_arr_tipo = Tipo::Float;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::StdDevInt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "StdDevInt".to_string();
+                fn_arr_tipo = Tipo::Int;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::VarianceFlt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "VarianceFlt".to_string();
+                fn_arr_tipo = Tipo::Float;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+            ast::Statistics::VarianceInt(name, lexp, hexp) => {
+                id = name;
+                fn_name = "VarianceInt".to_string();
+                fn_arr_tipo = Tipo::Int;
+                ret_tipo = Tipo::Float;
+                low_exp = lexp;
+                high_exp = hexp;
+            }
+        };
+
+        // Do generic stuff with info
+        let (arr_tipo, sz) = self.get_arr_tipo_and_sz_from_id(&id);
+        self.check_fn_arr_tipo(&fn_arr_tipo, &arr_tipo, &fn_name);
+        let arr_id_addr = self.get_id_addr(&id, &fn_arr_tipo);
+        let res_id = self.get_next_ltemp(&ret_tipo);
+        let res_id_addr = self.get_id_addr(&res_id, &ret_tipo);
+
+        // Get Low and High Info
+        self.eval_exp(low_exp);
+        let low_id = self.st_vals.pop().unwrap();
+        let low_tip = self.st_tips.pop().unwrap();
+        let low_id_addr = self.get_id_addr(&low_id, &low_tip);
+
+        self.eval_exp(high_exp);
+        let high_id = self.st_vals.pop().unwrap();
+        let high_tip = self.st_tips.pop().unwrap();
+        let high_id_addr = self.get_id_addr(&high_id, &high_tip);
+
+        // Create quad
+        self.quads.push(Quadruple::Statistics(
+            fn_name,
+            arr_id_addr,
+            low_id_addr,
+            high_id_addr,
+            sz,
+            res_id_addr,
+        ));
+
+        // Set stack val
+        self.st_tips.push(ret_tipo);
+        self.st_vals.push(res_id);
+        true
+    }
+
+    pub fn check_fn_arr_tipo(&self, fn_tipo: &Tipo, arr_tipo: &Tipo, fn_name: &str) {
+        if fn_tipo != arr_tipo {
+            self.throw_compile_error(format!(
+                "Function {} expected array of Type {:?}, got {:?}",
+                fn_name, fn_tipo, arr_tipo
+            ));
+        }
     }
 
     pub fn check_multiple_dec_var(&self, id: &String, vars: &DirVar) {

@@ -37,6 +37,22 @@ fn as_i32(num: &String) -> i32 {
     num.parse::<i32>().unwrap()
 }
 
+fn as_i32_triple(pair: &String) -> (i32, i32, i32) {
+    let vec: Vec<i32> = pair.split(",").map(|x| x.parse::<i32>().unwrap()).collect();
+    (vec[0], vec[1], vec[2])
+}
+
+fn check_range_in_lims(real_low: i32, real_high: i32, low: i32, high: i32, name: &str) {
+    if high < low {
+        eprintln!("\nEXECUTION ERROR: On access to function: {}, low must be smaller to high. Got {}, {}\n", name, low, high);
+        panic!();
+    }
+    if low < real_low || high > real_high {
+        eprintln!("\nEXECUTION ERROR: On access to function: {}, low and high must be on array limits. Got {} to {}. Expected in range {} to {}\n", name, low, high, real_low, real_high);
+        panic!();
+    }
+}
+
 impl VirtualMachine {
     pub fn new() -> VirtualMachine {
         VirtualMachine {
@@ -156,11 +172,274 @@ impl VirtualMachine {
             "Parameter" => {
                 self.quad_parameter(&quad);
             }
+            "MinFlt" => {
+                self.quad_statistics(&quad, "MinFlt");
+            }
+            "MinInt" => {
+                self.quad_statistics(&quad, "MinInt");
+            }
+            "MaxFlt" => {
+                self.quad_statistics(&quad, "MaxFlt");
+            }
+            "MaxInt" => {
+                self.quad_statistics(&quad, "MaxInt");
+            }
+            "RangeFlt" => {
+                self.quad_statistics(&quad, "RangeFlt");
+            }
+            "RangeInt" => {
+                self.quad_statistics(&quad, "RangeInt");
+            }
+            "MeanFlt" => {
+                self.quad_statistics(&quad, "MeanFlt");
+            }
+            "MeanInt" => {
+                self.quad_statistics(&quad, "MeanInt");
+            }
+            "ModeInt" => {
+                self.quad_statistics(&quad, "ModeInt");
+            }
+            "MedianFlt" => {
+                self.quad_statistics(&quad, "MedianFlt");
+            }
+            "MedianInt" => {
+                self.quad_statistics(&quad, "MedianInt");
+            }
+            "StdDevFlt" => {
+                self.quad_statistics(&quad, "StdDevFlt");
+            }
+            "StdDevInt" => {
+                self.quad_statistics(&quad, "StdDevInt");
+            }
+            "VarianceFlt" => {
+                self.quad_statistics(&quad, "VarianceFlt");
+            }
+            "VarianceInt" => {
+                self.quad_statistics(&quad, "VarianceInt");
+            }
             err_sym => {
                 eprintln!("\nDEV ERROR: Unrecognized Operation {}", err_sym);
                 panic!();
             }
         }
+    }
+
+    pub fn quad_statistics(&mut self, quad: &[String; 4], fn_name: &str) {
+        // Do generics
+        let base_addr = as_i32(&quad[1]);
+        let (low_addr, high_addr, lim) = as_i32_triple(&quad[2]);
+        let low = self.get_mem_val(low_addr).as_int();
+        let high = self.get_mem_val(high_addr).as_int();
+        check_range_in_lims(0, lim - 1, low, high, fn_name);
+        let to_addr = as_i32(&quad[3]);
+        // Do specific stuff
+        match fn_name {
+            "MinFlt" => {
+                let min = self.eval_minflt(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = min;
+            }
+            "MinInt" => {
+                let min = self.eval_minint(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let int_ptr = to_mem_ptr.as_int();
+                *int_ptr = min;
+            }
+            "MaxFlt" => {
+                let max = self.eval_maxflt(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = max;
+            }
+            "MaxInt" => {
+                let max = self.eval_maxint(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let int_ptr = to_mem_ptr.as_int();
+                *int_ptr = max;
+            }
+            "RangeFlt" => {
+                let range = self.eval_rangeflt(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = range;
+            }
+            "RangeInt" => {
+                let range = self.eval_rangeint(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let int_ptr = to_mem_ptr.as_int();
+                *int_ptr = range;
+            }
+            "MeanFlt" => {
+                let mean = self.eval_mean(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = mean;
+            }
+            "MeanInt" => {
+                let mean = self.eval_mean(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = mean;
+            }
+            "ModeInt" => {
+                let mode = self.eval_modeint(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let int_ptr = to_mem_ptr.as_int();
+                *int_ptr = mode;
+            }
+            "MedianFlt" => {
+                let med = self.eval_median(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = med;
+            }
+            "MedianInt" => {
+                let med = self.eval_median(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = med;
+            }
+            "StdDevFlt" => {
+                let stddev = self.eval_stddev(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = stddev;
+            }
+            "StdDevInt" => {
+                let stddev = self.eval_stddev(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = stddev;
+            }
+            "VarianceFlt" => {
+                let variance = self.eval_variance(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = variance;
+            }
+            "VarianceInt" => {
+                let variance = self.eval_variance(base_addr, low, high);
+                let mut to_mem_ptr = self.get_mem_ptr(to_addr);
+                let flt_ptr = to_mem_ptr.as_float();
+                *flt_ptr = variance;
+            }
+            _ => {
+                eprintln!("DEV ERROR: Unknown statistics function: {}", fn_name);
+                panic!();
+            }
+        }
+        self.move_ip(1);
+    }
+
+    pub fn eval_minflt(&mut self, base_addr: i32, low: i32, high: i32) -> f64 {
+        let mut min = self.get_mem_val(base_addr + low).as_float();
+        for i in low..=high {
+            let nw = self.get_mem_val(base_addr + i).as_float();
+            if nw < min {
+                min = nw;
+            }
+        }
+        min
+    }
+
+    pub fn eval_minint(&mut self, base_addr: i32, low: i32, high: i32) -> i32 {
+        let mut min = self.get_mem_val(base_addr + low).as_int();
+        for i in low..=high {
+            let nw = self.get_mem_val(base_addr + i).as_int();
+            if nw < min {
+                min = nw;
+            }
+        }
+        min
+    }
+
+    pub fn eval_maxflt(&mut self, base_addr: i32, low: i32, high: i32) -> f64 {
+        let mut max = self.get_mem_val(base_addr + low).as_float();
+        for i in low..=high {
+            let nw = self.get_mem_val(base_addr + i).as_float();
+            if nw > max {
+                max = nw;
+            }
+        }
+        max
+    }
+
+    pub fn eval_maxint(&mut self, base_addr: i32, low: i32, high: i32) -> i32 {
+        let mut max = self.get_mem_val(base_addr + low).as_int();
+        for i in low..=high {
+            let nw = self.get_mem_val(base_addr + i).as_int();
+            if nw > max {
+                max = nw;
+            }
+        }
+        max
+    }
+
+    pub fn eval_rangeflt(&mut self, base_addr: i32, low: i32, high: i32) -> f64 {
+        self.eval_maxflt(base_addr, low, high) - self.eval_minflt(base_addr, low, high)
+    }
+
+    pub fn eval_rangeint(&mut self, base_addr: i32, low: i32, high: i32) -> i32 {
+        self.eval_maxint(base_addr, low, high) - self.eval_minint(base_addr, low, high)
+    }
+
+    pub fn eval_mean(&mut self, base_addr: i32, low: i32, high: i32) -> f64 {
+        let mut sum: f64 = 0.0;
+        let len = (high - low + 1) as f64;
+        for i in low..=high {
+            sum = sum + self.get_mem_val(base_addr + i).as_float();
+        }
+        sum / len
+    }
+
+    pub fn eval_modeint(&mut self, base_addr: i32, low: i32, high: i32) -> i32 {
+        let mut mode: (i32, i32) = (0, 0);
+        let mut map: HashMap<i32, i32> = HashMap::new();
+        for i in low..=high {
+            let nw = self.get_mem_val(base_addr + i).as_int();
+            let map_ref = map.get_mut(&nw);
+            if map_ref.is_none() {
+                map.insert(nw, 1);
+            } else {
+                *map_ref.unwrap() += 1;
+            }
+            let val = map.get(&nw).unwrap();
+            if val > &mode.1 || (val == &mode.1 && nw < mode.0) {
+                mode = (nw, *val);
+            }
+        }
+        mode.0
+    }
+
+    pub fn eval_median(&mut self, base_addr: i32, low: i32, high: i32) -> f64 {
+        let mut vec: Vec<f64> = Vec::new();
+        for i in low..=high {
+            vec.push(self.get_mem_val(base_addr + i).as_float());
+        }
+        vec.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        if vec.len() % 2 == 0 {
+            let mid = vec.len() / 2;
+            (vec[mid] + vec[mid - 1]) / 2.0
+        } else {
+            let mid = vec.len() / 2;
+            vec[mid]
+        }
+    }
+
+    pub fn eval_stddev(&mut self, base_addr: i32, low: i32, high: i32) -> f64 {
+        self.eval_variance(base_addr, low, high).sqrt()
+    }
+
+    pub fn eval_variance(&mut self, base_addr: i32, low: i32, high: i32) -> f64 {
+        let avg: f64 = self.eval_mean(base_addr, low, high);
+        let mut sum: f64 = 0.0;
+        let len = (high - low + 1) as f64;
+        for i in low..=high {
+            let nw = self.get_mem_val(base_addr + i).as_float() - avg;
+            sum += nw * nw;
+        }
+        sum / len
     }
 
     pub fn quad_parameter(&mut self, quad: &[String; 4]) {

@@ -167,6 +167,25 @@ FACT: Box<ast::Fact> = {
     <b:BOOL> => Box::new(ast::Fact::Bool(b)),
     <c:CALL> => Box::new(ast::Fact::Call(c)),
     <v:VARIABLE> => Box::new(ast::Fact::Variable(v)),
+    <s:STATISTICS> => Box::new(ast::Fact::Statistics(s)),
+}
+
+STATISTICS: Box<ast::Statistics> = {
+    "MinFlt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::MinFlt(n, l, r)),
+    "MinInt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::MinInt(n, l, r)),
+    "MaxFlt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::MaxFlt(n, l, r)),
+    "MaxInt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::MaxInt(n, l, r)),
+    "RangeFlt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::RangeFlt(n, l, r)),
+    "RangeInt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::RangeInt(n, l, r)),
+    "MeanFlt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::MeanFlt(n, l, r)),
+    "MeanInt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::MeanInt(n, l, r)),
+    "ModeInt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::ModeInt(n, l, r)),
+    "MedianFlt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::MedianFlt(n, l, r)),
+    "MedianInt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::MedianInt(n, l, r)),
+    "StdDevFlt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::StdDevFlt(n, l, r)),
+    "StdDevInt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::StdDevInt(n, l, r)),
+    "VarianceFlt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::VarianceFlt(n, l, r)),
+    "VarianceInt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::VarianceInt(n, l, r)),
 }
 
 // Regex Terms ( TERMINALS )
