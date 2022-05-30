@@ -22,6 +22,7 @@ pub enum Quadruple {
     Verify(IdAddr, i32),
     Deref(IdAddr, IdAddr),
     Statistics(String, IdAddr, IdAddr, IdAddr, i32, IdAddr),
+    Plot(String, IdAddr, IdAddr, IdAddr, i32, i32, String),
 }
 
 impl Quadruple {
@@ -80,6 +81,12 @@ impl Quadruple {
                 format!(
                     "{} {} {},{},{} {}",
                     op, arr_addr, low_addr, high_addr, lim, to_addr
+                )
+            }
+            Quadruple::Plot(op, (_, arrx_addr), (_, arry_addr), (_, sz_addr), szx, szy, fname) => {
+                format!(
+                    "{} {},{} {},{},{} {}",
+                    op, arrx_addr, arry_addr, sz_addr, szx, szy, fname
                 )
             }
         }

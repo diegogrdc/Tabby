@@ -11,6 +11,16 @@ Must contain:
 - Mega Switch to execute stuff
 */
 
+// Plotlib Imports
+use plotlib::page::Page;
+use plotlib::repr::Plot;
+use plotlib::repr::{Histogram, HistogramBins};
+use plotlib::style::BoxStyle;
+use plotlib::style::{LineJoin, LineStyle};
+use plotlib::style::{PointMarker, PointStyle};
+use plotlib::view::ContinuousView;
+
+// Lib Imports
 use crate::cnsts_memory::CnstsMemory;
 use crate::mem_ptr::*;
 use crate::memory::*;
@@ -37,8 +47,16 @@ fn as_i32(num: &String) -> i32 {
     num.parse::<i32>().unwrap()
 }
 
-fn as_i32_triple(pair: &String) -> (i32, i32, i32) {
+fn as_i32_pair(pair: &String) -> (i32, i32) {
     let vec: Vec<i32> = pair.split(",").map(|x| x.parse::<i32>().unwrap()).collect();
+    (vec[0], vec[1])
+}
+
+fn as_i32_triple(triple: &String) -> (i32, i32, i32) {
+    let vec: Vec<i32> = triple
+        .split(",")
+        .map(|x| x.parse::<i32>().unwrap())
+        .collect();
     (vec[0], vec[1], vec[2])
 }
 
@@ -217,11 +235,99 @@ impl VirtualMachine {
             "VarianceInt" => {
                 self.quad_statistics(&quad, "VarianceInt");
             }
+            "HistogramPlot" => {
+                self.quad_plot(&quad, "HistogramPlot");
+            }
+            "LinePlot" => {
+                self.quad_plot(&quad, "LinePlot");
+            }
+            "ScatterPlot" => {
+                self.quad_plot(&quad, "ScatterPlot");
+            }
             err_sym => {
                 eprintln!("\nDEV ERROR: Unrecognized Operation {}", err_sym);
                 panic!();
             }
         }
+    }
+
+    pub fn get_float_vec_from_range(&mut self, base_addr: i32, low: i32, high: i32) -> Vec<f64> {
+        let mut vec = Vec::new();
+        for i in low..=high {
+            let val = self.get_mem_val(base_addr + i);
+            vec.push(val.as_float());
+        }
+        vec
+    }
+
+    pub fn quad_plot(&mut self, quad: &[String; 4], fn_name: &str) {
+        // Do generic stuff for all
+        let (base_addrx, base_addry) = as_i32_pair(&quad[1]);
+        let (sz_addr, szx, szy) = as_i32_triple(&quad[2]);
+        let filename = quad[3].clone();
+        let sz = self.get_mem_val(sz_addr).as_int();
+        check_range_in_lims(0, szx, 0, sz, fn_name);
+        check_range_in_lims(0, szy, 0, sz, fn_name);
+        // Create vecs
+        let datax = self.get_float_vec_from_range(base_addrx, 0, sz - 1);
+        // Choose specific
+        match fn_name {
+            "HistogramPlot" => {
+                self.plot_histogram(datax, base_addry, filename);
+            }
+            "LinePlot" => {
+                let datay = self.get_float_vec_from_range(base_addry, 0, sz - 1);
+                self.plot_line(datax, datay, filename);
+            }
+            "ScatterPlot" => {
+                let datay = self.get_float_vec_from_range(base_addry, 0, sz - 1);
+                self.plot_scatter(datax, datay, filename);
+            }
+            _ => {
+                panic!("NOPE");
+            }
+        };
+        self.move_ip(1);
+    }
+
+    pub fn plot_histogram(&mut self, data: Vec<f64>, bins: i32, filename: String) {
+        let h = Histogram::from_slice(&data, HistogramBins::Count(bins as usize))
+            .style(&BoxStyle::new().fill("burlywood"));
+        let v = ContinuousView::new().add(h);
+        Page::single(&v)
+            .save(format!("./main/{}.svg", filename))
+            .expect("saving Histogram svg...");
+        println!("Histogram Plot created correctly on file {}.svg", filename);
+    }
+
+    pub fn plot_line(&mut self, datax: Vec<f64>, datay: Vec<f64>, filename: String) {
+        let data = datax.into_iter().zip(datay.into_iter()).collect();
+        let l1 = Plot::new(data).line_style(
+            LineStyle::new()
+                .colour("burlywood")
+                .linejoin(LineJoin::Round),
+        );
+        let v = ContinuousView::new().add(l1);
+        Page::single(&v)
+            .save(format!("./main/{}.svg", filename))
+            .expect("saving Line svg...");
+        println!("Line Plot created correctly on file {}.svg", filename);
+    }
+
+    pub fn plot_scatter(&mut self, datax: Vec<f64>, datay: Vec<f64>, filename: String) {
+        let data = datax.into_iter().zip(datay.into_iter()).collect();
+        // We create our scatter plot from the data
+        let s1: Plot = Plot::new(data).point_style(
+            PointStyle::new()
+                .marker(PointMarker::Square) // setting the marker to be a square
+                .colour("#DD3355"),
+        ); // and a custom colour
+           // The 'view' describes what set of data is drawn
+        let v = ContinuousView::new().add(s1);
+        Page::single(&v)
+            .save(format!("./main/{}.svg", filename))
+            .expect("saving Scatter svg...");
+        println!("Scatter Plot created correctly on file {}.svg", filename);
     }
 
     pub fn quad_statistics(&mut self, quad: &[String; 4], fn_name: &str) {

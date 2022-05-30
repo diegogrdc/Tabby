@@ -25,6 +25,7 @@ STATUTE: Box<ast::Statute>  = {
     <r:READ> ";" => Box::new(ast::Statute::Read(r)),
     <p:PRINT> ";"=> Box::new(ast::Statute::Print(p)),
     <r:RETURN> ";" => Box::new(ast::Statute::Return(r)),
+    <p:PLOT> ";" => Box::new(ast::Statute::Plot(p)),
     <w:CICLEW> => Box::new(ast::Statute::Ciclew(w)),
     <f:CICLEF> => Box::new(ast::Statute::Ciclef(f)),
     <c:COND> => Box::new(ast::Statute::Cond(c)),
@@ -186,6 +187,12 @@ STATISTICS: Box<ast::Statistics> = {
     "StdDevInt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::StdDevInt(n, l, r)),
     "VarianceFlt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::VarianceFlt(n, l, r)),
     "VarianceInt" "(" <n:ID> "," <l:EXP> "," <r:EXP> ")" => Box::new(ast::Statistics::VarianceInt(n, l, r)),
+}
+
+PLOT: Box<ast::Plot> = {
+    "HistogramPlot" "(" <x:ID> "," <b:INT> "," <sz:EXP> "," <name:STRINGLIT> ")" => Box::new(ast::Plot::Histogram(x, b, sz, name)),
+    "LinePlot" "(" <x:ID> "," <y:ID> "," <sz:EXP> "," <name:STRINGLIT> ")" => Box::new(ast::Plot::Line(x, y, sz, name)),
+    "ScatterPlot" "(" <x:ID> "," <y:ID> "," <sz:EXP> "," <name:STRINGLIT> ")" => Box::new(ast::Plot::Scatter(x, y, sz, name)),
 }
 
 // Regex Terms ( TERMINALS )

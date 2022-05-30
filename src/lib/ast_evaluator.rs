@@ -207,6 +207,9 @@ impl AstEvaluator {
             ast::Statute::Cond(cond) => {
                 self.eval_cond(cond);
             }
+            ast::Statute::Plot(plot) => {
+                self.eval_plot(plot);
+            }
         };
         true
     }
@@ -1013,6 +1016,75 @@ impl AstEvaluator {
                 self.eval_statistics(st);
             }
         };
+        true
+    }
+
+    pub fn eval_plot(&mut self, plot: Box<ast::Plot>) -> bool {
+        let arrx_id: String;
+        let arry_id: String;
+        let sz_exp: Box<ast::Exp>;
+        let fn_name: String;
+        let save_name: String;
+        let mut n_bins: i32 = 0;
+        match *plot {
+            ast::Plot::Histogram(datax, bins, exp, fname) => {
+                arrx_id = datax;
+                arry_id = "".to_string();
+                n_bins = bins;
+                sz_exp = exp;
+                fn_name = "HistogramPlot".to_string();
+                save_name = fname;
+            }
+            ast::Plot::Line(datax, datay, exp, fname) => {
+                arrx_id = datax;
+                arry_id = datay;
+                sz_exp = exp;
+                fn_name = "LinePlot".to_string();
+                save_name = fname;
+            }
+            ast::Plot::Scatter(datax, datay, exp, fname) => {
+                arrx_id = datax;
+                arry_id = datay;
+                sz_exp = exp;
+                fn_name = "ScatterPlot".to_string();
+                save_name = fname;
+            }
+        };
+
+        // Get Sz Info
+        self.eval_exp(sz_exp);
+        let sz_id = self.st_vals.pop().unwrap();
+        let sz_tip = self.st_tips.pop().unwrap();
+        let sz_id_addr = self.get_id_addr(&sz_id, &sz_tip);
+
+        if fn_name != "HistogramPlot" {
+            let (arrx_tipo, sz_x) = self.get_arr_tipo_and_sz_from_id(&arrx_id);
+            let (arry_tipo, sz_y) = self.get_arr_tipo_and_sz_from_id(&arry_id);
+            let arrx_id_addr = self.get_id_addr(&arrx_id, &arrx_tipo);
+            let arry_id_addr = self.get_id_addr(&arry_id, &arry_tipo);
+            self.quads.push(Quadruple::Plot(
+                fn_name,
+                arrx_id_addr,
+                arry_id_addr,
+                sz_id_addr,
+                sz_x,
+                sz_y,
+                save_name,
+            ));
+        } else {
+            let (arrx_tipo, sz_x) = self.get_arr_tipo_and_sz_from_id(&arrx_id);
+            let arrx_id_addr = self.get_id_addr(&arrx_id, &arrx_tipo);
+            let arry_id_addr = ("num".to_string(), n_bins);
+            self.quads.push(Quadruple::Plot(
+                fn_name,
+                arrx_id_addr,
+                arry_id_addr,
+                sz_id_addr,
+                sz_x,
+                sz_x,
+                save_name,
+            ));
+        }
         true
     }
 

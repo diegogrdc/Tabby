@@ -28,6 +28,7 @@ pub enum Statute {
     Ciclew(Box<Ciclew>),
     Ciclef(Box<Ciclef>),
     Cond(Box<Cond>),
+    Plot(Box<Plot>),
 }
 
 #[derive(Debug)]
@@ -197,4 +198,11 @@ pub enum Statistics {
     StdDevInt(String, Box<Exp>, Box<Exp>),
     VarianceFlt(String, Box<Exp>, Box<Exp>),
     VarianceInt(String, Box<Exp>, Box<Exp>),
+}
+
+#[derive(Debug)]
+pub enum Plot {
+    Histogram(String, i32, Box<Exp>, String),
+    Line(String, String, Box<Exp>, String),
+    Scatter(String, String, Box<Exp>, String),
 }

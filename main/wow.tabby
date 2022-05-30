@@ -1,7 +1,17 @@
 Program statisticsDiffType; 
 
-Var Arr Int a[25];
+Var Arr Int a[1005];
+Var Arr Int b[1005];
+Var Int n, i;
 
 Tabby() {
-    Write(MinFlt(a, 0, 100));
+    n = 500;
+    i = 0;
+    For(i < n; i = i + 1) {
+        a[i] = i;
+        b[i] = 3 * i - i * i;
+    }
+    HistogramPlot(a, 100, n, "hist");
+    LinePlot(a, b, n, "line");
+    ScatterPlot(a, b, n, "scatter");
 }
