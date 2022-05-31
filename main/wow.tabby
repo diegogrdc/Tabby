@@ -1,15 +1,18 @@
 Program statisticsDiffType; 
 
 Var Arr Int a[1005];
-Var Arr Int b[1005];
+Var Arr Float b[1005];
 Var Int n, i;
+Var Float tmp;
 
 Tabby() {
-    n = 500;
+    n = 20;
     i = 0;
     For(i < n; i = i + 1) {
         a[i] = i;
-        b[i] = 3 * i - i * i;
+        tmp = RandFlt();
+        Write(tmp, " ");
+        b[i] = tmp;
     }
     HistogramPlot(a, 100, n, "hist");
     LinePlot(a, b, n, "line");

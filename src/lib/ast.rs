@@ -179,6 +179,8 @@ pub enum Fact {
     Call(Box<Call>),
     Variable(Box<Variable>),
     Statistics(Box<Statistics>),
+    RandInt(),
+    RandFlt(),
 }
 
 #[derive(Debug)]

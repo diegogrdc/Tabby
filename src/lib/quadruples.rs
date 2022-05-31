@@ -23,6 +23,7 @@ pub enum Quadruple {
     Deref(IdAddr, IdAddr),
     Statistics(String, IdAddr, IdAddr, IdAddr, i32, IdAddr),
     Plot(String, IdAddr, IdAddr, IdAddr, i32, i32, String),
+    Rand(String, IdAddr),
 }
 
 impl Quadruple {
@@ -88,6 +89,9 @@ impl Quadruple {
                     "{} {},{} {},{},{} {}",
                     op, arrx_addr, arry_addr, sz_addr, szx, szy, fname
                 )
+            }
+            Quadruple::Rand(op, (_, addr)) => {
+                format!("{} {} -1 -1", op, addr)
             }
         }
     }

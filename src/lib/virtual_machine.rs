@@ -244,11 +244,31 @@ impl VirtualMachine {
             "ScatterPlot" => {
                 self.quad_plot(&quad, "ScatterPlot");
             }
+            "RandInt" => {
+                self.quad_rand(&quad);
+            }
+            "RandFlt" => {
+                self.quad_rand(&quad);
+            }
             err_sym => {
                 eprintln!("\nDEV ERROR: Unrecognized Operation {}", err_sym);
                 panic!();
             }
         }
+    }
+
+    pub fn quad_rand(&mut self, quad: &[String; 4]) {
+        let addr = as_i32(&quad[1]);
+        if quad[0] == "RandInt" {
+            let mut mem_ptr = self.get_mem_ptr(addr);
+            let ptr_int = mem_ptr.as_int();
+            *ptr_int = rand::random::<i32>();
+        } else {
+            let mut mem_ptr = self.get_mem_ptr(addr);
+            let ptr_flt = mem_ptr.as_float();
+            *ptr_flt = rand::random::<f64>();
+        }
+        self.move_ip(1);
     }
 
     pub fn get_float_vec_from_range(&mut self, base_addr: i32, low: i32, high: i32) -> Vec<f64> {

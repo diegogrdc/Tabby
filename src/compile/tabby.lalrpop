@@ -169,6 +169,8 @@ FACT: Box<ast::Fact> = {
     <c:CALL> => Box::new(ast::Fact::Call(c)),
     <v:VARIABLE> => Box::new(ast::Fact::Variable(v)),
     <s:STATISTICS> => Box::new(ast::Fact::Statistics(s)),
+    "RandInt()" => Box::new(ast::Fact::RandInt()),
+    "RandFlt()" => Box::new(ast::Fact::RandFlt()),
 }
 
 STATISTICS: Box<ast::Statistics> = {

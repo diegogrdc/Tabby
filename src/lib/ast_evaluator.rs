@@ -1015,6 +1015,22 @@ impl AstEvaluator {
             ast::Fact::Statistics(st) => {
                 self.eval_statistics(st);
             }
+            ast::Fact::RandInt() => {
+                let tmp = self.get_next_ltemp(&Tipo::Int);
+                let id_addr = self.get_id_addr(&tmp, &Tipo::Int);
+                self.quads
+                    .push(Quadruple::Rand("RandInt".to_string(), id_addr));
+                self.st_vals.push(tmp);
+                self.st_tips.push(Tipo::Int);
+            }
+            ast::Fact::RandFlt() => {
+                let tmp = self.get_next_ltemp(&Tipo::Float);
+                let id_addr = self.get_id_addr(&tmp, &Tipo::Float);
+                self.quads
+                    .push(Quadruple::Rand("RandFlt".to_string(), id_addr));
+                self.st_vals.push(tmp);
+                self.st_tips.push(Tipo::Float);
+            }
         };
         true
     }
