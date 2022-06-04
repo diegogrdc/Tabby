@@ -1,0 +1,59 @@
+Program findArray;
+
+Var Arr Int arr[104];
+Var Int n, i, j, aux;
+Var Bool isSorted;
+
+Fn Int mod(Int x, Int m) {
+    Return x - ((x / m) * m);
+}
+
+Fn Int positive(Int x) {
+    If(x < 0) {
+        Return x * -1;
+    } Else {
+        Return x;
+    }
+}
+
+Fn Int rndInRange(Int l, Int h) {
+    Return mod(positive(RandInt()), h - l + 1) + l;
+}
+
+Fn Void genArr() {
+    i = 0;
+    For(i < n; i = i + 1) {
+        arr[i] = rndInRange(0, 5);
+    }
+}
+
+Fn Void printArr() {
+    i = 0;
+    Write("[ ");
+    For(i < n - 1; i = i + 1) {
+        Write(arr[i], ", ");
+    }
+    Write(arr[i], " ]\n");
+}
+
+Fn Int find(Int val) {
+    j = 0;
+    For(j < n; j = j + 1) {
+        If(arr[j] == val) {
+            Return j;
+        }
+    }
+    Return -1;
+}
+
+Tabby() {
+    Write("\n", "Ingrese N:", "\n");
+    Read(n);
+    genArr();
+    Write("Initial Arr is:\n");
+    printArr();
+    i = 0;
+    For(i <= 5; i = i + 1) {
+        Write("Find(", i, ") = ", find(i), "\n");
+    }
+}

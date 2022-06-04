@@ -1,16 +1,3 @@
-/*
-Must contain:
-- Global info and memory
-- Constant table and memory
-  - use a memory allocator class and reference objects
-  when needed
-- Fn Info
-- Option to create Local Info and Delete
-- Instruction Pointer and Stack
-- Quadruples as (String, String, String, String),
-- Mega Switch to execute stuff
-*/
-
 // Plotlib Imports
 use plotlib::page::Page;
 use plotlib::repr::Plot;
@@ -36,10 +23,11 @@ pub struct VirtualMachine {
     pub quads: Vec<[String; 4]>,
     pub glob_mem: Memory,
     pub loc_mem: Memory,
+    pub loc_ptrs: HashMap<i32, i32>,
     pub stack_ips: Vec<i32>,
     pub stack_mems: Vec<Memory>,
+    pub stack_ptrs: Vec<HashMap<i32, i32>>,
     pub stack_params: Vec<(MemVal, i32)>,
-    pub ptrs: HashMap<i32, i32>,
     pub output: String,
 }
 
@@ -80,10 +68,11 @@ impl VirtualMachine {
             quads: Vec::new(),
             glob_mem: Memory::empty(),
             loc_mem: Memory::empty(),
+            loc_ptrs: HashMap::new(),
             stack_ips: Vec::new(),
             stack_mems: Vec::new(),
+            stack_ptrs: Vec::new(),
             stack_params: Vec::new(),
-            ptrs: HashMap::new(),
             output: String::new(),
         }
     }
@@ -583,10 +572,16 @@ impl VirtualMachine {
     pub fn quad_endfunc(&mut self) {
         self.stack_ips.pop();
         self.move_ip(1);
+        // Local mem
         let loc_mem = &mut self.loc_mem;
         let stack_mem = self.stack_mems.last_mut().unwrap();
         mem::swap(loc_mem, stack_mem);
         self.stack_mems.pop();
+        // Local ptrs
+        let loc_ptrs = &mut self.loc_ptrs;
+        let stack_ptrs = self.stack_ptrs.last_mut().unwrap();
+        mem::swap(loc_ptrs, stack_ptrs);
+        self.stack_ptrs.pop();
     }
 
     pub fn quad_era(&mut self) {
@@ -604,9 +599,15 @@ impl VirtualMachine {
             fn_sz.locs[2] + fn_sz.tmps[2],
             fn_sz.locs[2],
         );
+        // Loc mem
         let old_mem = &mut self.loc_mem;
         mem::swap(&mut new_mem, old_mem);
         self.stack_mems.push(new_mem);
+        // Loc ptrs
+        let mut new_ptrs = HashMap::new();
+        let old_ptrs = &mut self.loc_ptrs;
+        mem::swap(&mut new_ptrs, old_ptrs);
+        self.stack_ptrs.push(new_ptrs);
     }
 
     pub fn quad_gosub(&mut self, quad: &[String; 4]) {
@@ -686,7 +687,7 @@ impl VirtualMachine {
         let imp_addr_addr = as_i32(&quad[1]);
         if let MemVal::Int(imp_addr) = self.get_mem_val(imp_addr_addr) {
             let new_ptr = as_i32(&quad[2]);
-            self.ptrs.insert(new_ptr, imp_addr);
+            self.loc_ptrs.insert(new_ptr, imp_addr);
         } else {
             eprintln!(
                 "\nDEV ERROR: Deref first element should always be Int, it got {:?}",
@@ -1131,8 +1132,8 @@ impl VirtualMachine {
     pub fn get_mem_ptr(&mut self, addr_ptr: i32) -> MemPtr {
         // Check if ptr and convert to addr
         let mut addr = addr_ptr;
-        if self.ptrs.get(&addr_ptr).is_some() {
-            addr = *self.ptrs.get(&addr_ptr).unwrap();
+        if self.loc_ptrs.get(&addr_ptr).is_some() {
+            addr = *self.loc_ptrs.get(&addr_ptr).unwrap();
         }
         // Global
         if addr <= GLOBAL_END {
@@ -1262,8 +1263,8 @@ impl VirtualMachine {
     pub fn get_mem_val(&mut self, addr_ptr: i32) -> MemVal {
         // Check if ptr and convert to addr
         let mut addr = addr_ptr;
-        if self.ptrs.get(&addr_ptr).is_some() {
-            addr = *self.ptrs.get(&addr_ptr).unwrap();
+        if self.loc_ptrs.get(&addr_ptr).is_some() {
+            addr = *self.loc_ptrs.get(&addr_ptr).unwrap();
         }
         // Global
         if addr <= GLOBAL_END {

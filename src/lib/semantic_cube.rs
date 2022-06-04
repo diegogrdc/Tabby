@@ -266,6 +266,9 @@ impl SemanticCube {
             "-" => 9,
             "*" => 10,
             "/" => 11,
+            "=" => 12,
+            "Return" => 13,
+            "Param" => 14,
             _ => -1,
         }
     }
@@ -284,6 +287,9 @@ impl SemanticCube {
             9 => "-".to_string(),
             10 => "*".to_string(),
             11 => "/".to_string(),
+            12 => "=".to_string(),
+            13 => "Return".to_string(),
+            14 => "Param".to_string(),
             _ => "Err".to_string(),
         }
     }

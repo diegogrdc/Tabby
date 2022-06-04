@@ -1,0 +1,16 @@
+Program factorialIterative;
+
+Var Int n, i, ans;
+
+Tabby() {
+    Write("\n", "Ingrese N:", "\n");
+    Read(n);
+    ans = 1;
+    i = 1;
+    For(i <= n; i = i + 1) {
+        ans = ans * i;
+    }
+    Write("Factorial de ", n, " es ", ans, "\n");
+}
+
+

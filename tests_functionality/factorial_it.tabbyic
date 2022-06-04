@@ -1,0 +1,39 @@
+factorialIterative
+2
+Tabby
+0 0 0
+2 0 1
+factorialIterative
+3 0 0
+1 1 1
+1
+1
+0
+
+0
+
+4
+\n
+Ingrese N:
+Factorial de 
+ es 
+19
+Goto 1 -1 -1
+Print 130011 -1 -1
+Print 130012 -1 -1
+Print 130011 -1 -1
+Read 0 -1 - 1
+= 120009 2 -1
+= 120009 1 -1
+<= 1 0 116675
+Gotof 116675 14 -1
+* 2 1 110007
+= 110007 2 -1
++ 1 120009 110008
+= 110008 1 -1
+Goto 7 -1 -1
+Print 130013 -1 -1
+Print 0 -1 -1
+Print 130014 -1 -1
+Print 2 -1 -1
+Print 130011 -1 -1

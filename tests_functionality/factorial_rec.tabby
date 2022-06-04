@@ -1,0 +1,18 @@
+Program factorialRecursive;
+
+Var Int n, i, ans;
+
+Fn Int fact(Int n) {
+    If(n == 1) {
+        Return 1;
+    }
+    Return n * fact(n - 1);
+}
+
+Tabby() {
+    Write("\n", "Ingrese N:", "\n");
+    Read(n);
+    Write("Factorial de ", n, " es ", fact(n), "\n");
+}
+
+

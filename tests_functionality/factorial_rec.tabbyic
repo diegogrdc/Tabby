@@ -1,0 +1,51 @@
+factorialRecursive
+3
+factorialRecursive
+3 0 0
+1 1 1
+fact
+1 0 0
+3 0 1
+Tabby
+0 0 0
+1 0 0
+2
+1 0
+0
+
+0
+
+4
+\n
+Ingrese N:
+Factorial de 
+ es 
+28
+Goto 15 -1 -1
+== 100005 120009 116675
+Gotof 116675 5 -1
+= 120009 100002 -1
+Return -1 -1 -1
+Era fact -1 -1
+- 100005 120009 110007
+Parameter 110007 100005 -1
+Gosub fact 1 -1
+= 100002 110008 -1
+* 100005 110008 110009
+= 110009 100002 -1
+Return -1 -1 -1
+= 120010 100002 -1
+Endfunc -1 -1 -1
+Print 130011 -1 -1
+Print 130012 -1 -1
+Print 130011 -1 -1
+Read 0 -1 - 1
+Print 130013 -1 -1
+Print 0 -1 -1
+Print 130014 -1 -1
+Era fact -1 -1
+Parameter 0 100005 -1
+Gosub fact 1 -1
+= 100002 110007 -1
+Print 110007 -1 -1
+Print 130011 -1 -1

@@ -1,0 +1,23 @@
+Program fibonacciRecursive;
+
+Var Int n;
+Var Arr Int memo[105];
+
+Fn Int fib(Int n) {
+    If(n == 1) {
+        Return 0;
+    }
+    If(n == 2) {
+        Return 1;
+    }
+    If(memo[n] == 0) {
+        memo[n] = fib(n - 1) + fib(n - 2);
+    }
+    Return memo[n];
+} 
+
+Tabby() {
+    Write("\n", "Ingrese N:", "\n");
+    Read(n);
+    Write("Fib(", n, ") es ", fib(n), "\n");
+}

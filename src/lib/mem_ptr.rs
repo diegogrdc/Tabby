@@ -22,7 +22,7 @@ impl MemPtr<'_> {
             val
         } else {
             eprintln!(
-                "\nEXECUTION ERROR: unwrap MemPtr \"as_int\" expected int, got {:?}",
+                "\nEXECUTION ERROR: unwrap MemPtr \"as_float\" expected float, got {:?}",
                 self
             );
             panic!();
@@ -33,7 +33,7 @@ impl MemPtr<'_> {
             val
         } else {
             eprintln!(
-                "\nEXECUTION ERROR: unwrap MemPtr \"as_int\" expected int, got {:?}",
+                "\nEXECUTION ERROR: unwrap MemPtr \"as_bool\" expected bool, got {:?}",
                 self
             );
             panic!();

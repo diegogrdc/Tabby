@@ -1,0 +1,17 @@
+Program fibonacciIterative;
+
+Var Int n, ans, i;
+Var Arr Int fib[105];
+
+Tabby() {
+    Write("\n", "Ingrese N:", "\n");
+    Read(n);
+    fib[1] = 0;
+    fib[2] = 1;
+    i = 3;
+    While(i <= n) {
+        fib[i] = fib[i - 1] + fib[i - 2];
+        i = i + 1;
+    }
+    Write("Fib(", n, ") es ", fib[n], "\n");
+}
