@@ -49,10 +49,10 @@ FUNCTIONS: Box<ast::Functions> = {
 };
 
 FUNCTION: Box<ast::Function> = {
-    "Fn" <t:TYPE> <id:ID> "(" <p:PARAMS> ")" <b:BLOCK> => Box::new(ast::Function::FnParams(t, id, p, b)),
-    "Fn" "Void" <id:ID> "(" <p:PARAMS> ")" <b:BLOCK> => Box::new(ast::Function::FnVoidParams(id, p, b)),
-    "Fn" <t:TYPE> <id:ID> "(" ")" <b:BLOCK> => Box::new(ast::Function::Fn(t, id, b)),
-    "Fn" "Void" <id:ID> "(" ")" <b:BLOCK> => Box::new(ast::Function::FnVoid(id, b)),
+    "Fn" <t:TYPE> <id:ID> "(" <p:PARAMS> ")" <v:VARDECS> <b:BLOCK> => Box::new(ast::Function::FnParams(t, id, p, v, b)),
+    "Fn" "Void" <id:ID> "(" <p:PARAMS> ")" <v:VARDECS> <b:BLOCK> => Box::new(ast::Function::FnVoidParams(id, p, v, b)),
+    "Fn" <t:TYPE> <id:ID> "(" ")" <v:VARDECS> <b:BLOCK> => Box::new(ast::Function::Fn(t, id, v, b)),
+    "Fn" "Void" <id:ID> "(" ")" <v:VARDECS> <b:BLOCK> => Box::new(ast::Function::FnVoid(id, v, b)),
 };
 
 PARAMS: Box<ast::Params> = {

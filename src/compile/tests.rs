@@ -2251,6 +2251,10 @@ mod tests_compile {
         let fn_info = evaluator.dir_func.get("fnFloat").unwrap();
         assert_eq!(fn_info.params, []);
         assert_eq!(fn_info.size_loc, [0, 0, 0]);
+        let fn_info = evaluator.dir_func.get("localVars").unwrap();
+        assert_eq!(fn_info.params, []);
+        assert_eq!(fn_info.size_loc, [3, 0, 10]);
+        assert_eq!(fn_info.size_tmp, [0, 0, 0]);
         let fn_info = evaluator.dir_func.get("Tabby").unwrap();
         assert_eq!(fn_info.params, []);
         assert_eq!(fn_info.size_loc, [0, 0, 0]);

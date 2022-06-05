@@ -195,7 +195,10 @@ mod tests_execute {
         let mut vir_mach = create_vir_mach_from_lines(lines);
         vir_mach.execute();
         // Assert output
-        assert_eq!(vir_mach.output, format!("4 0.192 True\nVoid!"));
+        assert_eq!(
+            vir_mach.output,
+            format!("4 0.192 True\nVoid!\n0, 4, 3, 2, 1, 0, ")
+        );
     }
 
     #[test]
@@ -208,6 +211,18 @@ mod tests_execute {
         vir_mach.execute();
         // Assert output
         assert_eq!(vir_mach.output, format!("0 0 False\n"));
+    }
+
+    #[test]
+    fn test_fns_ok_3() {
+        // Setup
+        let filename = "fns_ok_3".to_string();
+        let path = format!("./tests_execute/{}.tabbyic", filename);
+        let lines = get_lines(&path, &filename);
+        let mut vir_mach = create_vir_mach_from_lines(lines);
+        vir_mach.execute();
+        // Assert output
+        assert_eq!(vir_mach.output, format!("10\n0\nTrue\nFalse\n"));
     }
 
     #[test]
@@ -259,7 +274,7 @@ mod tests_execute {
         let mut vir_mach = create_vir_mach_from_lines(lines);
         vir_mach.execute();
         // Assert output
-        assert_eq!(vir_mach.output, format!("Info on arr: 10 6 6 9 13 \nMin is: 6\nMax is: 13\nRange is: 7\nMean is: 9\nMode is: 6\nMedian is: 9\nVariance is: 6\n"));
+        assert_eq!(vir_mach.output, format!("Info on arr: 10 6 6 9 13 \nMin is: 6\nMax is: 13\nRange is: 7\nMean is: 8.8\nMode is: 6\nMedian is: 9\nVariance is: 6.959999999999999\n"));
     }
 
     #[test]
@@ -274,7 +289,7 @@ mod tests_execute {
         assert_eq!(
             vir_mach.output,
             format!(
-                "Info on arr: 10 6 6 10 13 \nMin is: 6\nMax is: 13\nRange is: 7\nMean is: 9.8\nMedian is: 9.8\n"
+                "Info on arr: 10 6 6 10 13 \nMin is: 6\nMax is: 13\nRange is: 7\nMean is: 9\nMedian is: 10\n"
             )
         );
     }

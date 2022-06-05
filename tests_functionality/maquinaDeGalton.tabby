@@ -1,0 +1,56 @@
+Program maquinaDeGalton;
+
+Var Int n, i;
+Var Arr Int data[20000];
+
+Fn Int mod(Int x, Int m) {
+    Return x - ((x / m) * m);
+}
+
+Fn Int rndInRange(Int l, Int h) 
+Var Int tmp, sz; 
+{
+    sz = h - l + 1;
+    tmp = RandInt();
+    If(tmp < 0) {
+        tmp = tmp * -1;
+    }
+    Return l + mod(tmp, sz);
+}
+
+Fn Void printData() {
+    Write("El número más pequeño es: ", MinInt(data, 0, n - 1), "\n");
+    Write("El número más grande es: ", MaxInt(data, 0, n - 1), "\n");
+    Write("El rango es: ", RangeInt(data, 0, n - 1), "\n");
+    Write("El promedio es: ", MeanInt(data, 0, n - 1), "\n");
+    Write("La mediana es: ", MedianInt(data, 0, n - 1), "\n");
+    Write("La moda es: ", ModeInt(data, 0, n - 1), "\n");
+    Write("La desviación estándar es: ", StdDevInt(data, 0, n - 1), "\n");
+    Write("La varianza es: ", VarianceInt(data, 0, n - 1), "\n");
+}
+
+Fn Void simBallDrop(Int x) 
+Var Int in, i; 
+{
+    in = 0;
+    i = 0;
+    For(i < 10; i = i + 1) {
+        If(rndInRange(0, 1) == 0) {
+            in = in;
+        } Else {
+            in = in + 1;
+        }
+    }
+    data[x] = in;
+}
+
+Tabby() {
+    Write("\n", "Introduzca el número de pelotas que utilizará el experimento", "\n");
+    Read(n);
+    i = 0;
+    For(i < n; i = i + 1) {
+        simBallDrop(i);
+    }
+    printData();
+    HistogramPlot(data, 10, n, "GraficaGalton");
+}

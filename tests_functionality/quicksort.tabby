@@ -1,33 +1,35 @@
 Program quickSort;
 
 Var Arr Int arr[104];
-Var Int n, i, j, aux, swaps, pivot;
-Var Bool isSorted;
+Var Int n, swaps;
 
 Fn Int mod(Int x, Int m) {
     Return x - ((x / m) * m);
 }
 
-Fn Int positive(Int x) {
-    If(x < 0) {
-        Return x * -1;
-    } Else {
-        Return x;
+Fn Int rndInRange(Int l, Int h) 
+Var Int tmp, sz; 
+{
+    sz = h - l + 1;
+    tmp = RandInt();
+    If(tmp < 0) {
+        tmp = tmp * -1;
     }
+    Return l + mod(tmp, sz);
 }
 
-Fn Int rndInRange(Int l, Int h) {
-    Return mod(positive(RandInt()), h - l + 1) + l;
-}
-
-Fn Void genArr() {
+Fn Void genArr() 
+Var Int i;
+{
     i = 0;
     For(i < n; i = i + 1) {
         arr[i] = rndInRange(0, 40);
     }
 }
 
-Fn Void printArr() {
+Fn Void printArr() 
+Var Int i;
+{
     i = 0;
     Write("[ ");
     For(i < n - 1; i = i + 1) {
@@ -36,13 +38,17 @@ Fn Void printArr() {
     Write(arr[i], " ]\n");
 }
 
-Fn Void swap(Int l, Int r) {
+Fn Void swap(Int l, Int r) 
+Var Int aux;
+{
     aux = arr[l];
     arr[l] = arr[r];
     arr[r] = aux;
 }
 
-Fn Void quickSortArr(Int l, Int h, Int lb) {
+Fn Void quickSortArr(Int l, Int h)
+Var Int pivot, lb, i;
+ {
     If(l < h) {
         pivot = rndInRange(l, h);
         swap(pivot, l);
@@ -56,8 +62,8 @@ Fn Void quickSortArr(Int l, Int h, Int lb) {
                 swaps = swaps + 1;
             }
         }
-        quickSortArr(l, lb - 1, 0);
-        quickSortArr(lb + 1, h, 0);
+        quickSortArr(l, lb - 1);
+        quickSortArr(lb + 1, h);
     }
 }
 
@@ -67,7 +73,7 @@ Tabby() {
     genArr();
     Write("Initial Arr is:\n");
     printArr();
-    quickSortArr(0, n - 1, 0);
+    quickSortArr(0, n - 1);
     Write("Sorted Arr is:\n");
     printArr();
     Write("Used ", swaps, " swaps\n");

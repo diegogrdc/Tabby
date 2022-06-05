@@ -1,0 +1,23 @@
+Program sineApprox;
+
+Var Arr Float datax[500];
+Var Arr Float datay[500];
+Var Int i;
+Var Float x, pi, step;
+
+Tabby() {
+    i = 0;
+    pi = 3.1415;
+    step = pi / 180;
+    For(i <= 180; i = i + 1) {
+        x = step * i;
+        datax[i] = x;
+        datay[i] = ((16.0 * x) * (pi - x)) / (5 * pi * pi - 4 * x * (pi - x));
+    }
+    For(i <= 360; i = i + 1) {
+        x = step * (i - 180);
+        datax[i] = x + pi;
+        datay[i] = ((16.0 * x) * (pi - x)) / (5 * pi * pi - 4 * x * (pi - x)) * -1;
+    }
+    LinePlot(datax, datay, 360, "sine_approx");
+}

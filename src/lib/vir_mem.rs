@@ -127,7 +127,7 @@ impl VirMemAllocator {
         self.gtemp[pos]
     }
 
-    pub fn get_local_addr(&mut self, tipo: &Tipo) -> i32 {
+    pub fn get_local_addr(&mut self, tipo: &Tipo, qnt: i32) -> i32 {
         let pos = self.get_pos(&tipo);
 
         let lim: i32 = match *tipo {
@@ -137,7 +137,7 @@ impl VirMemAllocator {
             _ => 0,
         };
 
-        if self.local[pos] + 1 > lim {
+        if self.local[pos] + qnt > lim {
             eprintln!(
                 "\n COMPILATION ERROR: Too many local variables of type {:?} declared\n",
                 tipo
@@ -146,7 +146,7 @@ impl VirMemAllocator {
         }
 
         let mem = self.local[pos];
-        self.local[pos] = self.local[pos] + 1;
+        self.local[pos] = self.local[pos] + qnt;
         mem
     }
 

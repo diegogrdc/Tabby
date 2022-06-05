@@ -16,7 +16,22 @@ Fn Void void() {
     Write("Void!");
 }
 
+Fn Void localParams() 
+Var Arr Int arr[10];
+Var Int i;
+{
+    i = 0;
+    For(i < 5; i = i + 1) {
+        arr[i] = i;
+    }
+    Write("\n");
+    For(i >= 0; i = i - 1) {
+        Write(arr[i], ", ");
+    }
+}
+
 Tabby() {
     Write(int(), " ", float(), " ", bool(), "\n");
     void();
+    localParams();
 }

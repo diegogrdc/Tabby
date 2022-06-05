@@ -50,10 +50,10 @@ pub enum Functions {
 
 #[derive(Debug)]
 pub enum Function {
-    FnParams(Type, String, Box<Params>, Box<Block>),
-    FnVoidParams(String, Box<Params>, Box<Block>),
-    Fn(Type, String, Box<Block>),
-    FnVoid(String, Box<Block>),
+    FnParams(Type, String, Box<Params>, Box<Vardecs>, Box<Block>),
+    FnVoidParams(String, Box<Params>, Box<Vardecs>, Box<Block>),
+    Fn(Type, String, Box<Vardecs>, Box<Block>),
+    FnVoid(String, Box<Vardecs>, Box<Block>),
 }
 
 #[derive(Debug)]

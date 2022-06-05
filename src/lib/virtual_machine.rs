@@ -931,8 +931,8 @@ impl VirtualMachine {
             }
             (v1, v2, to) => {
                 eprintln!(
-                    "\nDEV ERROR: This arithmetic op should not exist in compilaton: {:?} {:?} {:?}\n",
-                    v1, v2, to
+                    "\nDEV ERROR: This arithmetic op should not exist in compilaton: {:?} {:?} {:?} {:?}\n",
+                    v1, v2, to, op
                 );
                 panic!();
             }

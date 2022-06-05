@@ -1,0 +1,106 @@
+Program multMat;
+
+Var Int n, k, m;
+Var Arr Int a[55][55];
+Var Arr Int b[55][55];
+Var Arr Int c[55][55];
+
+Fn Int mod(Int x, Int m) {
+    Return x - ((x / m) * m);
+}
+
+Fn Int rndInRange(Int l, Int h) 
+Var Int tmp, sz; 
+{
+    sz = h - l + 1;
+    tmp = RandInt();
+    If(tmp < 0) {
+        tmp = tmp * -1;
+    }
+    Return l + mod(tmp, sz);
+}
+
+Fn Void genMats() 
+Var Int i, j;
+{
+    i = 0;
+    For(i < n; i = i + 1) {
+        j = 0;
+        For(j < k; j = j + 1) {
+            a[i][j] = rndInRange(0, 10);
+        }
+    }
+    i = 0;
+    For(i < k; i = i + 1) {
+        j = 0;
+        For(j < m; j = j + 1) {
+            b[i][j] = rndInRange(0, 10);
+        }
+    }
+}
+
+Fn Void multiply() 
+Var Int i, j, l, sum;
+{
+    i = 0;
+    For(i < n; i = i + 1) {
+        j = 0;
+        For(j < m; j = j + 1) {
+            l = 0;
+            sum = 0;
+            For(l < k; l = l + 1) {
+                sum = sum + a[i][l] * b[l][j];
+            }
+            c[i][j] = sum;
+        }
+    }
+}
+
+Fn Void print() 
+Var Int i, j;
+{
+    Write("First Matrix: \n");
+    i = 0;
+    For(i < n; i = i + 1) {
+        j = 0;
+        For(j < k - 1; j = j + 1) {
+            Write(a[i][j], ", ");
+        }
+        Write(a[i][j], "\n");
+    }
+    Write("\n");
+    Write("Second Matrix: \n");
+    i = 0;
+    For(i < k; i = i + 1) {
+        j = 0;
+        For(j < m - 1; j = j + 1) {
+            Write(b[i][j], ", ");
+        }
+        Write(b[i][j], "\n");
+    }
+    Write("\n");
+    Write("Result Matrix: \n");
+    i = 0;
+    For(i < n; i = i + 1) {
+        j = 0;
+        For(j < m - 1; j = j + 1) {
+            Write(c[i][j], ", ");
+        }
+        Write(c[i][j], "\n");
+    }
+    Write("\n");
+}
+
+
+Tabby() {
+    Write("Las matrices tendrán dimensiones N * K, y K * M\n");
+    Write("\n", "Ingrese N:", "\n");
+    Read(n);
+    Write("\n", "Ingrese K:", "\n");
+    Read(k);
+    Write("\n", "Ingrese M:", "\n");
+    Read(m);
+    genMats();
+    multiply();
+    print();
+}

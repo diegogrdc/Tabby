@@ -1,0 +1,25 @@
+Program fnsLocalVars;
+
+Var Arr Int arr[10];
+Var Arr Bool mat[10][10];
+
+Fn Void fn() 
+Var Arr Int arr[10];
+{
+    arr[1] = 10;
+    Write(arr[1], "\n");
+}
+
+Fn Void fnTwo(Int i) 
+Var Arr Bool mat[2][2];
+{
+    mat[1][1] = i;
+    Write(mat[1][1], "\n");
+}
+
+Tabby() {
+    fn();
+    Write(arr[1], "\n");
+    fnTwo(10);
+    Write(mat[1][1], "\n");
+}

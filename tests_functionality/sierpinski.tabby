@@ -1,0 +1,34 @@
+Program sierpinski;
+
+Var Int n;
+Var Arr Float datax[10000];
+Var Arr Float datay[10000];
+
+Fn Float triangleArea(Float ax, Float ay, Float bx, Float by, Float cx, Float cy) {
+    Return ax * (by - cy) + bx * (cy - ay) + cx * (ay - by) / 2.0;
+}
+
+Fn Void createSierpinski(Float ax, Float ay, Float bx, Float by, Float cx, Float cy) 
+Var Float lx, ly, rx, ry, dx, dy;
+{
+    If(triangleArea(ax, ay, bx, by, cx, cy) < 1.0) {
+        datax[n] = ax;
+        datay[n] = ay;
+        n = n + 1;
+    } Else {
+        lx = (ax + cx) / 2.0;
+        ly = (ay + cy) / 2.0;
+        rx = (bx + cx) / 2.0;
+        ry = (by + cy) / 2.0;
+        dx = (bx + ax) / 2.0;
+        dy = (by + ay) / 2.0;
+        createSierpinski(ax, ay, dx, dy, lx, ly);
+        createSierpinski(dx, dy, bx, by, rx, ry);
+        createSierpinski(lx, ly, rx, ry, cx, cy);
+    }
+}
+
+Tabby() {
+    createSierpinski(0.0, 0.0, 40.0, 0.0, 20.0, 20.0);
+    ScatterPlot(datax, datay, n, "sierpinski");
+}

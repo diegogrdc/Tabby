@@ -130,7 +130,7 @@ impl AstEvaluator {
                 // due to borrowing rules
                 // and immutable structs in Rust
                 let mut glob_vars = DirVar::new();
-                self.eval_var_decs(vardecs, &mut glob_vars);
+                self.eval_var_decs(vardecs, &mut glob_vars, true);
 
                 // Create our "global scope" function in
                 // directory of functions, with id name,
@@ -214,27 +214,43 @@ impl AstEvaluator {
         true
     }
 
-    pub fn eval_var_decs(&mut self, vardecs: Box<ast::Vardecs>, vars: &mut DirVar) -> bool {
+    pub fn eval_var_decs(
+        &mut self,
+        vardecs: Box<ast::Vardecs>,
+        vars: &mut DirVar,
+        global: bool,
+    ) -> bool {
         match *vardecs {
             ast::Vardecs::Vardecs(vardec_vec) => {
                 for vardec in vardec_vec {
-                    self.eval_var_dec(vardec, vars);
+                    self.eval_var_dec(vardec, vars, global);
                 }
             }
         };
         true
     }
 
-    pub fn eval_var_dec(&mut self, vardec: Box<ast::Vardec>, vars: &mut DirVar) -> bool {
+    pub fn eval_var_dec(
+        &mut self,
+        vardec: Box<ast::Vardec>,
+        vars: &mut DirVar,
+        global: bool,
+    ) -> bool {
         match *vardec {
             ast::Vardec::Vars(typ, id_vec) => {
                 for id in id_vec {
                     self.check_multiple_dec_var(&id, &vars);
+                    let addr: i32;
+                    if global {
+                        addr = self.vir_mem_alloc.get_global_addr(&tipo_from_type(&typ), 1);
+                    } else {
+                        addr = self.vir_mem_alloc.get_local_addr(&tipo_from_type(&typ), 1);
+                    }
                     vars.insert(
                         id,
                         VarInfo {
                             tipo: tipo_from_type(&typ),
-                            addr: self.vir_mem_alloc.get_global_addr(&tipo_from_type(&typ), 1),
+                            addr: addr,
                             dim: Dim::Single,
                         },
                     );
@@ -246,13 +262,19 @@ impl AstEvaluator {
                 if sz < 1 {
                     self.throw_compile_error(format!("Array size must be greater than 0"));
                 }
+                let addr: i32;
+                if global {
+                    addr = self
+                        .vir_mem_alloc
+                        .get_global_addr(&tipo_from_type(&typ), sz);
+                } else {
+                    addr = self.vir_mem_alloc.get_local_addr(&tipo_from_type(&typ), sz);
+                }
                 vars.insert(
                     id,
                     VarInfo {
                         tipo: tipo_from_type(&typ),
-                        addr: self
-                            .vir_mem_alloc
-                            .get_global_addr(&tipo_from_type(&typ), sz),
+                        addr: addr,
                         dim: Dim::Arr(sz),
                     },
                 );
@@ -265,13 +287,21 @@ impl AstEvaluator {
                         "All Matrix dimension sizes must be greater than 0"
                     ));
                 }
+                let addr: i32;
+                if global {
+                    addr = self
+                        .vir_mem_alloc
+                        .get_global_addr(&tipo_from_type(&typ), sz1 * sz2);
+                } else {
+                    addr = self
+                        .vir_mem_alloc
+                        .get_local_addr(&tipo_from_type(&typ), sz1 * sz2);
+                }
                 vars.insert(
                     id,
                     VarInfo {
                         tipo: tipo_from_type(&typ),
-                        addr: self
-                            .vir_mem_alloc
-                            .get_global_addr(&tipo_from_type(&typ), sz1 * sz2),
+                        addr: addr,
                         dim: Dim::Mat(sz1, sz2),
                     },
                 );
@@ -307,29 +337,33 @@ impl AstEvaluator {
         // Eval params when needed and get
         // relevant info like id, type and block
         match *function {
-            ast::Function::FnParams(typ, id, params, block) => {
+            ast::Function::FnParams(typ, id, params, vardecs, block) => {
                 fn_id = id.clone();
                 fn_tipo = tipo_from_type(&typ);
                 fn_block = block;
 
                 self.eval_params(params, &mut vars, &mut param_list, &mut param_addrs);
+                self.eval_var_decs(vardecs, &mut vars, false);
             }
-            ast::Function::FnVoidParams(id, params, block) => {
+            ast::Function::FnVoidParams(id, params, vardecs, block) => {
                 fn_id = id.clone();
                 fn_tipo = Tipo::Void;
                 fn_block = block;
 
                 self.eval_params(params, &mut vars, &mut param_list, &mut param_addrs);
+                self.eval_var_decs(vardecs, &mut vars, false);
             }
-            ast::Function::Fn(typ, id, block) => {
+            ast::Function::Fn(typ, id, vardecs, block) => {
                 fn_id = id.clone();
                 fn_tipo = tipo_from_type(&typ);
                 fn_block = block;
+                self.eval_var_decs(vardecs, &mut vars, false);
             }
-            ast::Function::FnVoid(id, block) => {
+            ast::Function::FnVoid(id, vardecs, block) => {
                 fn_id = id.clone();
                 fn_tipo = Tipo::Void;
                 fn_block = block;
+                self.eval_var_decs(vardecs, &mut vars, false);
             }
         };
 
@@ -430,7 +464,7 @@ impl AstEvaluator {
     pub fn add_param(&mut self, id: String, tip: Tipo, vars: &mut DirVar) -> i32 {
         self.check_multiple_dec_var(&id, &vars);
         self.add_loc_var_to_size(&tip, 1);
-        let addr = self.vir_mem_alloc.get_local_addr(&tip);
+        let addr = self.vir_mem_alloc.get_local_addr(&tip, 1);
         vars.insert(
             id,
             VarInfo {
@@ -995,7 +1029,7 @@ impl AstEvaluator {
                 self.st_tips.push(Tipo::Int);
             }
             ast::Fact::Float(num) => {
-                self.st_vals.push(num.to_string());
+                self.st_vals.push(format!("{:.10}", num));
                 self.st_tips.push(Tipo::Float);
             }
             ast::Fact::Bool(num) => {
@@ -1343,8 +1377,23 @@ impl AstEvaluator {
     }
 
     pub fn get_arr_tipo_and_sz_from_id(&self, id: &String) -> (Tipo, i32) {
-        // We check global scope
-        // As arrays are just global
+        // First check local scope
+        if let Some(loc_scope) = self.loc_scope.as_ref() {
+            // Get local var table reference
+            let vars = &self.dir_func.get(loc_scope).unwrap().dir_var;
+            // Query var
+            if let Some(var) = vars.get(id) {
+                // Check dims
+                self.check_var_dim_is_ok(id, &var.dim, &Dim::Arr(0));
+                let sz = match var.dim {
+                    Dim::Arr(sz) => sz,
+                    _ => panic!("DEV ERROR: Should be arr"),
+                };
+                return (var.tipo.clone(), sz);
+            }
+        }
+        // If local not found
+        // we check global scope
         let vars = &self
             .dir_func
             .get(self.glob_scope.as_ref().unwrap())
@@ -1366,8 +1415,21 @@ impl AstEvaluator {
     }
 
     pub fn get_mat_tipo_and_sz_from_id(&self, id: &String) -> (Tipo, i32, i32) {
-        // We check global scope
-        // As arrays are just global
+        // First check local scope
+        if let Some(loc_scope) = self.loc_scope.as_ref() {
+            // Get local var table reference
+            let vars = &self.dir_func.get(loc_scope).unwrap().dir_var;
+            // Query var
+            if let Some(var) = vars.get(id) {
+                // Check dims
+                self.check_var_dim_is_ok(id, &var.dim, &Dim::Mat(0, 0));
+                let (sz1, sz2) = match var.dim {
+                    Dim::Mat(sz1, sz2) => (sz1, sz2),
+                    _ => panic!("DEV ERROR: Should be mat"),
+                };
+                return (var.tipo.clone(), sz1, sz2);
+            }
+        }
         let vars = &self
             .dir_func
             .get(self.glob_scope.as_ref().unwrap())

@@ -1,0 +1,145 @@
+maquinaDeGalton
+6
+maquinaDeGalton
+20002 0 0
+1 1 1
+printData
+0 0 0
+12 4 0
+Tabby
+0 0 0
+1 0 1
+rndInRange
+4 0 0
+6 0 1
+mod
+2 0 0
+3 0 0
+simBallDrop
+3 0 0
+5 0 2
+5
+0 1 -1 10 2
+0
+
+0
+
+10
+El número más pequeño es: 
+\n
+El número más grande es: 
+El rango es: 
+El promedio es: 
+La mediana es: 
+La moda es: 
+La desviación estándar es: 
+La varianza es: 
+Introduzca el número de pelotas que utilizará el experimento
+107
+Goto 91 -1 -1
+/ 100005 100006 110007
+* 110007 100006 110008
+- 100005 110008 110009
+= 110009 100002 -1
+Return -1 -1 -1
+= 120009 100002 -1
+Endfunc -1 -1 -1
+- 100006 100005 110007
++ 110007 120010 110008
+= 110008 100008 -1
+RandInt 110009 -1 -1
+= 110009 100007 -1
+< 100007 120009 116675
+Gotof 116675 17 -1
+* 100007 120011 110010
+= 110010 100007 -1
+Era mod -1 -1
+Parameter 100007 100005 -1
+Parameter 100008 100006 -1
+Gosub mod 1 -1
+= 100002 110011 -1
++ 100005 110011 110012
+= 110012 100002 -1
+Return -1 -1 -1
+= 120009 100002 -1
+Endfunc -1 -1 -1
+Print 130011 -1 -1
+- 0 120010 110008
+MinInt 2 120009,110008,20000 110007
+Print 110007 -1 -1
+Print 130012 -1 -1
+Print 130013 -1 -1
+- 0 120010 110010
+MaxInt 2 120009,110010,20000 110009
+Print 110009 -1 -1
+Print 130012 -1 -1
+Print 130014 -1 -1
+- 0 120010 110012
+RangeInt 2 120009,110012,20000 110011
+Print 110011 -1 -1
+Print 130012 -1 -1
+Print 130015 -1 -1
+- 0 120010 110013
+MeanInt 2 120009,110013,20000 113341
+Print 113341 -1 -1
+Print 130012 -1 -1
+Print 130016 -1 -1
+- 0 120010 110014
+MedianInt 2 120009,110014,20000 113342
+Print 113342 -1 -1
+Print 130012 -1 -1
+Print 130017 -1 -1
+- 0 120010 110016
+ModeInt 2 120009,110016,20000 110015
+Print 110015 -1 -1
+Print 130012 -1 -1
+Print 130018 -1 -1
+- 0 120010 110017
+StdDevInt 2 120009,110017,20000 113343
+Print 113343 -1 -1
+Print 130012 -1 -1
+Print 130019 -1 -1
+- 0 120010 110018
+VarianceInt 2 120009,110018,20000 113344
+Print 113344 -1 -1
+Print 130012 -1 -1
+Endfunc -1 -1 -1
+= 120009 100006 -1
+= 120009 100007 -1
+< 100007 120012 116675
+Gotof 116675 86 -1
+Era rndInRange -1 -1
+Parameter 120009 100005 -1
+Parameter 120010 100006 -1
+Gosub rndInRange 8 -1
+= 100002 110007 -1
+== 110007 120009 116676
+Gotof 116676 81 -1
+= 100006 100006 -1
+Goto 83 -1 -1
++ 100006 120010 110008
+= 110008 100006 -1
++ 100007 120010 110009
+= 110009 100007 -1
+Goto 70 -1 -1
+Verify 100005 20000 -1
++ 100005 120013 110010
+Deref 110010 110011 -1
+= 100006 110011 -1
+Endfunc -1 -1 -1
+Print 130012 -1 -1
+Print 130020 -1 -1
+Print 130012 -1 -1
+Read 0 -1 - 1
+= 120009 1 -1
+< 1 0 116675
+Gotof 116675 104 -1
+Era simBallDrop -1 -1
+Parameter 1 100005 -1
+Gosub simBallDrop 68 -1
++ 1 120010 110007
+= 110007 1 -1
+Goto 96 -1 -1
+Era printData -1 -1
+Gosub printData 27 -1
+HistogramPlot 2,10 0,20000,20000 GraficaGalton

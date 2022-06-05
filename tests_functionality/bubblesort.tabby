@@ -1,33 +1,34 @@
 Program bubbleSort;
 
 Var Arr Int arr[104];
-Var Int n, i, j, aux, swaps;
-Var Bool isSorted;
+Var Int n, swaps;
 
 Fn Int mod(Int x, Int m) {
     Return x - ((x / m) * m);
 }
 
-Fn Int rndInRange(Int x) {
-    Return mod(RandInt(), x);
-}
-
-Fn Int positive(Int x) {
-    If(x < 0) {
-        Return x * -1;
-    } Else {
-        Return x;
+Fn Int rndInRange(Int l, Int h) 
+Var Int tmp, sz; 
+{
+    sz = h - l + 1;
+    tmp = RandInt();
+    If(tmp < 0) {
+        tmp = tmp * -1;
     }
+    Return l + mod(tmp, sz);
 }
 
-Fn Void genArr() {
+Fn Void genArr() 
+Var Int i; {
     i = 0;
     For(i < n; i = i + 1) {
-        arr[i] = positive(rndInRange(40));
+        arr[i] = rndInRange(0, 40);
     }
 }
 
-Fn Void printArr() {
+Fn Void printArr() 
+Var Int i;
+{
     i = 0;
     Write("[ ");
     For(i < n - 1; i = i + 1) {
@@ -36,7 +37,10 @@ Fn Void printArr() {
     Write(arr[i], " ]\n");
 }
 
-Fn Void bubbleSortArr() {
+Fn Void bubbleSortArr() 
+Var Bool isSorted;
+Var Int i, j, aux;
+{
     isSorted = False;
     While(isSorted != True) {
         isSorted = True;

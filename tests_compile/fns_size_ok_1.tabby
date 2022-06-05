@@ -22,6 +22,11 @@ Fn Void fnVoid() {
 
 Fn Float fnFloat() {}
 
+Fn Void localVars() 
+Var Int i, j, k;
+Var Arr Bool wow[10]; 
+{}
+
 Tabby() {
     a = True Or False;
 }

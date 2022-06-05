@@ -1,22 +1,5 @@
-Program helloWorld;
-
-Var Arr Int arr[104];
-Var Int i;
-
-Fn Int x() {
-    arr[3] = arr[1] + arr[2];
-    Return arr[3];
-}
+Program maquinaDeGalton;
 
 Tabby() {
-    arr[1] = 2;
-    arr[2] = 10;
-    arr[0] = x() + x();
-    Write(arr[0], "\n");
-    Write(arr[3], "\n");
-    i = 0;
-    For(i <= 3; i = i + 1) {
-        Write(arr[i], ", ");
-    }
-    Write("\n");
+    Write("\n", "Introduzca el número de pelotas que utilizará el experimento", "\n");
 }
