@@ -1,5 +1,73 @@
-Program helloWorld;
+Program bubbleSort;
+
+Var Arr Int arr[104];
+Var Int n, swaps;
+
+Fn Int mod(Int x, Int m) {
+    Return x - ((x / m) * m);
+}
+
+Fn Int rndInRange(Int l, Int h) 
+Var Int tmp, sz; 
+{
+    sz = h - l + 1;
+    tmp = RandInt();
+    If(tmp < 0) {
+        tmp = tmp * -1;
+    }
+    Return l + mod(tmp, sz);
+}
+
+Fn Void genArr() 
+Var Int i; {
+    i = 0;
+    For(i < n; i = i + 1) {
+        arr[i] = rndInRange(0, 40);
+    }
+}
+
+Fn Void printArr() 
+Var Int i;
+{
+    i = 0;
+    Write("[ ");
+    For(i < n - 1; i = i + 1) {
+        Write(arr[i], ", ");
+    }
+    Write(arr[i], " ]\n");
+}
+
+Fn Void bubbleSortArr() 
+Var Bool isSorted;
+Var Int i, j, aux;
+{
+    isSorted = False;
+    While(isSorted != True) {
+        isSorted = True;
+        i = 0;
+        For(i < n; i = i + 1) {
+            j = i + 1;
+            For(j < n; j = j + 1) {
+                If(arr[i] > arr[j]) {
+                    aux = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = aux;
+                    isSorted = False;
+                    swaps = swaps + 1;
+                }
+            }
+        }
+    }
+}
 
 Tabby() {
-    Write("Hello World!\n");
+    Write("\n", "Ingrese N:", "\n");
+    Read(n);
+    genArr();
+    Write("Initial Arr is:\n");
+    printArr();
+    bubbleSortArr();
+    Write("Sorted Arr is:\n");
+    printArr();
+    Write("Used ", swaps, " swaps\n");
 }

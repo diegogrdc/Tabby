@@ -65,7 +65,7 @@ fn get_ast(contents: String, filename: &String) -> Box<ast::Program> {
     let res = tabby::PROGRAMParser::new().parse(&contents);
     if let Err(err) = res {
         eprintln!(
-            "\nERROR: Problem parsing Tabby file: {}.tabby\nGot error: {:?}\n",
+            "\nERROR: Problem parsing Tabby file: {}.tabby\nGot error: {}\n",
             filename, err
         );
         panic!();
