@@ -1,4 +1,17 @@
 // Execute Command: cargo run --bin execute file_name
+
+/*
+Execution Main Code
+
+This code puts together all the tools
+created for the process of execution.
+It reads command line file (IC), gets it path
+and its contents, feeds all data to
+initialize virtual machine, and executes
+all commands
+
+*/
+
 use lib::cnsts_memory::CnstsMemory;
 use lib::memory::*;
 use lib::virtual_machine::VirtualMachine;

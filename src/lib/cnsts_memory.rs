@@ -1,3 +1,12 @@
+/*
+File used to define
+structure of memory for
+constant values
+that will be reserved
+and allocated by the
+virtual machine on execution
+*/
+
 #[derive(Debug)]
 pub struct CnstsMemory {
     pub int_cnst: Vec<i32>,

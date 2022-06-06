@@ -4,93 +4,425 @@ Repositorio para el Lenguaje Tabby, un lenguaje enfocado en estadística impleme
 
 <p align="center"><img src="./tabby.png" width="300"/></p>
 
-## Avances
+## Quick Reference 
+Esta referencia está diseñada para dar un overview general de todo lo que se necesita saber para desarrollar programas en Tabby. Explica mediante ejemplos el uso y configuración del lenguaje, para que cualquiera pueda, después de leer esta guía, hacer su propio programa en Tabby y utilizarlo para lo que necesite. 
 
-En esta seccción, se describen los avances conforme fueron entregados
+### Configuración del Ambiente
+Para poder utilizar Tabby, lo único que se necesita es tener instalado Rust y Cargo. Para instalarlo en macOS, se puede utilizar el siguiente comando en la terminal 
 
-### Avance 1: Léxico / Sintaxis
+> curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-Para este avance, se creó el analizador léxico y sintáctico para el lenguaje Tabby. Para implementarlo, se utilizó la herramienta LALRPOP. La implementación de esta herramienta y su documentación se encuentran en los siguiente links:
 
-> https://github.com/lalrpop/lalrpop 
-> https://lalrpop.github.io/lalrpop/index.html
+Si este comando no funciona, o si se quiere correr desde otro sistema operativo, se puede seguir el tutorial en la página oficial de Rust: https://www.rust-lang.org/learn/get-started
 
-La gramática utilizada se puede encontrar el el documento `Propuesta Inicial Compilador`, en el folder `./docs/`
-En este documento se muestran los diagramas de sintaxis de la gramática, para definir cada elemento de esta.
-LALRPOP define cada objeto de la gramática como una estructura, la cuál puede tener varios caminos, como en los no terminales, o puede estar definido por una expresión regular como en el caso de los terminales.
-Además, LALRPOP nos permite crear tests para cada objeto de la gramática, por lo que es fácil ir probando cada objeto de menor a mayor. Se prueba la lógica integral en su objeto, y al usarse en un objeto más grande, no es necesario probar esto otra vez completamente, si no ver si su uso es permitido o no. Esto simplifica mucho el proceso de pruebas y facilita encontrar bugs en la gramática
+Para comprobar si se instalo correctamente, solo hace falta correr el siguiente comando:
 
-LALRPOP tiene un analizador léxico predeterminado que ignora los espacios en blanco, el cual es perfecto para Tabby. Esto solo nos deja con la implementación del analizador sintáctico.
+> cargo --version
 
-Al momento de la entrega, el analizador sintáctico está completamente probado y completamente funcional para detectar si un programa está escrito correctamente en Tabby o no. Las pruebas se pueden encontrar en el folder `./tests/`. Las pruebas implementadas están en el archivo `tests.rs`. Además, existe un archivo llamado `customTest.tabby`, que puede ser modificado libremente para probar el analizador. Si se desea correr el analizador, se debe de utilizar el comando `cargo run`. El output nos dirá si el programa es correcto, o si se encontró un error de sintaxis en este. Este comando funciona al momento de entregar el avance 1, pero podría cambiar en avances futuros la manera de probarlo.
 
-En futuras entregas, se agrega el análisis semántico y toda la lógica que falta en el compilador, pues este solo es el primer acercamiento a todo lo que se busca lograr
+### Instalación de Tabby
+Para instalar y obtener todo el código utilizado para compilar y ejecutar Tabby, se puede correr el siguiente comando en la terminal 
 
-### Avance 2: Semántica Básica de Variables y Cubo Semántico
+> git clone https://github.com/diegogrdc/Tabby.git
 
-Para este avance, se pidió la implementación de dos componentes principales. La primera era la semántica básica de variables, lo cuál incluye la creación de una tabla de funciones, en las que almacenamos información de nombres y tipos de funciones, además de información de sus variables locales (estas se almacenan utilizando otra tabla completamente dentro de este objeto). De esta manera, podemos detectar errores semánticos como múltiple declaración de identificadores, tanto para variables globales o locales, como para nombres de funciones.
-El otro componente del avance fue la creación de un "cubo semántico". Esta estructura nos ayudará a saber que tipo de operaciones son válidas entre diferentes tipos de datos, y también nos permite saber el tipo de resultado que se obtendrá de la operación.
+Después de la instalación, se debería de tener un folder llamado Tabby. Todos los comandos se corren desde la carpeta principal del repositorio, es decir, dentro de Tabby/.
+Hello World
+Como todo buen lenguaje de programación, comenzaremos a familiarizarnos con la sintaxis viendo cómo crear un programa en Tabby para imprimir “Hello World!” a la consola. 
+```
+Program helloWorld;
 
-Lo primero que se creó en este avance fue un AST (Abstract Syntax Tree). Con la herramienta utilizada para el analizador léxico y sintáctico no era posible integrar código a la par. Por esto, se tuvo que generar una estructura AST como resultado del Parser. Teniendo este AST, es posible ahora si hacer el análisis semántico, y se hace de una manera mucho más estructurada.
-Esta parte generó el código en los archivos `ast.rs` y `ast_evaluator.rs`, los cuáles representan la estructura usada para el AST, y la evaluación de esta, en dónde podemos incluir puntos neurálgicos e información relevante para el análisis.
-Además, se crearon casos de prueba en el archivo `tests.rs` (que cambió su directorio a `src/`), todos terminando con el sufijo `ast`. Se pueden probar con el comando `cargo test ast`, y evalúan que las estructuras almacenadas por el AST sean las esperadas, desde los elementos pequeños y separados, hasta los programas completos.
+Tabby() {
+    Write("Hello World!\n");
+}
+```
 
-Después de implementar el AST, ahora sí fue posible generar los directorios de funciones y variables. Para esto se crearon los archivos `dir_func.rs` y `dir_var.rs`, los cuáles tienen estructuras y métodos utilizados para el almacenamiento de la información extraída del programa de forma estructurada. No solo se crearon estas estructuras, sino que se agregaron los puntos neurálgicos necesarios para la creación de estas estructuras y la adición de datos a estas, así como la detección de problemas de declaración múltiple en el mismo alcance. Además de la creación, se agregaron casos de prueba al módulo `test` (en el mismo archivo `tests.rs`), con el prefijo `dirs_`. Dependiendo del caso, se espera que funcione y se comprueba que la información sea correcta, o se espera que el código nos de errores si existen errores semánticos. Todos estos casos utilizan códigos escritos en tabby, los cuales están almacenados en `tests/`
+Listo! Este es el código para imprimir “Hello World!” a la consola. Vamos a analizar paso a paso para entender bien la sintaxis. 
 
-Por último, se generó un archivo `semantic_cube.rs`, en el cuál se creo la estructura del cubo semántico, el cuál contiene toda la información necesaria para poder interpretar cualquier operación, dando información acerca de si la operación es válida o no, además del tipo de resultado que obtendremos de la operación realizada. Esta estructura fue creada, pero todavía no se utiliza en el código, pues hacen falta algunas partes para poder utilizarla de forma correcta.
+Todos los programas en Tabby comienzan con una línea “Program id;”, en donde se elige el nombre del programa. Puede ser cualquiera, pero debe de seguir las reglas de identificadores en Tabby.
 
-Como comentario, en esta entrega se decidió remover el soporte para el tipo `Char`, pues no se utilizaba en nada, y su existencia no aportaba nada al lenguaje. Es por esto que simplemente se removió de la gramática
+Además de esto, todos los programas contienen la función principal, llamada Tabby(). Esta función nunca recibe parámetros, y siempre tiene que ser declarada después de todas las otras funciones. La ejecución siempre comienza en esta función. 
 
-Cabe mencionar que además de estos avances de código, también se trabajó en la documentación, en la cuál se agregan las bitácoras, e información que se va generando y obteniendo al avanzar el código
+Por último, dentro de los corchetes de la función, tenemos la instrucción Write, la cuál nos ayuda a imprimir a la consola. Dentro de los paréntesis se dan los elementos que se desean imprimir. En este caso, la literal “Hello World!\n”, con un salto de línea. 
 
-### Avance 3. Generación de Código de Expresiones Aritméticas y Estatutos Secuenciales (Asignación, Lectura, Escritura)
+Ahora, veamos cómo compilar y ejecutar este código   
 
-Para la entrega de esta semana, se pidió que se agregara el código necesario para generar el código intermedio que se utilizará en una máquina virtual para el compilador.
-Para esto, se creó un enum llamado `Quadruples`, el cuál se usará en un vector, para guardar los cuádruplos obtenidos del código. Este tiene varios tipos, ya sea para operaciones (`Op`), o algo más específico como un estatuto secuencial de lectura (`Read`) o de escritura (`Write`). Para ir llenando este vector, se utilizan varias pilas, que incorporan diferentes herramientas, como la validación del cubo semántico, para asegurar que las operaciones realizadas sean válidas y la generación de errores del tipo `type mismatch` en caso de ser necesario. También se utiliza una pila para guardar valores, ids y variables temporales que se utilizan en las expresiones aritméticas y en los cuádruplos para su evaluación. Por último se utiliza una pila para la validación de los operadores. Esta no es necesaria por el cómo está modelado la gramática y nuestro AST, pues la precedencia ya se resuelve con los niveles de la gramática y todos los operadores son asociativos izquierdos, pero igual se implementó por seguir las prácticas comunes, y por si es necesario implementar algún operador nuevo en el futuro, es más extensible. 
-Para poder obtener los tipos de variables en expresiones o estatutos lineales, es necesario consultar las tablas de variables generadas en la entrega pasada. Para Tabby, se comprueban primero las variables locales y luego las globales. Si no está en ninguna de estas tablas, se imprime un error de `undeclared variable`, asegurándonos así de que las variables usadas siempre estén declaradas. También se hace lo mismo con las llamadas a funciones. Se busca en la tabla de funciones, y si no se encuentra se muestra un error de `undeclared function`. 
-Además, como es costumbre, se agregaron casos de prueba para todas las funcionalidades nuevas agregadas. Se agregaron casos para comprobar la generación de cuádruplos para cada operando y expresión individualmente, además de algunas expresiones más complejas con paréntesis y diferentes precedencias, para verificar el correcto funcionamiento de la generación de cuádruplos.  También se generaron casos de prueba que se aseguran que el compilador detecte los errores de variables no declaradas y type mismatch como es debido. 
-Como nota, todavía no funcionan los arreglos y matrices, pues eso es un tema más complejo y se agregará hasta más adelante. Tampoco se han implementado los estatutos no lineales, aunque son el objetivo de la implementación de la siguiente semana. 
+### Compilar y Ejecutar
 
-### Avance 4. Cuádruplos en Estatutos No Lineales y Direcciónes de Memoria
-Para la entrega semanal, se pidió que se agregara la generación de cuádruplos para estatutos no lineales. En Tabby, existen 4 estatutos que no siguen un flujo lineal. Estos son If, If/Else, While y For. Para implementar estos, se agregaron nuevas variantes del enum `Quadruples`, entre los cuales están `GoTo` o `GotoF`, que nos ayudan a brincar en un orden no lineal entre los cuádruplos. Para la implementación, se agregaron los puntos neurálgicos necesarios en el AST, generando así los cuádruplos a la par de la evaluación semántica, en el orden necesario. 
-En la entrega pasada, los cuádruplos habían sido diseñados para solo contener los nombres de las variables utilizadas, pero esto en ejecución será más complicado de lo necesario y no será suficiente por falta de información, ya sea de tipo, scope, etc. Para esto, se asigna una memoria virtual a cada elemento de los cuádruplos, que ya tienen información codificada dentro. Dependiendo de la posición, podemos determinar scope y tipo. Esto simplificará el trabajo futuro. 
-Para poder soportar esto, se cambió la definición de las variables de `Quadruples`, para recibir una tupla `(string, i32)`, representando el nombre y la dirección virtual asignada a esa variable. Para la asignación de esta memoria, se creó una estructura llamada `VirMemAllocator`, que se encarga de mantener la información y límites de la memoria, y de manejar el almacenamiento de las variables que van llegando de forma dinámica conforme se explora el ast y se checa la semántica. 
-Todo el nuevo código fue probado extensamente con muchos casos de prueba nuevos, y la modificación de varios existentes para incluir la comprobación de estos nuevos elementos. 
-Los siguientes pasos involucran generar los cuádruplos para las funciones, con las variaciones y nuevas variantes de cuádruplos que generen. Esto se debe encargar del código dentro de funciones, y de las variables locales y parámetros. 
+Ya con el ambiente configurado, es fácil compilar y ejecutar los programas. Todos los códigos que se quieran compilar y ejecutar deben de estar en la carpeta main/. Para el ejemplo, podemos agregar el código a un archivo llamado helloworld.tabby. 
 
-### Avance 5: Generación de Código de Funciones
-Para la entrega semanal, se pidió que se agregara la generación de cuádruplos para código de funciones. Esto involucra todo lo que rodea a funciones, desde el código dentro de estas, los retornos, los fin de función, las llamadas, los parámetros, el tamaño de las funciones, los comandos de almacenamiento de memoria al llamar funciones, las migas de pan para poder regresar a dónde estábamos después de la llamada de una función, entre otras cosas. 
-En esta entrega se generó toda la lógica para poder lograr todas estas funcionalidades. Desde nuevos cuádruplos para estas instrucciones, reacomodos en el árbol de sintaxis, modificaciones en la memoria virtual, creación de puntos neurálgicos dentro del AST para agregar la funcionalidad, y el desarrollo de casos de prueba para asegurar el correcto funcionamiento del compilador. 
-Al finalizar esta entrega, los cuádruplos contienen completamente la funcionalidad para funciones y su acomodo en la memoria virtual, todos probados con su correcto funcionamiento. 
-Lo siguientes pasos involucran la creación de cuádruplos para arreglos, y también la implementación de la máquina virtual para poder ejecutar nuestro código intermedio. 
-### Avance 6. Cuádruplos de Arreglos y Memoria y Ejecución Simple en Máquina Virtual
-Para la entrega semanal, se requería que se creára la máquina virtual, y que se implementara el mapa de memoria en esta, para almacenar toda la información relevante. Además, ya con todo esto se pedía lograr que se llegara a la ejecución de cuádruplos simples, como expresiónes aritméticas o estatutos secuenciales. 
-Además, por decisión propia, se implementó tambien para esta semana los cuádruplos de arreglos con toda su lógica. Esto se implementó desde ahorita para evitar hacer más cambios a la memoria en ejecución después de arreglar arreglos, pues esto genera que se haga trabajo doble si se cambia la estructura con los nuevos elementos. 
+Teniendo el archivo, corremos el siguiente comando 
 
-En este entregable, se generaron los dos comandos básicos que serán utilizados para la ejecución del código en Tabby. Uno para la compilación de código, el cuál involucra todo el análisis léxico, sintáctico y semántico. Este toma como entrada un archivo escrito en Tabby `archivo.tabby`, y genera un archivo de código intermedio con el mismo nombre pero diferente terminación (`tabbyic`), con los cuádruplos y otra información relevante como constantes o tamaño de memoria en funciones. Para ejecutar el comando de compilación, debemos de generar nuestro código/archivo en la carpeta `./main/`, y darle la terminación `.tabby`. Después, podemos correr el comando
-> cargo run --bin compile archivo
+> cargo run --bin compile helloworld
 
-Este comando generará el archivo con código intermedio en la misma carpeta en caso de que todo este correcto, o mostrará al usuario el error obtenido en caso de que exista algo incorrecto en el archivo. 
 
-El segundo comando es el comando de ejecución. Este comando toma como entrada el código intermedio en compilación y lo ejecuta, generando cualquier resultado esperado, ya sea leer números, imprimir cálculos, entre muchas otras cosas. Este comando toma como entrada un archivo con terminación `tabbyic`, el cuál fue generado automáticamente por la compilación, y genera las salidas que se hayan especificado en el código base. Para ejecutar este comando, debemos de compilar nuestro archivo, y ya que todo este bien correr el comando
-> cargo run --bin execute archivo
+Esto mostrará en consola un mensaje de que se compiló correctamente, o que se encontró algún error léxico, sintáctico o semántico. Con el código anterior, obtenemos el siguiente resultado:
 
-Este comando utiliza la maquina virtual para correr el código, y deteca errores en ejecución cómo “Out Of Bounds”, ”ciclos infinitos”, “overflow”, entre otros errores que son imposibles de detectar en compilación. 
 
-Al entregar este adelando semanal, estos comandos pueden ser usados para correr códigos que lean cosas de consola, impriman cosas, ejecuten expresiónes aritméticas, y comandos como asignación y goto que se usan en Ifs. Como ejemplo, utilizé un programa que lee un número e imprime si es negativo, cero o positivo, el cuál ya es ejecutado completamente por la máquina virtual de manera correcta. 
+El programa fue ejecutado correctamente! Ahora, si vemos la carpeta, se creó un nuevo archivo llamado helloworld.tabbyic. Aquí se encuentra el código intermedio que se generó por la compilación. 
 
-Los siguientes pasos son seguir con la implementación de la máquina virtual, para funciones, arreglos, ciclos. Además, falta definir bien las funciones necesarias de nuestro lenguaje particular, cómo mediana, media, plot, etc, para generar sus cuádruplos e implementar las acciones correspondientes, aunque será de las últimas cosas en agregarse, pues primero quiero tener algo funcional con todos los básicos.  
+Finalmente, para ejecutar, correríamos el siguiente comando:
 
-### Avance 7. Ejecución de Arreglos, Matrices y Funciones y Pruebas en Ejecución
 
-Para la entrega semanal, me hacía falta agregar la funcionalidad para poder utilizar funciones y arreglos/matrices en ejecución, generando el código de la máquina virtual para todos los cuádruplos relacionados con estos conceptos. Además, estaba pendiente generar pruebas para poder asegurar que el comportamiento de la máquina virtual al ejecutar códigos fuera el esperado.  
+> cargo run --bin execute helloworld
 
-Para el uso de arreglos, se implementaron todos los cuádruplos en ejecución de verificación de tamaño, creación del apuntador en vez de una dirección de memoria, y los cuádruplos para obtener la dirección necesaria dependiendo de la posición que se quiere acceder.
 
-Para el uso de funciones, se implementó los cuádruplos en ejecución de gosub, era, endfunc y return. Cada uno de estos involucra la creación de nueva memoria, redirección de información de retorno, cambios de contexto, y regresar a contextos pasados. Con varias pilas que guardan la memoria y los apuntadores de instrucciones, esto se implementó de manera simple y con toda la funcionalidad necesaria. 
+Listo! Si corremos este comando, obtenemos el siguiente resultado:  
 
-Además se crearon varios casos de prueba para cada una de las funcionalidades de la ejecución en la máquina virtual, en los que se toman códigos en Tabby, y se ejecutan para comparar el output a lo esperado, buscando ver si el programa logró hacer lo que se esperaba
 
-Teniendo todo esto, tenemos ya una base sólida de un lenguaje simple de programación. Ya todo está en funcionamiento, desde la compilación hasta la ejecución. Se crearon varios programas clásicos como Fibonacci o Factorial, y esto muestra el gran avance que se generó en el proyecto hasta esta semana.
+Vemos como se imprimió el “Hello World!” que habíamos esperado.
+Estás listo para escribir, compilar y ejecutar tu primer programa en Tabby. Como reto, trata de crear un programa que imprima tu nombre a la consola.
+### Variables
+Para poder almacenar valores, y usarlos a través de diferentes partes del código, ya sea como lectura de la terminal (valores dados por el usuario), o generados por alguna expresión, es necesario almacenarlos en variables. Las variables son posiciones en la memoria que almacenan cierto tipo de datos, que podemos usar a través de nuestro programa. A continuación vemos un ejemplo de cómo podemos declarar variables en  Tabby:
+```
+Program variables;
 
-Las cosas que quedan pendientes agregar son las funciones especiales de nuestro lenguaje, que nos ayudan con estadística, el cuál es el enfoque del lenguaje. Además, existen un par de cosas extras que se podría buscar mejorar si queda tiempo, como errores más claros del analizador léxico. 
+Var Int a, b;
+Var Float c;
+Var Bool d;
+
+Tabby() {
+   Write(a, " ", b, " ", c, " ", d, "\n");
+}
+```
+
+Lo primero que podemos ver, es que existen tres tipos de datos en Tabby:
+Int, que almacena números enteros de 32 bits
+Float, que almacena números flotantes de 64 bits 
+Bool, que almacena valores de True o False.
+
+La declaración de variables siempre va después del estatuto Program. 
+Se pueden declarar varias variables por línea, separadas por comas, y la última por un punto y coma. Siempre llevan el prefijo Var, luego el tipo de dato, y finalmente los identificadores. Ahora, ese identificador se puede usar a través de todo el código para referenciar a ese valor o variable.
+El código anterior declara las variables, y luego imprime sus valores. 
+Si compilamos y ejecutamos  el siguiente código obtendremos la siguiente salida:
+
+`0 0 0 False`
+
+
+Vemos que todos los números se inicializan en 0, o False (que es equivalente a 0). 
+Además, es importante mencionar que este tipo de variables se definen como Globales. Esto quiere decir que se pueden utilizar en cualquier parte del código. 
+
+Más adelante veremos cómo declarar variables locales, y cómo asignar valores a estas y utilizarlas en estatutos más complejos. 
+
+### Identificadores
+Es importante mencionar, que los identificadores en Tabby siguen un cierto formato estricto. Todos los identificadores deben de comenzar con una letra minúscula, y después letras minúsculas y mayúsculas sin límite. Esto se debe a que las palabras reservadas en Tabby se escriben comenzando con una letra mayúscula, por lo que esta regla ayuda a diferenciar fácilmente los identificadores de las palabras reservadas. 
+
+Por ejemplo, algunos identificadores válidos son: 
+- var
+- id
+- otroID
+- nombreMuyLargo 
+
+
+Algunos inválidos son:
+- Id (comienza con mayúscula)
+- id1 (contiene números)
+- i_d (contiene carácteres que no son letras)
+
+El nombre del programa también es un identificador, por lo que debe de seguir estas reglas.
+Además, los identificadores deben de ser únicos. La única excepción es con variables locales, pero esto se explicará más adelante. 
+### Escritura
+Como ya se pudo ver en códigos anteriores, la escritura se hace a través del estatuto Write(). Este puede recibir múltiples elementos para imprimir, separados por comas. Estos elementos pueden ser literales de texto, variables, llamadas a funciones, incluso expresiones. Por ejemplo, veamos el siguiente código: 
+```
+Program write;
+
+Tabby() {
+   Write(101, "\n");
+   Write(2 * 3, "\n");
+   Write(5 - 4, "\n");
+   Write(2 / 2, "\n");
+}
+```
+
+El código imprimirá:
+
+```
+101
+6
+1
+1
+```
+
+Vemos que puede imprimir números y ecuaciones. Además, en el ejemplo de variables vimos que también imprime los valores de variables, o texto como “Hello World”. Es importante notar que no imprime automáticamente los saltos de línea, por lo que hay que usar el carácter \n para esto. 
+
+### Lectura 
+En cualquier lenguaje de programación es importante poder interactuar con el usuario a través de la consola. Imaginemos que un usuario quisiera saber cuánto es el cuadrado de un número. Para esto podemos crear un programa que lea un número, e imprima este número elevado al cuadrado. Veamos el siguiente código: 
+```
+Program squared;
+
+Var Int n;
+
+Tabby() {
+   Read(n);
+   Write(n * n, "\n");
+}
+```
+
+Podemos ver que el estatuto de lectura es Read(). Este estatuto sólo tiene entre los paréntesis un único valor, el cuál es el nombre de una variable. El número se leerá de consola, y será almacenado en esa variable. Si en consola escribiéramos un 3, la variable n, después de la lectura, tendría el valor 3 hasta que se cambiara, o hasta el fin del programa. Read() es único para una variable, no se puede usar para leer dos o más variables a la vez.
+Además, es importante notar que se lee un número por línea, por lo que intentar dar dos o más números en la misma línea de consola puede hacer que el programa tenga problemas de ejecución. 
+Para el programa anterior, si el usuario diera 6 como valor en consola, obtendría 36 como resultado en consola. 
+### Asignación
+Hay veces en las que no solo queremos modificar el valor de una variable a través de lectura, sino haciendo alguna expresión o alguna lógica más compleja dentro del programa. Para esto, se utiliza la asignación, que se representa como un único símbolo de igual =. Esto hace que la variable a la izquierda almacene el valor de la expresión a la derecha. Por ejemplo: 
+```
+Program assign;
+
+Var Int n;
+
+Tabby() {
+   n = 10 * 5 - 3;
+}
+```
+
+En este programa, se evaluará la expresión, que resulta en este caso en 47, y este valor se almacena en n. Si hiciéramos un Write() de n, se imprimiría 47
+La asignación solo se puede usar una vez por línea, por lo que cosas como a = b = 1, no son permitidas en Tabby. 
+### Operaciones Aritméticas
+Las operaciones aritméticas son 4 las operaciones principales para trabajar con números. Suma, Resta, División y Multiplicación. Estas se pueden utilizar con variables, números, incluso booleanos, siempre y cuando las operaciones tengan sentido con los tipos. Para ver qué tipo de operaciones son permitidas para qué tipo, ver la documentación. Estas ya fueron utilizadas en códigos anteriores, y  se ejemplifican más a fondo más adelante 
+### Operaciones Condicionales
+Las operaciones condicionales son las que hacen una comparación entre valores y regresan un booleano, que nos dice si la función que se evaluó era cierta o falsa. Existen seis condicionales que se pueden usar:
+- \> ( Mayor que )
+- < ( Menor que )
+- \>= ( Mayor o igual que )
+- <= ( Menor o igual que )
+- != ( Diferente que )
+- == ( Igual que )
+
+Utilizando estos operadores, podemos evaluar ciertas condiciones. Por ejemplo, el siguiente código: 
+```
+Program conditionals;
+
+Tabby() {
+   Write(3 < 2, "\n");
+   Write(3 > 2, "\n");
+   Write(3 >= 2, "\n");
+   Write(3 <= 2, "\n");
+   Write(3 != 2, "\n");
+   Write(3 == 2, "\n");
+}
+```
+
+Imprimirá el siguiente resultado:
+```
+False
+True
+True
+False
+True
+False
+```
+
+### Operaciones Lógicas
+Las operaciones lógicas usualmente se utilizan con variables booleanas, y nos permiten comparar si dos o más condiciones se cumplen, o si al menos una de ellas cumple. Estas son AND, y OR. 
+AND regresa True si ambas variables son True, False en otro caso
+OR regresa True si al menos una variable es True, False en otro caso. 
+Por ejemplo, el siguiente código: 
+```
+Program logic;
+
+Tabby() {
+   Write(True Or False, "\n");
+   Write(True And False, "\n");
+   Write(False Or False, "\n");
+   Write(True And True, "\n");
+}
+```
+
+Dará como resultado:
+```
+True
+False
+False
+True
+```
+### Precedencia de Operaciones 
+Todas estas operaciones pueden ser utilizadas en conjunto para evaluar expresiones. Usualmente, estas expresiones tienen cierto orden en el que se van evaluando, en las que algunas tienen prioridad sobre otras para ejecutarse antes. A continuación vemos la tabla de precedencia, desde lo más importante (que se resuelve antes) hasta lo último
+
+| Operador | Ejemplo |
+|---|---|
+| ( ) | ( a + b ) * a |
+| * /  | a * b / c |
+| + - | a + b - c |
+| >, <, >=, <=, !=, == | a > b, b != c |
+| And | a And b |
+| Or | a Or b |
+| = | a = b |
+
+
+Además, todos estos operadores son asociativos izquierdos, por lo que si dos operaciones en el mismo nivel de precedencia se encuentran, se resuelve el de la izquierda primero. 
+
+### Operaciones
+Con todas las operaciones mencionadas anteriormente, podemos crear expresiones complejas, como el siguiente programa:
+```
+Program ops;
+
+Tabby() {
+   Write(10 * 3 * (5 + 4 - 3) > 12 * (3 - 1) - 1 * 0, "\n");
+   Write(True And 12 > 3 Or 2 < 3, "\n");
+}
+```
+### Condicionales
+En Tabby, existe el condicional If. Este condicional espera evaluar a un booleano. Si esto es cierto, ejecuta lo que está dentro de los corchetes. si no lo brinca. Por ejemplo:
+```
+Program if;
+
+Tabby() {
+   If(12 > 3) {
+      Write("In If\n");
+   }
+   Write("End\n");
+}
+```
+El programa evalúa la expresión, y como es cierta, imprime “In If”, y luego sigue imprimiendo “End”. Si cambiaramos la condicional a menor que, sería falso, y solo imprimiría “End”. 
+
+También existe el If / Else. Es igual al If, pero tiene dos opciones, una para cierto y otra para falso, y solo ejecuta una, nunca cero o dos, siempre una.  Por ejemplo: 
+```
+Program ifElse;
+
+Tabby() {
+   If(12 < 3) {
+      Write("In If\n");
+   } Else {
+      Write("In Else\n");
+   }
+   Write("End\n");
+}
+```
+
+En este caso, sólo podrá imprimir o “In If”, o “In Else”, dependiendo de si la condición es cierta o falsa. 
+### Ciclos
+Muchas veces queremos hacer algo repetitivo, y ahí es donde los ciclos son útiles. En Tabby, existen dos tipos de ciclos. For, y While. 
+While es parecido al If, evalúa una condición. Si es cierta entra, y si no brinca al final. La diferencia es que si fue cierto, recorre el código, pero en vez de seguir hacia abajo, regresa a re-evaluar la condición y repetir el proceso.  Por ejemplo: 
+```
+Program while;
+
+Var Int i;
+
+Tabby() {
+   i = 1;
+   While(i < 50) {
+      Write(i, ", ");
+      i = i * 2;
+   }
+}
+```
+
+Este código imprimirá: `1, 2, 4, 8, 16, 32, `
+
+El For es muy parecido, pero integra una asignación. En este caso del While, tuvimos que modificar la variable i, pues si no se haría infinito el ciclo, y usualmente siempre hay una variable que cambia en cada iteración del ciclo. El For, además de tener una condicional, tiene una asignación que se hace después de cada ejecución del código dentro de los corchetes. El código equivalente al anterior con For sería: 
+```
+Program for;
+
+Var Int i;
+
+Tabby() {
+   i = 1;
+   For(i < 50; i = i * 2) {
+      Write(i, ", ");
+   }
+}
+```
+
+### Funciones
+Además de todo lo visto anteriormente, Tabby permite la declaración de funciones. Las funciones nos ayudan a poder representar procesos repetidos en un mismo lugar. Las funciones en Tabby deben de ser declaradas antes de la función Tabby. Estas funciones pueden tener parámetros, y variables locales. Además, las variables pueden solo hacer un proceso y no regresa ningún valor (a esto le llamamos Void), o regresar un valor de algún tipo (Int, Float o Bool). Estas funciones pueden ser llamadas dentro del código con el identificador y paréntesis, y dentro de estos los parámetros. 
+
+A continuación, vemos un código que ejemplifica algunas funciones en Tabby:
+```
+Program fns;
+
+Fn Void sayHi() {
+   Write("Hi\n");
+}
+
+Fn Int sumOne(Int x) {
+   Return x + 1;
+}
+
+Fn Void swap(Int x, Int y) 
+Var Int aux;
+{
+   aux = x;
+   x = y;
+   y = aux;
+}
+
+Tabby() {
+   sayHi();
+   Write(sumOne(2), "\n");
+   swap(1, 2);
+}
+```
+
+La primera función es de tipo Void, es decir no regresa ningún valor. Si se usara en una expresión, se marcaría un error de compilación. Esta solo puede ser usada por sí sola. El ejemplo llama la función dentro de Tabby, y esta función imprime “Hi”. La siguiente función es de tipo Int, esto quiere decir que regresa un valor entero. En este caso recibe un parámetro, y al valor le suma uno. Lo podemos utilizar en un Write(), pues al regresar un Int, representa un valor que se puede imprimir. Además, vemos el estatuto Return. Esto hace que la función termine y le da el valor de la expresión al lugar que se llamó. Los Returns no se pueden usar en funciones Void.
+
+Finalmente, la tercera función genera una variable local. Antes de los corchetes, se pueden definir variables que se utilizan en la función. Al ejecutar la función existen, pero al terminar la función estas desaparecen, como los parámetros. Si un parámetro tiene el mismo nombre que una variable global, dentro de la función se usa la variable local.
+
+Se puede dar cualquier número  de parámetros, y también se puede usar la recursividad, en la que la función hace uso de sí misma. 
+### Arreglos y Matrices
+Además de variables singulares, a veces es útil tener grupos de variables con el mismo nombre. Para esto, Tabby nos permite declarar arreglos y matrices, de manera similar a las variables. Se les da un identificador, y un tamaño para cada dimensión. Se puede acceder a cada posición a través de constantes o expresiones. Se pueden declarar de manera global o local, pero no como parámetros, a excepción de las funciones estadísticas y gráficas. Se definen como las otras variables, pero con el prefijo Var Arr antes del tipo, y solo uno por línea (no es válido declarar varios separados por comas). Por ejemplo:
+```
+Program arrsMats;
+
+Var Arr Int arr[10];
+Var Arr Int mat[3][4];
+
+Tabby() {
+   arr[2] = 5;
+   arr[2 * 3] = arr[2];
+   mat[0][0] = 1;
+   arr[3] = mat[0][1];
+}
+```
+
+En este código se muestra como se usan los arreglos y matrices en Taby. Se indexan en cero. Si tenemos un arreglo de tamaño 10, las posiciones válidas son de 0 a 9. Un uso común por ejemplo, es leer N números con un ciclo y almacenarlos en un arreglo, si N no se conoce en compilación. 
+### Funciones Estadísticas
+Tabby está orientado a estadística. Por esto, Tabby provee varias funciones estadísticas que se pueden utilizar como otras funciones, pero tienen nombre predeterminados, y pueden recibir arreglos como parámetros. Las funciones son las siguientes: 
+
+
+| Función | Tipo de Retorno |
+|---|---|
+|MinFlt|Float|
+|MinInt|Int|
+|MaxFlt|Float|
+|MaxInt|Int|
+|RangeFlt|Float|
+|RangeInt|Int|
+|MeanFlt|Float|
+|MeanInt|Float|
+|ModeInt|Int|
+|MedianFlt|Float|
+|MedianInt|Int|
+|StdDevFlt|Float|
+|StdDevInt|Float|
+|VarianceFlt|Float|
+|VarianceInt|Float|
+
+
+Todas reciben los mismos parámetros. Primero, el nombre de un arreglo. Si la función tiene un sufijo “Flt”, de tipo flotante. Si el sufijo es “Int”, de tipo entero. Además, dos números que determinan la posición menor y mayor del arreglo en el que se quiere buscar. Por ejemplo:
+```
+Program statistics;
+
+Var Arr Int arr[10];
+Var Arr Float arrf[10];
+Var Int i, j;
+
+Tabby() {
+   Write(MinInt(arr, 0, 3));
+   Write(StdDevFlt(arrf, i, j));
+}
+```
+
+### Funciones Gráficas 
+Por último, Tabby también proporciona funciones para crear gráficas. La primera crea histogramas, y recibe como parámetros: un arreglo de datos (Int o Float), un número que representa el número de divisiones del histograma, el número de posiciones del arreglo a considerar (de 0 a n), y el nombre del archivo a generar.
+Las otras dos para generar gráficas de líneas, y de dispersión. Estas reciben como parámetros: arreglo de datos en x, arreglo de datos en y, el número de posiciones del arreglo a considerar (de 0 a n), y el nombre del archivo a generar. Por ejemplo:
+```
+Program statistics;
+
+Var Arr Int datax[10];
+Var Arr Int datay[10];
+Var Int n;
+
+Tabby() {
+   HistogramPlot(datax, 10, n, "hist");
+   LinePlot(datax, datay, 5, "line");
+   ScatterPlot(datax, datay, n / 2, "scatter");
+}
+```
+

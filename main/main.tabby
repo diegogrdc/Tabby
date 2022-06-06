@@ -1,5 +1,5 @@
-Program maquinaDeGalton;
+Program helloWorld;
 
 Tabby() {
-    Write("\n", "Introduzca el número de pelotas que utilizará el experimento", "\n");
+    Write("Hello World!\n");
 }

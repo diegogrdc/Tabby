@@ -1,3 +1,9 @@
+/*
+Structure created to access memory
+used on execution easily. This structure
+keeps a generic type pointer to memory
+structures in execution
+*/
 #[derive(Debug)]
 pub enum MemPtr<'a> {
     Int(&'a mut i32),
@@ -5,6 +11,9 @@ pub enum MemPtr<'a> {
     Bool(&'a mut bool),
 }
 
+// Functions defined to cast a specific type
+// wrapped inside the structure when
+// sure of type
 impl MemPtr<'_> {
     pub fn as_int(&mut self) -> &mut i32 {
         if let MemPtr::Int(val) = self {
@@ -41,6 +50,12 @@ impl MemPtr<'_> {
     }
 }
 
+/*
+Structure created to access memory
+used on execution easily. This structure
+keeps a generic type value copied from memory
+structures in execution
+*/
 #[derive(Debug)]
 pub enum MemVal {
     Int(i32),
@@ -48,6 +63,9 @@ pub enum MemVal {
     Bool(bool),
 }
 
+// Functions defined to cast a specific type
+// wrapped inside the structure when
+// sure of type
 impl MemVal {
     pub fn as_int(&self) -> i32 {
         match self {

@@ -26,6 +26,12 @@ pub enum Quadruple {
     Rand(String, IdAddr),
 }
 
+/*
+Implementatio of the printing
+of any type of quadruple, printing
+in format that is expected
+and understood by the virtual machine
+*/
 impl Quadruple {
     pub fn get_printable(quad: &Quadruple) -> String {
         match quad {
@@ -97,4 +103,7 @@ impl Quadruple {
     }
 }
 
+// Type defined to store name and addr of variable
+// internally, to make it more clear on what we
+// are storing, instead of just having numbers
 pub type IdAddr = (String, i32);

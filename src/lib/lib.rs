@@ -1,3 +1,7 @@
+// Library file used to
+// ennumerate all files created
+// so they can be used as crates
+
 pub mod ast;
 pub mod ast_evaluator;
 pub mod cnsts_memory;

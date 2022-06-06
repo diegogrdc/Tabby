@@ -1,0 +1,10 @@
+/Users/diegogarciarodriguezdelcampo/Desktop/8vo/Tabby/target/release/deps/lock_api-8c98bd1dc35b439d.rmeta: /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/lib.rs /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/mutex.rs /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/remutex.rs /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/rwlock.rs
+
+/Users/diegogarciarodriguezdelcampo/Desktop/8vo/Tabby/target/release/deps/liblock_api-8c98bd1dc35b439d.rlib: /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/lib.rs /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/mutex.rs /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/remutex.rs /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/rwlock.rs
+
+/Users/diegogarciarodriguezdelcampo/Desktop/8vo/Tabby/target/release/deps/lock_api-8c98bd1dc35b439d.d: /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/lib.rs /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/mutex.rs /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/remutex.rs /Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/rwlock.rs
+
+/Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/lib.rs:
+/Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/mutex.rs:
+/Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/remutex.rs:
+/Users/diegogarciarodriguezdelcampo/.cargo/registry/src/github.com-1ecc6299db9ec823/lock_api-0.4.7/src/rwlock.rs:

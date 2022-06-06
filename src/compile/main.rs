@@ -1,5 +1,17 @@
 // Execute Command: cargo run --bin compile file_name
 
+/*
+Compilation Main Code
+
+This code puts together all the tools
+created for the process of compilation.
+It reads and opens the file, gets its
+contents, creates the AST, analyzes it,
+and finally it prints all relevant information
+to IC Code
+
+*/
+
 // Imports
 /* #[macro_use]
 extern crate lalrpop_util;
@@ -16,6 +28,8 @@ use std::fs::File;
 use std::io::Write;
 mod tests;
 
+// Function to get filename from
+// command line arguments
 fn get_filename() -> String {
     let args: Vec<String> = env::args().collect();
     let filename: String;
@@ -27,10 +41,13 @@ fn get_filename() -> String {
     filename
 }
 
+// Adjust path from filename, to get from
+// correct folder and with .tabby extension
 fn get_file_path(filename: &String) -> String {
     format!("./main/{}.tabby", filename)
 }
 
+// Parse contents from source file
 fn get_contents(path: &String, filename: &String) -> String {
     let contents = fs::read_to_string(path.clone());
     if let Err(err) = contents {
@@ -43,6 +60,7 @@ fn get_contents(path: &String, filename: &String) -> String {
     contents.unwrap()
 }
 
+// Generate ast by using the LALRPOP parser
 fn get_ast(contents: String, filename: &String) -> Box<ast::Program> {
     let res = tabby::PROGRAMParser::new().parse(&contents);
     if let Err(err) = res {
@@ -56,6 +74,8 @@ fn get_ast(contents: String, filename: &String) -> Box<ast::Program> {
     res.unwrap()
 }
 
+// Print all generated information of the AST
+// to the IC code
 fn print_ic_file(eval: AstEvaluator, filename: &String, program_name: &String) {
     let mut file = File::create(format!("./main/{}.tabbyic", filename))
         .expect("DEV ERROR: Could not create IC file");
@@ -111,6 +131,7 @@ fn print_ic_file(eval: AstEvaluator, filename: &String, program_name: &String) {
 }
 
 fn main() {
+    // Get filename and path
     let filename = get_filename();
     let path = get_file_path(&filename);
     // Get contents
@@ -125,6 +146,9 @@ fn main() {
     // Save program name
     let program_name = evaluator.glob_scope.clone().unwrap();
 
+    // Print info to IC file
     print_ic_file(evaluator, &filename, &program_name);
+
+    // Print user message of correct compilation
     println!("\nProgram \"{}\" compiled succesfully!\n", program_name);
 }

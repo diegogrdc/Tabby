@@ -1,3 +1,15 @@
+/*
+Virtual Machine
+
+Structure created to take
+care of IC code execution
+and to catch execution errors
+It executes all operations given by
+IC code, and prints any info given by
+operations to STDOUT
+
+*/
+
 // Plotlib Imports
 use plotlib::page::Page;
 use plotlib::repr::Plot;
@@ -14,7 +26,49 @@ use crate::memory::*;
 use crate::vir_mem::*;
 use std::collections::HashMap;
 use std::mem;
-
+/*
+Parameters used in our Virtual Machine
+where we execute Quadruples with information
+obtained from IC code
+and check for execution errors
+Params:
+- prog_name
+    Variable to store program name
+    to find global variables
+- mem_szs
+    Keeps information on size
+    needed to reserve each function
+    when it is called
+- cnsts
+    Keeps all constants read from
+    IC file stored and ready for when they
+    are used
+- quads
+    Keeps a list of 4 vaules on each
+    element, representing the quadruples
+    of execution, that we will traverse
+    around on execution
+- glob_mem
+    Keeps global memory and data
+- loc_mem
+    Keeps current local memory and data
+- loc_ptrs
+    Keeps current local pointers
+- stack_ips
+    Keeps pending ips on a call stack
+- stack_mems
+    Keeps pending memory structures
+    on a call stack
+- stack_ptrs
+    Keeps pending pointers on a call stack
+- stack_params
+    Keeps a stack of params
+    to initialize memory when
+    getting to a new function call
+- output
+    Stores all output for
+    testing purposes
+*/
 #[derive(Debug)]
 pub struct VirtualMachine {
     pub prog_name: String,

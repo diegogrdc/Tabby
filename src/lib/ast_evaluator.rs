@@ -1,9 +1,14 @@
-// File used to define the evaluator
-// of an AST, adding the nerve
-// points needed to generate
-// intermediate code, store
-// directory functions,
-// evaluate expressions, etc
+/*
+Ast Evaluator
+
+File used to define the evaluator
+of an AST, adding the neuralgic
+points needed to generate
+intermediate code, store
+directory functions,
+evaluate expressions, etc
+
+*/
 use crate::ast;
 use crate::dir_func::*;
 use crate::dir_var::*;

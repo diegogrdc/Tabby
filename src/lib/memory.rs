@@ -1,3 +1,11 @@
+/*
+File used to define
+structure of memory for
+global or local values
+that will be reserved
+and allocated by the
+virtual machine on execution
+*/
 #[derive(Debug)]
 pub struct Memory {
     pub int_mem: Vec<i32>,

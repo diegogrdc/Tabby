@@ -1,11 +1,14 @@
 use crate::tipo::Tipo;
 use std::collections::HashMap;
 
-// Struct created to store
-// variable information
-// on our directory of
-// variables, stored in a
-// hash map
+/*
+Struct created to store
+any relevant
+variable information
+on our directory of
+variables, stored in a
+hash map
+*/
 #[derive(Debug, Clone)]
 pub struct VarInfo {
     pub tipo: Tipo,
@@ -20,6 +23,9 @@ pub struct VarInfo {
 // stored as a DirFuncInfo
 pub type DirVar = HashMap<String, VarInfo>;
 
+// Type defined to
+// easily know the dimensions
+// of a variable defined
 #[derive(Debug, Clone, PartialEq)]
 pub enum Dim {
     Single,

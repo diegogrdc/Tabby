@@ -1,3 +1,14 @@
+/*
+
+Execution Tests Module
+
+Module used to test out
+all relevant structures created
+and used throughout the
+execution process
+
+*/
+
 #[cfg(test)]
 mod tests_execute {
     use crate::create_vir_mach_from_lines;

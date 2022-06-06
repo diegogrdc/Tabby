@@ -1,3 +1,12 @@
+/*
+Structure defined to catch
+type mismatchs in compilation
+and to define return values
+on any type of operation combination
+to generate correct temp values to
+operation results
+*/
+
 use crate::tipo::Tipo;
 use crate::tipo::Tipo::{Bool, Float, Int};
 use std::collections::HashMap;

@@ -1,11 +1,13 @@
 use crate::dir_var::DirVar;
 use crate::tipo::Tipo;
 use std::collections::HashMap;
-// Struct created to store
-// function information
-// on our direectory of
-// functions stored in a
-// hash map
+/*
+Struct created to store
+any relevant function
+information on our directory
+of functions stored in a
+hash map
+*/
 #[derive(Debug, Clone)]
 pub struct FuncInfo {
     pub tipo: Tipo,

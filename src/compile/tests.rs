@@ -1,3 +1,14 @@
+/*
+
+Compilation Tests Module
+
+Module used to test out
+all relevant structures created
+and used throughout the
+compilation process
+
+*/
+
 #[cfg(test)]
 mod tests_compile {
     use crate::ast_evaluator::AstEvaluator;
